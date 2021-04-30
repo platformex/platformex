@@ -1,4 +1,9 @@
-### Hi there 👋
+# Platformex
+Прототип фреймворка для создания модульных приложений и микросервисов с примением:
+- Domain Driven Design
+- CQRS
+- Event-driven архитектуры
+- Модели акторов (на основе Microsoft Orleans)
 
 <!--
 **platformex/platformex** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
