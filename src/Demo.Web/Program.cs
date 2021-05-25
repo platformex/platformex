@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,10 +9,13 @@ using Demo.Cars;
 using Demo.Cars.Domain;
 using Demo.Documents;
 using Demo.Documents.Domain;
+using Microsoft.Extensions.DependencyInjection;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using Platformex;
 using Platformex.Infrastructure;
 using Platformex.Web;
+using Platformex.Web.GraphQL;
 using Platformex.Web.Swagger;
 
 namespace Demo.Web
@@ -67,7 +71,36 @@ namespace Demo.Web
                                 options.Url = "swagger";
 
                             });
+                            p.ConfigureGraphQl(options => options.BasePath = "graphql")
+                                .WithConsole(options => options.BasePath = "graphql-console");
 
+                        }).AddStartupTask(async (provider, token) =>
+                        {
+                            var platform = provider.GetService<IPlatform>();
+
+                            var carId = CarId.New;
+                            var car = await platform.CreateCar(carId, "test");
+
+                            await platform.CreateCar(CarId.New, "test");
+
+                            await car.RenameCar("new-name");
+
+                            var docId = DocumentId.New;
+                            var doc = await platform.CreateDocument(docId, "doc");
+
+                            await doc.RenameDocument("doc-new-name");
+
+                            var result = await platform.QueryAsync(new TotalObjectsQuery());
+                            Console.WriteLine($">> Total count: {result.Count}");
+
+                            var res = await platform.QueryAsync(new ObjectsNamesQuery());
+                            Console.WriteLine($">> Names: {string.Join(",", res.Names)}");
+
+                            var items = await platform.QueryAsync(new DocumentInfoQuery { Take = 10});
+                            foreach (var c in items)
+                            {
+                                Console.WriteLine($">> DOCUMENT INFO: ID:{c.Id} Name:{c.Name} Changes:{c.ChangesCount}");
+                            }
                         });
                 });
         

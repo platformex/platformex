@@ -53,7 +53,7 @@ namespace Demo.Host
             var res = await platform.QueryAsync(new ObjectsNamesQuery());
             Console.WriteLine($">> Names: {string.Join(",", res.Names)}" );
 
-            var items = await platform.QueryAsync(new DocumentInfoQuery(10));
+            var items = await platform.QueryAsync(new DocumentInfoQuery {Take = 10});
             foreach (var c in items)
             {
                 Console.WriteLine($">> DOCUMENT INFO: ID:{c.Id} Name:{c.Name} Changes:{c.ChangesCount}" );

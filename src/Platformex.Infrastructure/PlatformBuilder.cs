@@ -16,6 +16,9 @@ namespace Platformex.Infrastructure
         {
             _platform = platform;
         }
+
+        public Definitions Definitions => _platform.Definitions;
+
         public PlatformBuilder RegisterApplicationParts<T>()
         {
             var asm = typeof(T).Assembly;

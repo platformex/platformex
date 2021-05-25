@@ -8,4 +8,9 @@
     <ProjectReference Include="..\Platformex.Infrastructure\Platformex.Infrastructure.csproj" />
     <ProjectReference Include="..\Platformex.Web\Platformex.Web.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GraphQL.Server.Transports.AspNetCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Platformex.Web\libs\GraphQL.Server.Transports.AspNetCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

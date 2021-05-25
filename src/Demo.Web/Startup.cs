@@ -1,15 +1,26 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Demo.Application;
+using Demo.Application.Queries;
+using Demo.Cars;
+using Demo.Documents;
 using Demo.Infrastructure;
 using Demo.Infrastructure.Data;
+using GraphQL.Server;
+using GraphQL.Server.Ui.Playground;
+using GraphQL.Types;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using Platformex;
 using Platformex.Application;
 using Platformex.Web;
+using Platformex.Web.GraphQL;
 using Platformex.Web.Swagger;
 
 namespace Demo.Web
@@ -26,7 +37,11 @@ namespace Demo.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+            
             services.AddControllers();
 
             //???????????? ??????????????
@@ -61,6 +76,16 @@ namespace Demo.Web
             });
 
             app.UseMiddleware<PlatformexMiddleware>();
+            
+            if (app.ApplicationServices.GetService(typeof(EventFlyGraphQlOptions)) is EventFlyGraphQlOptions optionsGraphQl)
+                app.UseGraphQL<ISchema>("/" + optionsGraphQl.BasePath.Trim('/'));
+
+            if (app.ApplicationServices.GetService(typeof(EventFlyGraphQlConsoleOptions)) is EventFlyGraphQlConsoleOptions optionsConsole)
+                app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
+                {
+                    Path = "/" + optionsConsole.BasePath.Trim('/')
+                });
+
         }
     }
 }

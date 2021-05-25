@@ -48,12 +48,7 @@ namespace Demo.Application.Queries
     //Запрос
     public class DocumentInfoQuery : IQuery<IEnumerable<DocumentInfo>>
     {
-        public DocumentInfoQuery(int take)
-        {
-            Take = take;
-        }
-
-        public int Take { get; }
+        public int Take { get; set; }
     }
     //Результат запроса
 
