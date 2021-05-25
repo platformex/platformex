@@ -4,7 +4,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Demo.Application;
 using Demo.Application.Queries;
+using Demo.Cars;
 using Demo.Cars.Domain;
+using Demo.Documents;
 using Demo.Documents.Domain;
 using Demo.Infrastructure;
 using Demo.Infrastructure.Data;
@@ -12,9 +14,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Platformex;
+using Platformex.Application;
 using Platformex.Infrastructure;
 
 namespace Demo.Host
@@ -27,6 +31,7 @@ namespace Demo.Host
                 .SetBasePath(Directory.GetParent(AppContext.BaseDirectory)?.FullName)
                 .AddJsonFile("appsettings.json")
                 .Build();
+
 
             var platform = await CreateHost(configuration);
 
@@ -63,13 +68,17 @@ namespace Demo.Host
             var builder = new SiloHostBuilder()
                 //Конфигурация кластера
                 .UseLocalhostClustering()
-                .Configure<ClusterOptions>(options =>  { options.ClusterId = "dev"; options.ServiceId = "HelloWorldApp"; })
+                .Configure<ClusterOptions>(options =>
+                {
+                    options.ClusterId = "dev";
+                    options.ServiceId = "HelloWorldApp";
+                })
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
-                
+
                 //Конфигурация шины событий
                 .AddSimpleMessageStreamProvider("EventBusProvider")
                 .AddMemoryGrainStorage("PubSubStore")
-                
+
                 //Конфигурация журналирования
                 .ConfigureLogging(logging =>
                 {
@@ -80,17 +89,23 @@ namespace Demo.Host
                 //Конфигурация приложения
                 .ConfigurePlatformex(p =>
                 {
-                    p.RegisterAggregate<CarId, CarAggregate, CarState>();
-                    p.RegisterAggregate<DocumentId, DocumentAggregate, DocumentState>();
+                    p.RegisterAggregate<CarId, CarAggregate, CarState>().WithCommands();
+                    p.RegisterAggregate<DocumentId, DocumentAggregate, DocumentState>().WithCommands();
+                    
                     p.RegisterApplicationParts<DocumentInfoReadModel>();
+
                 })
-                //Конфигурация сервисов
+                //Конфигурация инфраструктуры
                 .ConfigureServices(s =>
                 {
                     s.AddDbContext<DemoContext>(options =>
-                        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                        options.UseSqlServer(configuration.GetConnectionString("SqlServer")));
+                    s.AddSingleton<IMongoClient>(new MongoClient(configuration.GetConnectionString("Mongo")));
+                    s.AddScoped(c =>
+                        c.GetService<IMongoClient>()?.StartSession());
 
-                    s.AddScoped<ICarStateProvider, CarStateProvider>();
+                    s.AddScoped<IDbProvider<ICarModel>, CarDbProvider>();
+                    s.AddScoped<IDbProvider<IDocumentModel>, DocumentDbProvider>();
                 });
 
             //Запуск узла кластера

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Platformex;
 
-namespace Demo
+namespace Demo.Cars
 {
 //Расширение для агрегата
     public static class CarService

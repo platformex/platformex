@@ -12,5 +12,6 @@ namespace Platformex
     {
         Definitions Definitions { get; }
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
+        Task<CommandResult> ExecuteAsync(ICommand command);
     }
 }

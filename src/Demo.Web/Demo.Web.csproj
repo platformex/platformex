@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Demo.Infrastructure\Demo.Infrastructure.csproj" />
+    <ProjectReference Include="..\Platformex.Infrastructure\Platformex.Infrastructure.csproj" />
+    <ProjectReference Include="..\Platformex.Web\Platformex.Web.csproj" />
+  </ItemGroup>
+</Project>

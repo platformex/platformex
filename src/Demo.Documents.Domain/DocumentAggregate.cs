@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Platformex;
 using Platformex.Domain;
 // ReSharper disable ClassNeverInstantiated.Global
@@ -8,6 +9,7 @@ namespace Demo.Documents.Domain
     public interface IDocumentState : IAggregateState<DocumentId>
     {
         public string Name { get; }
+        public DateTime CreateDate { get; }
     }
 
     public class DocumentAggregate : Aggregate<DocumentId, IDocumentState>, IDocument

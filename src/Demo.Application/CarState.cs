@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Demo.Cars;
 using Demo.Cars.Domain;
 using Platformex;
 using Platformex.Application;
@@ -10,21 +11,15 @@ namespace Demo.Application
         public string Id { get; set; }
         public string Name { get; set; }
     }
-    public interface ICarStateProvider
-    {
-        Task<ICarModel> FindAsync(CarId id);
-        ICarModel Create(CarId id);
-        Task SaveChangesAsync();
-    }
 
     public class CarState : AggregateState<CarId, CarState>, ICarState,
         ICanApply<CarCreated, CarId>,
         ICanApply<CarRenamed, CarId>
     {
-        private readonly ICarStateProvider _provider;
+        private readonly IDbProvider<ICarModel> _provider;
         private ICarModel _model;
 
-        public CarState(ICarStateProvider provider)
+        public CarState(IDbProvider<ICarModel> provider)
         {
             _provider = provider;
         }
@@ -38,12 +33,12 @@ namespace Demo.Application
 
         protected override async Task LoadStateInternal(CarId id)
         {
-            _model = await _provider.FindAsync(id) ?? _provider.Create(id);
+            _model = await _provider.FindAsync(id.Value) ?? _provider.Create(id.Value);
         }
 
         protected override async Task AfterApply(IAggregateEvent<CarId> id)
         {
-            await _provider.SaveChangesAsync();
+            await _provider.SaveChangesAsync(_model);
         }
     }
 }

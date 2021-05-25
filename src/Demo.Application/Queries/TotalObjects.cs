@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Demo.Cars;
+using Demo.Documents;
 using Platformex;
 using Platformex.Application;
 using Platformex.Domain;

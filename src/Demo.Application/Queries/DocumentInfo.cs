@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Demo.Documents;
 using Platformex;
 using Platformex.Application;
 using Platformex.Domain;

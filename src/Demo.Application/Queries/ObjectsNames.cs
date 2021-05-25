@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Demo.Cars;
+using Demo.Documents;
 using Platformex;
 using Platformex.Application;
 using Platformex.Domain;
@@ -12,7 +14,9 @@ namespace Demo.Application.Queries
     [EventSubscriber]
     class ObjectsNamesReadModel : ReadModel<ObjectsNamesReadModel>,
         ISubscribeTo<DocumentId, DocumentCreated>,
-        ISubscribeTo<DocumentId, DocumentRenamed>
+        ISubscribeTo<DocumentId, DocumentRenamed>,
+        ISubscribeTo<CarId, CarCreated>
+
     {
         public static List<string> Names { get; private set; } = new List<string>();
 
@@ -23,12 +27,17 @@ namespace Demo.Application.Queries
             if (!Names.Contains(name)) Names.Add(name);
             return Task.CompletedTask;
         }
-        public Task HandleAsync(IDomainEvent<DocumentId, DocumentCreated> domainEvent) 
+
+        public Task HandleAsync(IDomainEvent<DocumentId, DocumentCreated> domainEvent)
             => AddNewIfNotExits(domainEvent.AggregateEvent.Name);
 
-        public Task HandleAsync(IDomainEvent<DocumentId, DocumentRenamed> domainEvent) 
+        public Task HandleAsync(IDomainEvent<DocumentId, DocumentRenamed> domainEvent)
             => AddNewIfNotExits(domainEvent.AggregateEvent.NewName);
+
+        public Task HandleAsync(IDomainEvent<CarId, CarCreated> domainEvent)
+            => AddNewIfNotExits(domainEvent.AggregateEvent.Name);
     }
+
     //Запрос
     public class ObjectsNamesQuery : IQuery<ObjectsNamesQueryResult>
     {

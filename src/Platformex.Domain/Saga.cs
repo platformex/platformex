@@ -64,7 +64,7 @@ namespace Platformex.Domain
         private bool _isStarted;
         public virtual async Task ProcessEvent(IDomainEvent e)
         {
-            Logger.LogInformation($"(Saga [{GetPrettyName()}] received event {e.GetPrettyName()}.");
+            Logger.LogInformation("(Saga [{PrettyName}] received event {EventPrettyName}", GetPrettyName(), e.GetPrettyName());
             
             //Проверяем, является ли он стартовым 
             if (!StartedEventTypes.Contains(e.EventType) && !_isStarted)
@@ -97,7 +97,7 @@ namespace Platformex.Domain
         public sealed override async Task OnActivateAsync()
         {
             //Это корневой менеджер
-            bool isManager = this.GetPrimaryKeyString() == null;
+            var isManager = this.GetPrimaryKeyString() == null;
 
             Logger.LogInformation(isManager
                 ? $"(Saga [{GetPrettyName()}] activating..."

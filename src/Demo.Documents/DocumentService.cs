@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Platformex;
 
-namespace Demo
+namespace Demo.Documents
 {
     public static class DocumentService
     {

@@ -2,31 +2,31 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using Platformex;
-// ReSharper disable ClassNeverInstantiated.Global
 
-#region hack
-namespace System.Runtime.CompilerServices
+namespace Demo.Documents
 {
+    // ReSharper disable ClassNeverInstantiated.Global
+
+    #region hack
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class IsExternalInit{}
-}
-#endregion
 
-namespace Demo
-{
-    //Идентификатор
+    #endregion
+
+//Идентификатор
     public class DocumentId : Identity<DocumentId>
     {
         public DocumentId(string value) : base(value) {}
     }
     
-    //Команды
+//Команды
     [Rules(typeof(CreateDocumentValidator))]
     public record CreateDocument(DocumentId Id, string Name) : ICommand<DocumentId>;
 
     public record RenameDocument(DocumentId Id, string NewName) : ICommand<DocumentId>;
 
-    //Бизнес-правила
+//Бизнес-правила
     public class CreateDocumentValidator : Rules<CreateDocument>
     {
         public CreateDocumentValidator() {
@@ -35,11 +35,11 @@ namespace Demo
         }
     }
 
-    //События
+//События
     public record DocumentCreated(DocumentId Id, string Name) : IAggregateEvent<DocumentId>;
     public record DocumentRenamed(DocumentId Id, string NewName, string OldName) : IAggregateEvent<DocumentId>;
 
-    //Интерфейс агрегата
+//Интерфейс агрегата
     public interface IDocument : IAggregate<DocumentId>,
         ICanDo<CreateDocument, DocumentId>,
         ICanDo<RenameDocument, DocumentId>
