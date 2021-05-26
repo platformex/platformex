@@ -1,13 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Demo.Application;
-using Demo.Application.Queries;
-using Demo.Cars;
-using Demo.Documents;
 using Demo.Infrastructure;
 using Demo.Infrastructure.Data;
 using GraphQL.Server;
@@ -17,7 +12,6 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
-using Platformex;
 using Platformex.Application;
 using Platformex.Web;
 using Platformex.Web.GraphQL;
@@ -44,7 +38,7 @@ namespace Demo.Web
             
             services.AddControllers();
 
-            //???????????? ??????????????
+
             services.AddDbContext<DemoContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("SqlServer")));
             services.AddSingleton<IMongoClient>(new MongoClient(Configuration.GetConnectionString("Mongo")));

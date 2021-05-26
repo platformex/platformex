@@ -74,7 +74,7 @@ namespace Demo.Web
                             p.ConfigureGraphQl(options => options.BasePath = "graphql")
                                 .WithConsole(options => options.BasePath = "graphql-console");
 
-                        }).AddStartupTask(async (provider, token) =>
+                        }).AddStartupTask(async (provider, _) =>
                         {
                             var platform = provider.GetService<IPlatform>();
 
@@ -90,6 +90,7 @@ namespace Demo.Web
 
                             await doc.RenameDocument("doc-new-name");
 
+                            // ReSharper disable once PossibleNullReferenceException
                             var result = await platform.QueryAsync(new TotalObjectsQuery());
                             Console.WriteLine($">> Total count: {result.Count}");
 

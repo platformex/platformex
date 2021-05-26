@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Execution;
@@ -14,7 +13,7 @@ namespace Platformex.Web.GraphQL
     {
         private readonly IPlatform _platform;
         private readonly IServiceProvider _provider;
-        private readonly Dictionary<String, Type> _handlers = new Dictionary<String, Type>();
+        private readonly Dictionary<string, Type> _handlers = new Dictionary<string, Type>();
 
         public GraphDomain(IPlatform platform, IServiceProvider provider)
         {
@@ -39,17 +38,17 @@ namespace Platformex.Web.GraphQL
                 Name = GetDomainName("Queries"),
                 //Description = _domainDefinition.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description,
                 Arguments = new QueryArguments(),
-                Resolver = new FuncFieldResolver<Object>(Execute),
+                Resolver = new FuncFieldResolver<object>(Execute),
             };
         }
 
-        private String GetDomainName(String name)
+        private string GetDomainName(string name)
         {
             return !name.EndsWith("Context") ? name : name.Substring(0, name.Length - "Context".Length);
         }
 
 
-        private Task<Object> Execute(ResolveFieldContext context)
+        private Task<object> Execute(ResolveFieldContext context)
         {
             foreach (var field in context.FieldAst.SelectionSet.Children.Cast<Field>())
             {
@@ -68,7 +67,7 @@ namespace Platformex.Web.GraphQL
         }
 
 
-        private IGraphQueryHandler GetQueryHandler(String queryName)
+        private IGraphQueryHandler GetQueryHandler(string queryName)
         {
             return (IGraphQueryHandler)_provider.GetService(
                 _handlers.FirstOrDefault(i => i.Key.Equals(queryName, StringComparison.InvariantCultureIgnoreCase)).Value);

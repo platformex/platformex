@@ -11,7 +11,7 @@ namespace Platformex.Web.GraphQL
 {
     internal static class QueryParametersHelper
     {
-        public static IGraphType GetQueryItemType(IGraphQueryHandler handler, Type modelType, Boolean isInput)
+        public static IGraphType GetQueryItemType(IGraphQueryHandler handler, Type modelType, bool isInput)
         {
             if (!isInput)
             {
@@ -37,7 +37,7 @@ namespace Platformex.Web.GraphQL
         private static readonly Dictionary<Type, IGraphType> OutputDeclaredTypes = new Dictionary<Type, IGraphType>();
 
 
-        public static QueryArguments GetArguments(Type parametersType, IGraphQueryHandler graphQuery, Boolean isInput)
+        public static QueryArguments GetArguments(Type parametersType, IGraphQueryHandler graphQuery, bool isInput)
         {
             var qas = new List<QueryArgument>();
             foreach (var prop in parametersType.GetProperties().Where(i => i.CanWrite))
@@ -81,30 +81,30 @@ namespace Platformex.Web.GraphQL
         static readonly Dictionary<Type, Type> MapTypes = new Dictionary<Type, Type>
         {
             {typeof(Guid), typeof(NonNullGraphType<IdGraphType>)},
-            {typeof(String), typeof(NonNullGraphType<StringGraphType>)},
-            {typeof(Boolean), typeof(NonNullGraphType<BooleanGraphType>)},
-            {typeof(Decimal), typeof(NonNullGraphType<DecimalGraphType>)},
-            {typeof(Single), typeof(NonNullGraphType<FloatGraphType>)},
+            {typeof(string), typeof(NonNullGraphType<StringGraphType>)},
+            {typeof(bool), typeof(NonNullGraphType<BooleanGraphType>)},
+            {typeof(decimal), typeof(NonNullGraphType<DecimalGraphType>)},
+            {typeof(float), typeof(NonNullGraphType<FloatGraphType>)},
             {typeof(TimeSpan), typeof(NonNullGraphType<TimeSpanSecondsGraphType>)},
             {typeof(DateTime), typeof(NonNullGraphType<DateTimeGraphType>)},
             {typeof(DateTimeOffset), typeof(NonNullGraphType<DateTimeOffsetGraphType>)},
-            {typeof(Double), typeof(NonNullGraphType<FloatGraphType>)},
-            {typeof(Int64), typeof(NonNullGraphType<IntGraphType>)},
-            {typeof(Int32), typeof(NonNullGraphType<IntGraphType>)},
+            {typeof(double), typeof(NonNullGraphType<FloatGraphType>)},
+            {typeof(long), typeof(NonNullGraphType<IntGraphType>)},
+            {typeof(int), typeof(NonNullGraphType<IntGraphType>)},
             {typeof(Guid?), typeof(IdGraphType)},
-            {typeof(Boolean?), typeof(BooleanGraphType)},
-            {typeof(Decimal?), typeof(DecimalGraphType)},
-            {typeof(Single?), typeof(FloatGraphType)},
+            {typeof(bool?), typeof(BooleanGraphType)},
+            {typeof(decimal?), typeof(DecimalGraphType)},
+            {typeof(float?), typeof(FloatGraphType)},
             {typeof(TimeSpan?), typeof(TimeSpanSecondsGraphType)},
             {typeof(DateTime?), typeof(DateTimeGraphType)},
             {typeof(DateTimeOffset?), typeof(DateTimeOffsetGraphType)},
-            {typeof(Double?), typeof(FloatGraphType)},
-            {typeof(Int64?), typeof(IntGraphType)},
-            {typeof(Int32?), typeof(IntGraphType)},
+            {typeof(double?), typeof(FloatGraphType)},
+            {typeof(long?), typeof(IntGraphType)},
+            {typeof(int?), typeof(IntGraphType)},
 
         };
 
-        private static Type GetGraphType(Type propType, Boolean isInput)
+        private static Type GetGraphType(Type propType, bool isInput)
         {
 
             if (propType.IsGenericType && propType.GetGenericArguments().Length == 1 && typeof(IEnumerable).IsAssignableFrom(propType))
@@ -142,7 +142,7 @@ namespace Platformex.Web.GraphQL
             return null;
         }
 
-        public static IEnumerable<FieldType> GetFields(Type modelType, IGraphQueryHandler graphQuery, Boolean isInput)
+        public static IEnumerable<FieldType> GetFields(Type modelType, IGraphQueryHandler graphQuery, bool isInput)
         {
             var qas = new List<FieldType>();
             foreach (var prop in modelType.GetProperties())
@@ -182,11 +182,11 @@ namespace Platformex.Web.GraphQL
         }
 
 
-        private static IGraphType GetGraphTypeEx(Type propType, IGraphQueryHandler graphQuery, Boolean isInput)
+        private static IGraphType GetGraphTypeEx(Type propType, IGraphQueryHandler graphQuery, bool isInput)
         {
             if (propType.IsGenericType && propType.GetGenericArguments().Length == 1 && typeof(IEnumerable).IsAssignableFrom(propType))
             {
-                var innerType = propType.GetGenericArguments().First();
+                var innerType = propType.GetGenericArguments().FirstOrDefault();
                 if (innerType != null)
                 {
                     return new ListGraphType(graphQuery.GetQueryItemType(innerType, isInput));
@@ -196,7 +196,7 @@ namespace Platformex.Web.GraphQL
             }
 
             return isInput ? new InputObjectGraphTypeFromModel(propType, graphQuery) :
-                (IGraphType)new ObjectGraphTypeFromModel(propType, graphQuery, false);
+                new ObjectGraphTypeFromModel(propType, graphQuery, false);
         }
     }
 }

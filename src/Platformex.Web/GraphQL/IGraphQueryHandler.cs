@@ -8,11 +8,12 @@ namespace Platformex.Web.GraphQL
 
     public interface IGraphQueryHandler
     {
-        FieldType GetFieldType(Boolean isInput);
-        IGraphType GetQueryItemType(Type modelType, Boolean isInput);
-        Task<Object> ExecuteQuery(Dictionary<String, Object> arguments);
+        FieldType GetFieldType(bool isInput);
+        IGraphType GetQueryItemType(Type modelType, bool isInput);
+        Task<object> ExecuteQuery(Dictionary<string, object> arguments);
     }
 
+    // ReSharper disable once UnusedTypeParameter
     public interface IGraphQueryHandler<in TQuery, TResult> : IGraphQueryHandler where TQuery : IQuery<TResult>
     {
     }

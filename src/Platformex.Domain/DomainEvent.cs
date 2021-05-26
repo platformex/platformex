@@ -11,7 +11,7 @@ namespace Platformex.Domain
 
         public TIdentity AggregateIdentity { get; }
         public TAggregateEvent AggregateEvent { get; }
-        public Int64 AggregateSequenceNumber { get; }
+        public long AggregateSequenceNumber { get; }
 
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         public IEventMetadata Metadata { get; }
@@ -22,7 +22,7 @@ namespace Platformex.Domain
             TIdentity aggregateIdentity,
             TAggregateEvent aggregateEvent,
             DateTimeOffset timestamp,
-            Int64 aggregateSequenceNumber)
+            long aggregateSequenceNumber)
         {
             if (timestamp == default) throw new ArgumentNullException(nameof(timestamp));
             if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException(nameof(aggregateIdentity));

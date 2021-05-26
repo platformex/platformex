@@ -7,10 +7,10 @@ using Type = System.Type;
 
 namespace Platformex.Web.GraphQL
 {
-    internal sealed class ObjectGraphTypeFromModel : ObjectGraphType<Object>
+    internal sealed class ObjectGraphTypeFromModel : ObjectGraphType<object>
     {
 
-        public ObjectGraphTypeFromModel(Type modelType, IGraphQueryHandler graphQueryHandler, Boolean isInput)
+        public ObjectGraphTypeFromModel(Type modelType, IGraphQueryHandler graphQueryHandler, bool isInput)
         {
             var modelType1 = modelType;
             IsTypeOf = type => type.GetType().IsAssignableFrom(modelType1);
@@ -25,13 +25,11 @@ namespace Platformex.Web.GraphQL
             }
         }
     }
-    internal sealed class ObjectGraphTypeFromDomain : ObjectGraphType<Object>
+    internal sealed class ObjectGraphTypeFromDomain : ObjectGraphType<object>
     {
 
         public ObjectGraphTypeFromDomain(string domainName ,List<QueryDefinition> queries, IServiceProvider provider)
         {
-            IsTypeOf = type => true;
-
             Name = domainName;
             //Description = modelType1.GetCustomAttribute<DescriptionAttribute>()?.Description;
 
@@ -40,14 +38,14 @@ namespace Platformex.Web.GraphQL
                 var gQueryType = typeof(IGraphQueryHandler<,>).MakeGenericType(query.QueryType, query.ResultType);
                 var handler = (IGraphQueryHandler)provider.GetService(gQueryType);
 
-                AddField(handler.GetFieldType(false));
+                if (handler != null) AddField(handler.GetFieldType(false));
             }
         }
 
     }
 
 
-    internal sealed class InputObjectGraphTypeFromModel : InputObjectGraphType<Object>
+    internal sealed class InputObjectGraphTypeFromModel : InputObjectGraphType<object>
     {
 
         public InputObjectGraphTypeFromModel(Type modelType, IGraphQueryHandler graphQueryHandler)

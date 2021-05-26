@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Linq;
 using GraphQL.Types;
 
 namespace Platformex.Web.GraphQL
 {
-    internal sealed class Root : ObjectGraphType<Object>
+    internal sealed class Root : ObjectGraphType<object>
     {
         public Root(IPlatform platform, IServiceProvider provider)
         {

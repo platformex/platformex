@@ -40,44 +40,46 @@ namespace Platformex.Web
             var path = context.Request.Path;
             if (context.Request.Method == HttpMethods.Put && path.HasValue)
             {
-                var match = _commandPath.Match(path.Value);
+                var match = _commandPath.Match(path.Value ?? string.Empty);
                 if (match.Success)
                 {
-                    await PublishCommandAsync(match.Groups["name"].Value, context).ConfigureAwait(false);
+                    await PublishCommandAsync(match.Groups["name"].Value, context);
                     return;
                 }
             }
+
             if (context.Request.Method == HttpMethods.Post && path.HasValue)
             {
-                var match = _queryPath.Match(path.Value);
+                var match = _queryPath.Match(path.Value ?? string.Empty);
                 if (match.Success)
                 {
-                    await ExecuteQueryAsync(match.Groups["name"].Value, context).ConfigureAwait(false);
+                    await ExecuteQueryAsync(match.Groups["name"].Value, context);
                     return;
                 }
             }
+
             await _next(context);
         }
-        private async Task ExecuteQueryAsync(String name, HttpContext context)
+        private async Task ExecuteQueryAsync(string name, HttpContext context)
         {
             _log.LogTrace($"Execution query '{name}' from OWIN middleware");
-            String requestJson;
+            string requestJson;
             using (var streamReader = new StreamReader(context.Request.Body))
-                requestJson = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                requestJson = await streamReader.ReadToEndAsync();
             try
             {
-                var result = await ExecuteQueryInternalAsync(name, requestJson, CancellationToken.None).ConfigureAwait(false);
-                await WriteAsync(result, HttpStatusCode.OK, context).ConfigureAwait(false);
+                var result = await ExecuteQueryInternalAsync(name, requestJson, CancellationToken.None);
+                await WriteAsync(result, HttpStatusCode.OK, context);
             }
             catch (ArgumentException ex)
             {
                 _log.LogDebug(ex, $"Failed to execute serialized query '{name}' due to: {ex.Message}");
-                await WriteErrorAsync(ex.Message, HttpStatusCode.BadRequest, context).ConfigureAwait(false);
+                await WriteErrorAsync(ex.Message, HttpStatusCode.BadRequest, context);
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, $"Unexpected exception when executing query '{name}' ");
-                await WriteErrorAsync("Internal server error!", HttpStatusCode.InternalServerError, context).ConfigureAwait(false);
+                await WriteErrorAsync("Internal server error!", HttpStatusCode.InternalServerError, context);
             }
         }
 
@@ -86,34 +88,34 @@ namespace Platformex.Web
             throw new NotImplementedException();
         }
 
-        private async Task PublishCommandAsync(String name, HttpContext context)
+        private async Task PublishCommandAsync(string name, HttpContext context)
         {
             _log.LogTrace($"Publishing command '{name}' from OWIN middleware");
-            String requestJson;
+            string requestJson;
             using (var streamReader = new StreamReader(context.Request.Body))
-                requestJson = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                requestJson = await streamReader.ReadToEndAsync();
             try
             {
-                var result = await PublishSerilizedCommandInternalAsync(name, requestJson, CancellationToken.None).ConfigureAwait(false);
-                await WriteAsync(result, HttpStatusCode.OK, context).ConfigureAwait(false);
+                var result = await PublishSerilizedCommandInternalAsync(name, requestJson, CancellationToken.None);
+                await WriteAsync(result, HttpStatusCode.OK, context);
             }
             catch (ArgumentException ex)
             {
                 _log.LogDebug(ex, $"Failed to publish serialized command '{name}' due to: {ex.Message}");
-                await WriteErrorAsync(ex.Message, HttpStatusCode.BadRequest, context).ConfigureAwait(false);
+                await WriteErrorAsync(ex.Message, HttpStatusCode.BadRequest, context);
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, $"Unexpected exception when executing '{name}' ");
-                await WriteErrorAsync("Internal server error!", HttpStatusCode.InternalServerError, context).ConfigureAwait(false);
+                await WriteErrorAsync("Internal server error!", HttpStatusCode.InternalServerError, context);
             }
         }
 
         private async Task<object> PublishSerilizedCommandInternalAsync(string name, string json, CancellationToken none)
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
-            if (String.IsNullOrEmpty(json))
+            if (string.IsNullOrEmpty(json))
                 throw new ArgumentNullException(nameof(json));
 
             if (!_platform.Definitions.TryGetDefinition(name, out CommandDefinition commandDefinition))
@@ -132,15 +134,15 @@ namespace Platformex.Web
             return executionResult;
         }
 
-        private async Task WriteAsync(Object obj, HttpStatusCode statusCode, HttpContext context)
+        private async Task WriteAsync(object obj, HttpStatusCode statusCode, HttpContext context)
         {
             var json = JsonConvert.SerializeObject(obj);
-            context.Response.StatusCode = (Int32)statusCode;
-            await context.Response.WriteAsync(json).ConfigureAwait(false);
+            context.Response.StatusCode = (int)statusCode;
+            await context.Response.WriteAsync(json);
         }
 
         private Task WriteErrorAsync(
-            String errorMessage,
+            string errorMessage,
             HttpStatusCode statusCode,
             HttpContext context)
         {

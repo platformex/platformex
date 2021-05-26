@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using GraphQL;
 using GraphQL.Http;
 using GraphQL.Server;
@@ -11,36 +10,26 @@ namespace Platformex.Web.GraphQL
 {
     public sealed class EventFlyGraphQlOptions
     {
-        public EventFlyGraphQlOptions(String basePath)
+        public EventFlyGraphQlOptions(string basePath)
         {
             BasePath = basePath;
         }
 
-        public String BasePath { get; set; }
+        public string BasePath { get; set; }
     }
 
     public sealed class EventFlyGraphQlConsoleOptions
     {
-        public EventFlyGraphQlConsoleOptions(String basePath)
+        public EventFlyGraphQlConsoleOptions(string basePath)
         {
             BasePath = basePath;
         }
 
-        public String BasePath { get; set; }
+        public string BasePath { get; set; }
     }
 
     public static class BuilderExtensions
     {
-        private static ConcurrentDictionary<Type, Object> _enumCache = new ConcurrentDictionary<Type, Object>();
-        private static Object GetRequiredServiceEx(this IServiceProvider provider, Type serviceType)
-        {
-            if (serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(EnumerationGraphType<>))
-            {
-                return _enumCache.GetOrAdd(serviceType, (у) => Activator.CreateInstance(serviceType));
-            }
-            return provider.GetRequiredService(serviceType);
-        }
-
         public static PlatformBuilder ConfigureGraphQl(this PlatformBuilder builder, Action<EventFlyGraphQlOptions> optionsBuilder)
         {
             var options = new EventFlyGraphQlOptions("graphql");

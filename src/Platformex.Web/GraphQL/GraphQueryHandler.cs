@@ -18,13 +18,13 @@ namespace Platformex.Web.GraphQL
             _platform = platform;
         }
 
-        public async Task<Object> ExecuteAsync(Object query)
+        public async Task<object> ExecuteAsync(object query)
         {
             return await ReadAsync((TQuery)query);
         }
 
         private FieldType _fieldType;
-        public FieldType GetFieldType(Boolean isInput)
+        public FieldType GetFieldType(bool isInput)
         {
             if (_fieldType != null) return _fieldType;
 
@@ -41,7 +41,7 @@ namespace Platformex.Web.GraphQL
             return _fieldType;
         }
 
-        public IGraphType GetQueryItemType(Type modelType, Boolean isInput)
+        public IGraphType GetQueryItemType(Type modelType, bool isInput)
         {
             return QueryParametersHelper.GetQueryItemType(this, modelType, isInput);
         }
@@ -51,16 +51,16 @@ namespace Platformex.Web.GraphQL
             return _platform.QueryAsync(query);
         }
 
-        public async Task<Object> ExecuteQuery(Dictionary<String, Object> arguments)
+        public async Task<object> ExecuteQuery(Dictionary<string, object> arguments)
         {
             return await ReadAsync(ParseModel<TQuery>(arguments));
         }
 
         private Task<TResult> ExecuteQuery(ResolveFieldContext context) => ReadAsync(ParseModel<TQuery>(context.Arguments));
 
-        private T ParseModel<T>(Dictionary<String, Object> arguments) where T : IQuery<TResult>
-            => JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(arguments ?? new Dictionary<String, Object>()));
+        private T ParseModel<T>(Dictionary<string, object> arguments) where T : IQuery<TResult>
+            => JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(arguments ?? new Dictionary<string, object>()));
 
-        public static Func<Object, Object> ConvertFunc<TParent, TRes>(Func<TParent, TRes> func) => arg => func((TParent)arg);
+        public static Func<object, object> ConvertFunc<TParent, TRes>(Func<TParent, TRes> func) => arg => func((TParent)arg);
     }
 }
