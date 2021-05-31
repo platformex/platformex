@@ -27,6 +27,9 @@ namespace Demo.Cars
     [Description("Переименовать вагон")]
     public record RenameCar(CarId Id, string NewName) : ICommand<CarId>;
 
+    [Description("Удалить вагон")]
+    public record DeleteCar(CarId Id) : ICommand<CarId>;
+
 //Бизнес-правила
     public class CreateCarValidator : Rules<CreateCar>
     {
@@ -43,7 +46,8 @@ namespace Demo.Cars
 //Интерфейс агрегата
     public interface ICar : IAggregate<CarId>,
         ICanDo<CreateCar, CarId>,
-        ICanDo<RenameCar, CarId>
+        ICanDo<RenameCar, CarId>,
+        ICanDo<DeleteCar, CarId>
     {
         public Task<CommandResult> RenameCar(string newName) 
             => Do(new RenameCar(this.GetId<CarId>() , newName));

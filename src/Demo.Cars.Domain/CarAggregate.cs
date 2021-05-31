@@ -25,5 +25,10 @@ namespace Demo.Cars.Domain
             await Emit(new CarRenamed(State.Id, command.NewName, State.Name));
             return CommandResult.Success;
         }
+
+        public Task<CommandResult> Do(DeleteCar command)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

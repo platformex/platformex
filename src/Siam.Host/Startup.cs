@@ -1,19 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Demo.Application;
-using Demo.Infrastructure;
-using Demo.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Platformex.Application;
 using Platformex.Web.GraphQL;
 using Platformex.Web.Swagger;
+using Siam.Application;
+using Siam.MemoContext;
 
-namespace Demo.Web
+namespace Siam.Host
 {
     public class Startup
     {
@@ -34,14 +31,7 @@ namespace Demo.Web
             
             services.AddControllers();
 
-            services.AddDbContext<DemoContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("SqlServer")));
-            services.AddSingleton<IMongoClient>(new MongoClient(Configuration.GetConnectionString("Mongo")));
-            services.AddScoped(c =>
-                c.GetService<IMongoClient>()?.StartSession());
-
-            services.AddScoped<IDbProvider<ICarModel>, CarDbProvider>();
-            services.AddScoped<IDbProvider<IDocumentModel>, DocumentDbProvider>();
+            services.AddScoped<IDbProvider<IMemoModel>>(provider => null);
             
             services.AddSingleton<IApiDescriptionGroupCollectionProvider,
                                     CommandsApiDescriptionGroupCollectionProvider>();

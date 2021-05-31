@@ -2,9 +2,12 @@
 using GraphQL;
 using GraphQL.Http;
 using GraphQL.Server;
+using GraphQL.Server.Ui.Playground;
 using GraphQL.Types;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Infrastructure;
+using Platformex.Web.Swagger;
 
 namespace Platformex.Web.GraphQL
 {
@@ -30,6 +33,31 @@ namespace Platformex.Web.GraphQL
 
     public static class BuilderExtensions
     {
+        public static IApplicationBuilder UsePlatformex(this IApplicationBuilder app)
+        {
+            app.UseSwagger();
+
+            var options = app.ApplicationServices.GetRequiredService<EventFlySwaggerOptions>();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/" + options.Url.Trim('/') + "/v1/swagger.json", options.Name);
+
+                //c.OAuthClientId("swaggerui");
+                //c.OAuthAppName("Swagger UI");
+            });
+
+            app.UseMiddleware<PlatformexMiddleware>();
+            
+            if (app.ApplicationServices.GetService(typeof(EventFlyGraphQlOptions)) is EventFlyGraphQlOptions optionsGraphQl)
+                app.UseGraphQL<ISchema>("/" + optionsGraphQl.BasePath.Trim('/'));
+
+            if (app.ApplicationServices.GetService(typeof(EventFlyGraphQlConsoleOptions)) is EventFlyGraphQlConsoleOptions optionsConsole)
+                app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
+                {
+                    Path = "/" + optionsConsole.BasePath.Trim('/')
+                });
+            return app;
+        }
         public static PlatformBuilder ConfigureGraphQl(this PlatformBuilder builder, Action<EventFlyGraphQlOptions> optionsBuilder)
         {
             var options = new EventFlyGraphQlOptions("graphql");

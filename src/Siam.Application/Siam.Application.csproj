@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Platformex.Application\Platformex.Application.csproj" />
+      <ProjectReference Include="..\Siam.MemoContext.Domain\Siam.MemoContext.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

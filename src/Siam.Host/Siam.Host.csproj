@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Platformex.Infrastructure\Platformex.Infrastructure.csproj" />
+    <ProjectReference Include="..\Platformex.Web\Platformex.Web.csproj" />
+    <ProjectReference Include="..\Siam.Application\Siam.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GraphQL.Server.Transports.AspNetCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Platformex.Web\libs\GraphQL.Server.Transports.AspNetCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
