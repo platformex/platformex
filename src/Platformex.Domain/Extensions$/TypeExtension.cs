@@ -56,6 +56,31 @@ namespace Platformex.Domain
                     mi => mi.GetParameters()[0].ParameterType,
                     mi => ReflectionHelper.CompileMethodInvocation<Action<T, IAggregateEvent>>(type, mi.Name, mi.GetParameters()[0].ParameterType));
         }
+        internal static IReadOnlyDictionary<Type, Func<T, ICommand, Task<CommandResult>>> GetAggregateDoMethods<TIdentity, T>(this Type type)
+            where TIdentity : Identity<TIdentity>
+        {
+            var commandType = typeof(ICommand<TIdentity>);
+
+            return type
+                .GetTypeInfo()
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(mi =>
+                {
+                    if (!string.Equals(mi.Name, "Do", StringComparison.Ordinal) &&
+                        !mi.Name.EndsWith(".Do", StringComparison.Ordinal))
+                    {
+                        return false;
+                    }
+
+                    var parameters = mi.GetParameters();
+                    return
+                        parameters.Length == 1 &&
+                        commandType.GetTypeInfo().IsAssignableFrom(parameters[0].ParameterType);
+                })
+                .ToDictionary(
+                    mi => mi.GetParameters()[0].ParameterType,
+                    mi => ReflectionHelper.CompileMethodInvocation<Func<T, ICommand, Task<CommandResult>>>(type, mi.Name, mi.GetParameters()[0].ParameterType));
+        }
         internal static IReadOnlyDictionary<Type, Func<TReadModel, IDomainEvent, Task>> GetReadModelEventApplyMethods<TReadModel>(this Type type)
         {
             var aggregateEventType = typeof(IDomainEvent);

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Platformex.Web
 {
@@ -83,9 +84,28 @@ namespace Platformex.Web
             }
         }
 
-        private Task<object> ExecuteQueryInternalAsync(string name, string requestJson, CancellationToken none)
+        // ReSharper disable once UnusedParameter.Local
+        private async Task<object> ExecuteQueryInternalAsync(string name, string json, CancellationToken none)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrEmpty(json))
+                throw new ArgumentNullException(nameof(json));
+
+            if (!_platform.Definitions.TryGetDefinition(name, out QueryDefinition queryDefinition))
+                throw new ArgumentException($"No command definition found for query '{name}'");
+
+            IQuery query;
+            try
+            {
+                query = (IQuery)JsonConvert.DeserializeObject(json, queryDefinition.QueryType);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Failed to deserialize query '{name}': {ex.Message}", ex);
+            }
+            var executionResult = await _platform.QueryAsync(query);
+            return executionResult;            
         }
 
         private async Task PublishCommandAsync(string name, HttpContext context)
@@ -111,6 +131,7 @@ namespace Platformex.Web
             }
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private async Task<object> PublishSerilizedCommandInternalAsync(string name, string json, CancellationToken none)
         {
             if (string.IsNullOrEmpty(name))
@@ -122,15 +143,17 @@ namespace Platformex.Web
                 throw new ArgumentException($"No command definition found for command '{name}'");
 
             ICommand command;
+            string id;
             try
             {
                 command = (ICommand)JsonConvert.DeserializeObject(json, commandDefinition.CommandType);
+                id = ((JsonConvert.DeserializeObject<JObject>(json))?["id"]?["value"] ?? throw new InvalidOperationException()).Value<string>();
             }
             catch (Exception ex)
             {
                 throw new ArgumentException($"Failed to deserialize command '{name}': {ex.Message}", ex);
             }
-            var executionResult = await _platform.ExecuteAsync(command);
+            var executionResult = await _platform.ExecuteAsync(id,command);
             return executionResult;
         }
 

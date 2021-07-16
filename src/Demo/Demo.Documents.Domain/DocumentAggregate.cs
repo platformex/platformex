@@ -12,7 +12,7 @@ namespace Demo.Documents.Domain
         public DateTime CreateDate { get; }
     }
 
-    public class DocumentAggregate : Aggregate<DocumentId, IDocumentState>, IDocument
+    public class DocumentAggregate : Aggregate<DocumentId, IDocumentState, DocumentAggregate>, IDocument
     {
         public async Task<CommandResult> Do(CreateDocument command)
         {

@@ -8,12 +8,12 @@ using Siam.MemoContext.Domain;
 
 namespace Siam.Application
 {
-    public interface IMemoModel
+    public class MemoModel
     {
         public string Id { get; set; }
         public MemoDocument Document { get; set; }
         public MemoStatus Status { get; set; }
-        public ICollection<MemoStatusHistory> History { get; }
+        public ICollection<MemoStatusHistory> History { get; } = new List<MemoStatusHistory>();
     }
     
     public class MemoState :  AggregateState<MemoId, MemoState>, IMemoState,
@@ -23,15 +23,15 @@ namespace Siam.Application
     ICanApply<RejectionStarted, MemoId>,
     ICanApply<MemoRejected, MemoId>
     {
-        private readonly IDbProvider<IMemoModel> _provider;
-        private IMemoModel _model;
+        private readonly IDbProvider<MemoModel> _provider;
+        private MemoModel _model;
 
         public MemoDocument Document => _model.Document;
         public MemoStatus Status => _model.Status;
         public IEnumerable<MemoStatusHistory> History => _model.History;
 
 
-        public MemoState(IDbProvider<IMemoModel> provider)
+        public MemoState(IDbProvider<MemoModel> provider)
         {
             _provider = provider;
         }
@@ -56,20 +56,20 @@ namespace Siam.Application
 
         public void Apply(MemoSigned @event)
         {
-            _model.History.Add(new MemoStatusHistory(DateTime.Now, string.Empty, _model.Status));
             _model.Status = MemoStatus.Signed;
+            _model.History.Add(new MemoStatusHistory(DateTime.Now, string.Empty, _model.Status));
         }
 
         public void Apply(RejectionStarted @event)
         {
-            _model.History.Add(new MemoStatusHistory(DateTime.Now, @event.UserId, _model.Status));
             _model.Status = MemoStatus.RejectionStarted;
+            _model.History.Add(new MemoStatusHistory(DateTime.Now, @event.UserId, _model.Status));
         }
 
         public void Apply(MemoRejected @event)
         {
-            _model.History.Add(new MemoStatusHistory(DateTime.Now, string.Empty, _model.Status));
             _model.Status = MemoStatus.Rejected;
+            _model.History.Add(new MemoStatusHistory(DateTime.Now, string.Empty, _model.Status));
         }
     }
 }

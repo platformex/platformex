@@ -9,7 +9,7 @@ namespace Demo.Cars.Domain
         public string Name { get; }
     }
 
-    public class CarAggregate : Aggregate<CarId, ICarState>, ICar
+    public class CarAggregate : Aggregate<CarId, ICarState, CarAggregate>, ICar
     {
         public async Task<CommandResult> Do(CreateCar command)
         {

@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.6" />
-      <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.4.2">
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
+      <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.4.3">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MongoDB.Driver" Version="2.12.3" />
+      <PackageReference Include="MongoDB.Driver" Version="2.12.4" />
       <ProjectReference Include="..\Demo.Application\Demo.Application.csproj" />
       <ProjectReference Include="..\Demo.Cars.Domain\Demo.Cars.Domain.csproj" />
       <ProjectReference Include="..\Demo.Documents.Domain\Demo.Documents.Domain.csproj" />

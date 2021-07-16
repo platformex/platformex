@@ -22,7 +22,7 @@ namespace Siam.MemoContext
     /// <param name="Id">Идентификатор Памятки</param>
     /// <param name="Document">Документ</param>
     [Description("Обновить памятку")]
-    public record UpdateMemo(MemoId Id, MemoDocument Document) : ICommand<MemoId>;
+    public record UpdateMemo(MemoId Id, MemoDocument Document): Command, ICommand<MemoId>;
     
     /// <summary>
     /// Подписать памятку
@@ -30,14 +30,14 @@ namespace Siam.MemoContext
     /// <param name="Id">Идентификатор Памятки</param>
     /// <param name="UserId">Пользователь, подписавший документ</param>
     [Description("Подписать памятку")]
-    public record SignMemo(MemoId Id, string UserId) : ICommand<MemoId>;
+    public record SignMemo(MemoId Id, string UserId) : Command, ICommand<MemoId>;
     
     /// <summary>
     /// Подтвердить подписание памятки
     /// </summary>
     /// <param name="Id">Идентификатор Памятки</param>
     [Description("Подтвердить подписание памятки")]
-    public record ConfirmSigningMemo(MemoId Id) : ICommand<MemoId>;
+    public record ConfirmSigningMemo(MemoId Id) : Command, ICommand<MemoId>;
     
     /// <summary>
     /// Отклонить памятку
@@ -46,14 +46,14 @@ namespace Siam.MemoContext
     /// <param name="UserId">Пользователь, отклонивший документ</param>
     /// <param name="RejectionReason">Причина отклонения</param>
     [Description("Отклонить памятку")]
-    public record RejectMemo(MemoId Id, string UserId, RejectionReason RejectionReason) : ICommand<MemoId>;
+    public record RejectMemo(MemoId Id, string UserId, RejectionReason RejectionReason) : Command, ICommand<MemoId>;
 
     /// <summary>
     /// Подтвердить отклонение памятки
     /// </summary>
     /// <param name="Id">Идентификатор Памятки</param>
     [Description("Подтвердить отклонение памятки")]
-    public record ConfirmRejectionMemo(MemoId Id) : ICommand<MemoId>;
+    public record ConfirmRejectionMemo(MemoId Id) : Command, ICommand<MemoId>;
 
     /**************
     ** События **

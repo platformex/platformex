@@ -70,5 +70,17 @@ namespace Platformex
             commandDefinition = null;
             return false;
         }
+
+        public bool TryGetDefinition(string name, out QueryDefinition queryDefinition)
+        {
+            if (Queries.ContainsKey(name))
+            {
+                queryDefinition = Queries[name];
+                return true;
+            }
+
+            queryDefinition = null;
+            return false;
+        }
     }
 }

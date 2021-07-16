@@ -12,7 +12,7 @@ namespace Siam.MemoContext.Domain
         IEnumerable<MemoStatusHistory> History { get; }
     }
     
-    public class MemoAggregate : Aggregate<MemoId, IMemoState>, IMemo
+    public class MemoAggregate : Aggregate<MemoId, IMemoState, MemoAggregate>, IMemo
     {
         public async Task<CommandResult> Do(UpdateMemo command)
         {

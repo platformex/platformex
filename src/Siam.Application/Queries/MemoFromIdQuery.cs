@@ -4,7 +4,7 @@ using Siam.MemoContext;
 
 namespace Siam.Application.Queries
 {
-    public class MemoFromIdQuery : IQuery<Page<MemoListItem>>
+    public class MemoFromIdQuery : Query<MemoListItem>
     {
         public string MemoId { get; set; }
     }
@@ -15,4 +15,5 @@ namespace Siam.Application.Queries
         public MemoDocument Document { get; set; }
         public IEnumerable<MemoStatusHistory> History { get; set; }
     }
+
 }

@@ -11,7 +11,8 @@ namespace Platformex
     public interface IPlatform : IDomain
     {
         Definitions Definitions { get; }
-        public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
-        Task<CommandResult> ExecuteAsync(ICommand command);
+        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
+        Task<object> QueryAsync(IQuery query);
+        Task<CommandResult> ExecuteAsync(string aggragateId, ICommand command);
     }
 }

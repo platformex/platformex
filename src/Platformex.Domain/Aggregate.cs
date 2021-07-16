@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,10 +11,61 @@ using Orleans;
 
 namespace Platformex.Domain
 {
-    public abstract class Aggregate<TIdentity, TState> : Grain, IAggregate<TIdentity>
+    public abstract class Aggregate<TIdentity, TState, TEventApplier> : Grain, IAggregate<TIdentity>
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
     {
+        private static readonly IReadOnlyDictionary<Type, Func<TEventApplier, ICommand, Task<CommandResult>>> DoCommands;
+        private ICommand _pinnedCommand;
+
+        protected SecurityContext SecurityContext;  
+        static Aggregate()
+        {
+            DoCommands = typeof(TEventApplier).GetAggregateDoMethods<TIdentity, TEventApplier>();
+        }
+        public async Task<CommandResult> DoAsync(ICommand command)
+        {
+            if (!DoCommands.TryGetValue(command.GetType(), out var applier))
+            {
+                throw new MissingMethodException($"missing HandleAsync({command.GetType().Name})");
+            }
+
+            BeforeApplyingCommand(command);
+            
+            var result = await applier((TEventApplier) (object) this, command);
+            
+            AfterApplyingCommand();
+            
+            return result;
+
+        }
+
+        private void AfterApplyingCommand()
+        {
+            _pinnedCommand = null;
+            SecurityContext = null;
+        }
+        
+        
+        
+
+        private void BeforeApplyingCommand(ICommand command)
+        {
+            var sc = new SecurityContext(command.Metadata);
+            //Проверим права
+            var requiredUser = SecurityContext.IsUserRequiredFrom(command);
+            if (requiredUser && !sc.IsAuthorized)
+                throw new UnauthorizedAccessException();
+            
+            var requiredRole = SecurityContext.GetRolesFrom(command);
+            if (requiredRole != null)
+                sc.HasRoles(requiredRole);
+
+            SecurityContext = sc;
+            _pinnedCommand = command;
+        }
+
+
         public TIdentity AggregateId => State?.Id ?? this.GetId<TIdentity>();
         protected TState State { get; private set;}
 
@@ -66,7 +118,9 @@ namespace Platformex.Domain
         protected async Task Emit<TEvent>(TEvent e) where TEvent : class, IAggregateEvent<TIdentity>
         {
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] preparing to emit event {e.GetPrettyName()}...");
-            var domainEvent = new DomainEvent<TIdentity, TEvent>(e.Id, e, DateTimeOffset.Now, 1);
+            var metadata = CreateEventMetadata(e);
+            var domainEvent = new DomainEvent<TIdentity, TEvent>(e.Id, e, DateTimeOffset.Now, 1, 
+                metadata);
             try
             {
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] changes state ...");
@@ -93,5 +147,23 @@ namespace Platformex.Domain
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] fired event {e.GetPrettyName()}...");
         }
 
+        private IEventMetadata CreateEventMetadata(IAggregateEvent @event)
+        {
+            var now = DateTimeOffset.UtcNow;
+            var eventId = EventId.NewDeterministic(GuidFactories.Deterministic.Namespaces.Events, $"{AggregateId.Value}-v{now.ToUnixTime()}");
+            var eventMetadata = new EventMetadata(_pinnedCommand.Metadata)
+            {
+                Timestamp = now,
+                AggregateSequenceNumber = 0,
+                AggregateName = GetAggregateName(),
+                AggregateId = AggregateId.Value,
+                EventId = eventId,
+                EventName = @event.GetPrettyName(),
+                EventVersion = 1
+            };
+
+            eventMetadata.AddOrUpdateValue(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
+            return eventMetadata;
+        }
     }
 }

@@ -10,6 +10,7 @@ using Platformex.Web.GraphQL;
 using Platformex.Web.Swagger;
 using Siam.Application;
 using Siam.Application.Queries;
+using Siam.Data.QueryHandlers;
 using Siam.MemoContext;
 using Siam.MemoContext.Domain;
 
@@ -55,6 +56,7 @@ namespace Siam.Host
                         {
                             p.RegisterAggregate<MemoId, MemoAggregate, MemoState>().WithCommands();
                             p.RegisterApplicationParts<MemoListQuery>();
+                            p.RegisterApplicationParts<MemoFromIdQueryHandler>();
 
                             //Конфигурация WebAPI
                             p.ConfigureWebApi()
