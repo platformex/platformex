@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Orleans;
 using Platformex.Application;
+using Platformex.Domain;
 
 namespace Platformex.Infrastructure
 {
@@ -14,16 +15,16 @@ namespace Platformex.Infrastructure
     {
         public Definitions Definitions { get; } = new Definitions();
 
-        private IGrainFactory _grainFactory;
+        private IClusterClient _client;
 
 
-        public TAggregate GetAggregate<TAggregate>(string id) where TAggregate : IAggregate => _grainFactory.GetGrain<TAggregate>(id);
+        public TAggregate GetAggregate<TAggregate>(string id) where TAggregate : IAggregate => _client.GetGrain<TAggregate>(id);
 
 
 
         internal void SetServiceProvider(IServiceProvider provider)
         {
-            _grainFactory = provider.GetService<IGrainFactory>();
+            _client = provider.GetService<IClusterClient>();
         }
 
 
@@ -49,7 +50,7 @@ namespace Platformex.Infrastructure
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) 
         {
             var id = GenerateQueryId(query);
-            var queryGarin = _grainFactory.GetGrain<IQueryHandler<TResult>>(id);
+            var queryGarin = _client.GetGrain<IQueryHandler<TResult>>(id);
             return queryGarin.QueryAsync(query);
         }
 
@@ -68,12 +69,12 @@ namespace Platformex.Infrastructure
 
             var handlerInterface = typeof(IQueryHandler<>).MakeGenericType(resultType);
 
-            var queryGarin = (IQueryHandler) _grainFactory.GetGrain(handlerInterface, id);
+            var queryGarin = (IQueryHandler) _client.GetGrain(handlerInterface, id);
             
             return await queryGarin.QueryAsync(query);
         }
 
-        public async Task<CommandResult> ExecuteAsync(string aggragateId, ICommand command)
+        public async Task<CommandResult> ExecuteAsync(string aggregateId, ICommand command)
         {
 
             var type = command.GetType();
@@ -88,9 +89,24 @@ namespace Platformex.Infrastructure
             if (!Definitions.Aggregates.TryGetValue(identityType, out var aggregateDefinition))
                 throw new InvalidOperationException();
 
-            var grain = (IAggregate) _grainFactory.GetGrain(aggregateDefinition.InterfaceType, aggragateId);
+            var grain = (IAggregate) _client.GetGrain(aggregateDefinition.InterfaceType, aggregateId);
 
             return await grain.DoAsync(command);
+        }
+
+        public async Task PublishEvent(IDomainEvent domainEvent)
+        {
+            //Посылаем сообщения асинхронно
+            var _ = _client.GetStreamProvider("EventBusProvider")
+                .GetStream<IDomainEvent>(Guid.Empty, 
+                    StreamHelper.EventStreamName(domainEvent.EventType,false))
+                .OnNextAsync(domainEvent).ConfigureAwait(false);
+
+            //Посылаем сообщения синхронно
+            await _client.GetStreamProvider("EventBusProvider")
+                .GetStream<IDomainEvent>(Guid.Empty, 
+                    StreamHelper.EventStreamName(domainEvent.EventType, true))
+                .OnNextAsync(domainEvent).ConfigureAwait(false);        
         }
     }
 }

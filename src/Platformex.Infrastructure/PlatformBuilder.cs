@@ -9,10 +9,10 @@ namespace Platformex.Infrastructure
 {
     public class PlatformBuilder
     {
-        private readonly Platform _platform;
+        private readonly IPlatform _platform;
         internal List<Action<IServiceCollection>> ConfigureServicesActions = new List<Action<IServiceCollection>>();
 
-        internal PlatformBuilder(Platform platform)
+        public PlatformBuilder(IPlatform platform)
         {
             _platform = platform;
         }

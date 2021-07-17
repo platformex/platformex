@@ -41,6 +41,10 @@ namespace Platformex.Application
             await AfterApply(e);
         }
 
+        public abstract Task BeginTransaction();
+        public abstract Task CommitTransaction();
+        public abstract Task RollbackTransaction();
+
 
         protected virtual Task BeforeApply(IAggregateEvent<TIdentity> id) => Task.CompletedTask;
 

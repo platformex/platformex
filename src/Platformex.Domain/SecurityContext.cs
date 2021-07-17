@@ -36,7 +36,7 @@ namespace Platformex.Domain
                 throw new UnauthorizedAccessException();
         }
 
-        public bool CheckRoles(params string[] roles) => _roles.Intersect(roles).Count() != roles.Length;
+        public bool CheckRoles(params string[] roles) => roles.Length == 0 || _roles.Intersect(roles).Count() != roles.Length;
         
         internal static string[] GetRolesFrom(object obj)
         {

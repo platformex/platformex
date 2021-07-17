@@ -20,7 +20,7 @@ namespace Siam.Data.MemoContext
 
         public MemoModel Create(string id) => new MemoModel {Id = id};
 
-        public async Task SaveChangesAsync(MemoModel model)
+        public async Task SaveChangesAsync(string id, MemoModel model)
         {
             var item = new Memo { Id = model.Id, Model = model};
             if (await _dbContext.Memos.AnyAsync(i => i.Id == model.Id))
@@ -30,6 +30,21 @@ namespace Siam.Data.MemoContext
             await _dbContext.SaveChangesAsync();
             
             _dbContext.Entry(item).State = EntityState.Detached;
+        }
+
+        public async Task BeginTransaction()
+        {
+            await _dbContext.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransaction()
+        {
+            await _dbContext.Database.CommitTransactionAsync();
+        }
+
+        public async Task RollbackTransaction()
+        {
+            await _dbContext.Database.RollbackTransactionAsync();
         }
     }
 }

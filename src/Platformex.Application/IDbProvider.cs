@@ -6,6 +6,9 @@ namespace Platformex.Application
     {
         Task<TModel> FindAsync(string id);
         TModel Create(string id);
-        Task SaveChangesAsync(TModel model);
+        Task SaveChangesAsync(string id,  TModel model);
+        Task BeginTransaction();
+        Task CommitTransaction();
+        Task RollbackTransaction();
     }
 }

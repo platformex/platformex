@@ -8,5 +8,9 @@ namespace Platformex.Domain
        
         Task LoadState(TIdentity id);
         Task Apply(IAggregateEvent<TIdentity> e);
+
+        Task BeginTransaction();
+        Task CommitTransaction();
+        Task RollbackTransaction();
     }
 }

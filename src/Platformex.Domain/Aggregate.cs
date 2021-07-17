@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,10 +9,11 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 
 [assembly:InternalsVisibleTo("Platformex.Infrastructure")]
+[assembly:InternalsVisibleTo("Platformex.Tests")]
 
 namespace Platformex.Domain
 {
-    public abstract class Aggregate<TIdentity, TState, TEventApplier> : Grain, IAggregate<TIdentity>
+    public abstract class Aggregate<TIdentity, TState, TEventApplier> : Grain, IAggregate<TIdentity>, IIncomingGrainCallFilter
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
     {
@@ -30,26 +32,60 @@ namespace Platformex.Domain
                 throw new MissingMethodException($"missing HandleAsync({command.GetType().Name})");
             }
 
-            BeforeApplyingCommand(command);
+            await BeforeApplyingCommand(command);
+
+            CommandResult result;
+
+            try
+            {
+                result = await applier((TEventApplier) (object) this, command);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message, e);
+                await RollbackApplyingCommand();
+                result = CommandResult.Fail(e.Message);
+                return result;
+            }
             
-            var result = await applier((TEventApplier) (object) this, command);
-            
-            AfterApplyingCommand();
+            await AfterApplyingCommand();
             
             return result;
 
         }
 
-        private void AfterApplyingCommand()
+        private async Task RollbackApplyingCommand()
         {
+            _uncommitedEvents.Clear();
+            _pinnedCommand = null;
+            SecurityContext = null;
+            await State.RollbackTransaction();
+        }
+
+        private async Task AfterApplyingCommand()
+        {
+            
+            //Завершаем транзакцию
+            await State.CommitTransaction();
+
+            /*
+             * TODO:В это месте необходимо обеспечить синхронизацию трензакицй и отрпавки событий в шину.
+             * Если после сохранения состояния и до отправки сооющения произошел сбой, то при восстановления
+             * нужно повтроно отпавить события в шину 
+             */
+            
+            //Отправяем все события в шину
+            foreach (var ent in _uncommitedEvents)
+            {
+                await _platform.PublishEvent(ent);
+            }
+
+            _uncommitedEvents.Clear();
             _pinnedCommand = null;
             SecurityContext = null;
         }
-        
-        
-        
 
-        private void BeforeApplyingCommand(ICommand command)
+        private async Task BeforeApplyingCommand(ICommand command)
         {
             var sc = new SecurityContext(command.Metadata);
             //Проверим права
@@ -63,11 +99,16 @@ namespace Platformex.Domain
 
             SecurityContext = sc;
             _pinnedCommand = command;
+            
+            //Наичнаем транзакцию
+            await State.BeginTransaction();
         }
 
 
         public TIdentity AggregateId => State?.Id ?? this.GetId<TIdentity>();
         protected TState State { get; private set;}
+        internal void TestOnlySetState(TState newState) => State = newState;
+        internal TState TestOnlyGetState() => State;
 
         private IPlatform _platform;
 
@@ -115,6 +156,8 @@ namespace Platformex.Domain
             return base.OnDeactivateAsync();
         }
 
+        private List<IDomainEvent> _uncommitedEvents = new List<IDomainEvent>();
+
         protected async Task Emit<TEvent>(TEvent e) where TEvent : class, IAggregateEvent<TIdentity>
         {
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] preparing to emit event {e.GetPrettyName()}...");
@@ -129,15 +172,8 @@ namespace Platformex.Domain
 
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] fires event {e.GetPrettyName()}...");
 
-                //Посылаем сообщения асинхронно
-                var _ = GetStreamProvider("EventBusProvider")
-                    .GetStream<IDomainEvent>(Guid.Empty, StreamHelper.EventStreamName(typeof(TEvent),false))
-                    .OnNextAsync(domainEvent).ConfigureAwait(false);
-
-                //Посылаем сообщения синхронно
-                await GetStreamProvider("EventBusProvider")
-                    .GetStream<IDomainEvent>(Guid.Empty, StreamHelper.EventStreamName(typeof(TEvent), true))
-                    .OnNextAsync(domainEvent).ConfigureAwait(false);
+                _uncommitedEvents.Add(domainEvent);
+               
             }
             catch (Exception ex)
             {
@@ -164,6 +200,32 @@ namespace Platformex.Domain
 
             eventMetadata.AddOrUpdateValue(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
             return eventMetadata;
+        }
+
+        public async Task Invoke(IIncomingGrainCallContext context)
+        {
+            if (context.InterfaceMethod.Name == "Do" && context.Arguments.Length == 1 && 
+                context.Arguments[0].GetType().GetInterfaces().Any(x =>
+                    x.IsGenericType &&
+                    x.GetGenericTypeDefinition() == typeof(ICommand<>)))
+            {
+                await BeforeApplyingCommand((ICommand)context.Arguments[0]);
+                
+                try
+                {
+                    await context.Invoke();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message, e);
+                    await RollbackApplyingCommand();
+                    context.Result = CommandResult.Fail(e.Message);
+                    return;
+                }
+                
+                await AfterApplyingCommand();
+                
+            }
         }
     }
 }
