@@ -17,13 +17,28 @@ namespace Platformex.Application
             foreach (var (key, value) in items)
                 Items.Add(key, value);
         }
-        public Task<TModel> FindAsync(string id) 
+
+        private Task<TModel> FindAsync(string id) 
             => Task.FromResult(Items.ContainsKey(id) ? Items[id] : default);
 
-        public TModel Create(string id)
+        // ReSharper disable once UnusedParameter.Local
+        private TModel Create(string id)
         {
             var model = new TModel();
             return model;
+        }
+
+        public async Task<(TModel model, bool isCreated)> LoadOrCreate(string id)
+        {
+            var model = await FindAsync(id);
+            var isCreated = true;
+            if (model == null)
+            {
+                isCreated = false;
+                model = Create(id);
+            }
+
+            return (model, isCreated);
         }
 
         public Task SaveChangesAsync(string id, TModel model)

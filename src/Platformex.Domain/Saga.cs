@@ -28,8 +28,9 @@ namespace Platformex.Domain
 
     }
     [Reentrant]
-    public abstract class Saga<TSaga> : Grain, ISaga, IDomain
-        where TSaga : Saga<TSaga> 
+    public abstract class Saga<TSagaState, TSaga> : Grain, ISaga
+        where TSaga : Saga<TSagaState, TSaga>
+        where TSagaState : ISagaState
     {
         private static readonly IReadOnlyDictionary<Type, Func<TSaga, IDomainEvent, Task>> ApplyMethods = typeof(TSaga)
             .GetReadModelEventApplyMethods<TSaga>();
@@ -52,11 +53,21 @@ namespace Platformex.Domain
 
         private IDisposable _timer;
 
-        protected IDomain Domain => this;
+        protected Task<CommandResult> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
+            where TIdentity : Identity<TIdentity>
+        {
+            var platform = ServiceProvider.GetService<IPlatform>();
+            return platform?.ExecuteAsync(command.Id.Value, command);
+        }
+
+        internal TSagaState TestOnlyGetState() => State;
+        internal void TestOnlySetState(TSagaState newState) => State = newState;
+       
+        public TSagaState State { get; private set; }
 
         protected virtual string GetSagaId(IDomainEvent startDomainEvent) => startDomainEvent.GetIdentity().Value;
-        protected virtual Task<bool> LoadStateAsync() => Task.FromResult(false);
-        protected virtual Task SaveStateAsync() => Task.CompletedTask;
+        protected abstract Task<TSagaState> LoadStateAsync();
+        protected abstract Task SaveStateAsync();
 
         protected virtual string GetPrettyName() => $"{GetSagaName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetSagaName() => GetType().Name.Replace("Saga", "");
@@ -72,11 +83,26 @@ namespace Platformex.Domain
                 Logger.LogWarning( $"(Saga [{GetPrettyName()}] event {e.GetPrettyName()} is not start-event.");
                 return; //Игнорируем 
             }
+            
+            //Запускаем транзакцию
+            await State.BeginTransaction();
+
+            try
+            {
+                var applyMethod = GetEventApplyMethods(e);
+                await applyMethod(e);
+            }
+            catch (Exception exception)
+            {
+                Logger.LogError($"(Error in Saga [{GetPrettyName()}] on handle event {e.GetPrettyName()}: {exception}", exception);
+                await State.RollbackTransaction();
+                throw;
+            }
+
+            await State.SaveState();
+            await State.CommitTransaction();
+
             _isStarted = true;
-
-            var applyMethod = GetEventApplyMethods(e);
-            await applyMethod(e);
-
 
             Logger.LogInformation($"(Saga [{GetPrettyName()}] handled event {e.GetPrettyName()}.");
         }
@@ -132,8 +158,11 @@ namespace Platformex.Domain
                 }
                 else
                 {
-                    //Загружаем состояние саги
-                    _isStarted = await LoadStateAsync();
+                    if (State == null)
+                    {
+                        State = ServiceProvider.GetService<TSagaState>() ?? Activator.CreateInstance<TSagaState>();
+                        _isStarted = await State.LoadState(IdentityString);
+                    }
                 }
             }
             catch (Exception e)
@@ -199,7 +228,27 @@ namespace Platformex.Domain
                 return Task.CompletedTask;
             }, null, TimeSpan.FromMilliseconds(10), TimeSpan.MaxValue);
         }
+    }
 
-        public TAggregate GetAggregate<TAggregate>(string id) where TAggregate : IAggregate => GrainFactory.GetGrain<TAggregate>(id);
+    public class EmptySagaState : ISagaState
+    {
+        public string Id => String.Empty;
+
+        public Task<bool> LoadState(string id) => Task.FromResult(true);
+
+        public Task SaveState() => Task.CompletedTask;
+
+        public Task BeginTransaction() => Task.CompletedTask;
+
+        public Task CommitTransaction() => Task.CompletedTask;
+
+        public Task RollbackTransaction() => Task.CompletedTask;
+    }
+
+    public class StatelessSaga<TSaga> : Saga<EmptySagaState, TSaga>
+        where TSaga : Saga<EmptySagaState, TSaga>
+    {
+        protected override  Task<EmptySagaState> LoadStateAsync() => Task.FromResult(new EmptySagaState());
+        protected override Task SaveStateAsync() => Task.CompletedTask;
     }
 }

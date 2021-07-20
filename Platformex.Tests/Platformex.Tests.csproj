@@ -17,4 +17,8 @@
       <ProjectReference Include="..\src\Platformex\Platformex.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Platformex.Tests.csproj.DotSettings" />
+    </ItemGroup>
+
 </Project>

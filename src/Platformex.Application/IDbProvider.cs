@@ -4,8 +4,7 @@ namespace Platformex.Application
 {
     public interface IDbProvider<TModel>
     {
-        Task<TModel> FindAsync(string id);
-        TModel Create(string id);
+        Task<(TModel model, bool isCreated)> LoadOrCreate(string id);
         Task SaveChangesAsync(string id,  TModel model);
         Task BeginTransaction();
         Task CommitTransaction();

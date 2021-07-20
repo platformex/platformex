@@ -20,7 +20,7 @@ namespace Platformex
     }
 
     public interface IDomainEvent<out TIdentity, out TAggregateEvent> : IDomainEvent<TIdentity> where TIdentity : Identity<TIdentity>
-        where TAggregateEvent : class, IAggregateEvent<TIdentity>
+        where TAggregateEvent : IAggregateEvent<TIdentity>
     {
         TAggregateEvent AggregateEvent { get; }
     }

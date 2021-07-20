@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Platformex.Tests
@@ -8,10 +9,14 @@ namespace Platformex.Tests
         public Definitions Definitions { get; } = new Definitions();
         
         public event EventHandler<EventPublishedArgs> EventPublished;
+        public event EventHandler<CommandExecutedArgs> CommandExecuted;
 
         public Task<CommandResult> ExecuteAsync(string aggregateId, ICommand command)
         {
-            throw new NotImplementedException();
+            if (CommandExecuted != null) 
+                CommandExecuted(this, new CommandExecutedArgs(command));
+            
+            return Task.FromResult(_results.TryPop(out var result) ? result : CommandResult.Success);
         }
 
         public Task PublishEvent(IDomainEvent domainEvent)
@@ -37,6 +42,17 @@ namespace Platformex.Tests
         {
             throw new NotImplementedException();
         }
+
+        private readonly Stack<CommandResult> _results = new Stack<CommandResult>();
+        public void SetCommandResults(CommandResult[] results)
+        {
+            foreach (var result in results) _results.Push(result);
+        }
+
+        public void ClearCommandResults()
+        {
+            _results.Clear();
+        }
     }
 
     public class EventPublishedArgs : EventArgs
@@ -46,6 +62,15 @@ namespace Platformex.Tests
         public EventPublishedArgs(IDomainEvent domainEvent)
         {
             DomainEvent = domainEvent;
+        }
+    }
+    public class CommandExecutedArgs : EventArgs
+    {
+        public ICommand Command { get; }
+
+        public CommandExecutedArgs(ICommand command)
+        {
+            Command = command;
         }
     }
 }

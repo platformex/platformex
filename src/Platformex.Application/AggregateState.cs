@@ -16,13 +16,13 @@ namespace Platformex.Application
         }
         public TIdentity Id { get; protected set; }
 
-        public Task LoadState(TIdentity id)
+        public Task<bool> LoadState(TIdentity id)
         {
             Id = id;
             return LoadStateInternal(id);
         }
 
-        protected abstract Task LoadStateInternal(TIdentity id);
+        protected abstract Task<bool> LoadStateInternal(TIdentity id);
 
         public async Task Apply(IAggregateEvent<TIdentity> e)
         {

@@ -52,6 +52,5 @@ namespace Siam.Application
             Model.Status = MemoStatus.Rejected;
             Model.History.Add(new MemoStatusHistory(DateTime.Now, string.Empty, Model.Status));
         }
-
     }
 }

@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Platformex.Domain\Platformex.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Platformex.Application.csproj.DotSettings" />
+  </ItemGroup>
+
 </Project>

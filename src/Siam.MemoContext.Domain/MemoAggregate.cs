@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Platformex;
 using Platformex.Domain;
@@ -36,7 +35,6 @@ namespace Siam.MemoContext.Domain
         public async Task<CommandResult> Do(RejectMemo command)
         {
             await Emit(new RejectionStarted(State.Id, command.UserId, command.RejectionReason));
-            throw new Exception("TEst");
             return CommandResult.Success;
         }
 

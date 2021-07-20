@@ -1,5 +1,6 @@
 using Orleans.TestKit;
 using Platformex.Application;
+using Platformex.Domain;
 using Platformex.Tests;
 using Siam.Application;
 using Siam.MemoContext;
@@ -16,7 +17,24 @@ namespace Siam.Tests
         }
 
         [Fact]
-        public void Test1()
+        public void TestSaga()
+        {
+            var id = MemoId.New;
+            var fixture = new SagaFixture<AutoSignMemoSaga, EmptySagaState>(this);
+
+            fixture.For()
+                .GivenNothing()
+                
+                .When<MemoId, MemoUpdated>(new MemoUpdated(id, new MemoDocument()))
+                .ThenExpect<MemoId, SignMemo>(command => command.Id == id)
+                
+                .AndWhen<MemoId, MemoSigned>(new MemoSigned(id))
+                .ThenExpect<MemoId, ConfirmSigningMemo>();
+
+        }
+        
+        [Fact]
+        public void TestAggregate()
         {
             var id = MemoId.New;
             var fixture = new AggregateFixture<MemoId, MemoAggregate, IMemoState, MemoState>(this);
@@ -24,11 +42,13 @@ namespace Siam.Tests
             fixture
                 .For(id)
                 .GivenNothing()
+                
                 .When(new RejectMemo(id, string.Empty, RejectionReason.Undefined))
-                .ThenExpectResult(e => !e.IsSuccess)
-                //.ThenExpectDomainEvent<RejectionStarted>(e 
-                //    => e.AggregateEvent.Id == id && e.AggregateEvent.RejectionReason == RejectionReason.Undefined)
-                .ThenExpectState(s => s.Status == MemoStatus.Undefined);
+                
+                .ThenExpectResult(e => e.IsSuccess)
+                .ThenExpectDomainEvent<RejectionStarted>(e 
+                   => e.AggregateEvent.Id == id && e.AggregateEvent.RejectionReason == RejectionReason.Undefined)
+                .ThenExpectState(s => s.Status == MemoStatus.RejectionStarted);
         }
     }
 }

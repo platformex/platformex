@@ -2,18 +2,18 @@
 
 namespace Platformex.Domain
 {
-    public interface IAggregateState<TIdentity> where TIdentity : Identity<TIdentity>
+    public interface ISagaState 
     {
-        TIdentity Id {get;}
+
+        string Id {get;}
        
         /// <summary>
         /// Загрузка состояния
         /// </summary>
         /// <param name="id">Идентификатор</param>
         /// <returns>true - если состояние создано (новый объект) false - состояние загружено из БД</returns>
-        Task<bool> LoadState(TIdentity id);
-        Task Apply(IAggregateEvent<TIdentity> e);
-
+        Task<bool> LoadState(string id);
+        Task SaveState();
         Task BeginTransaction();
         Task CommitTransaction();
         Task RollbackTransaction();

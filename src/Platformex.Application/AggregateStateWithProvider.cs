@@ -17,11 +17,12 @@ namespace Platformex.Application
         {
             Provider = provider;
         }
-        protected override async Task LoadStateInternal(TIdentity id)
+        protected override async Task<bool> LoadStateInternal(TIdentity id)
         {
-            Model = await Provider.FindAsync(id.Value) 
-                     ?? Provider.Create(id.Value);
+            var isCreated = false;
+            (Model,isCreated) = await Provider.LoadOrCreate(id.Value);
             Model.Id ??= id.Value;
+            return isCreated;
         }
 
         public override Task BeginTransaction() => Provider.BeginTransaction();

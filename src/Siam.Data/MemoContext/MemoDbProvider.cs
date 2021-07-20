@@ -15,11 +15,24 @@ namespace Siam.Data.MemoContext
         {
             _dbContext = dbContext;
         }
-        public async Task<MemoModel> FindAsync(string id) 
+
+        private async Task<MemoModel> FindAsync(string id) 
             => await _dbContext.Memos.Where(i => i.Id == id).Select(i=>i.Model).FirstOrDefaultAsync();
 
-        public MemoModel Create(string id) => new MemoModel {Id = id};
+        private MemoModel Create(string id) => new MemoModel {Id = id};
 
+        public async Task<(MemoModel model, bool isCreated)> LoadOrCreate(string id)
+        {
+            var model = await FindAsync(id);
+            var isCreated = true;
+            if (model == null)
+            {
+                isCreated = false;
+                model = Create(id);
+            }
+
+            return (model, isCreated);
+        }
         public async Task SaveChangesAsync(string id, MemoModel model)
         {
             var item = new Memo { Id = model.Id, Model = model};
