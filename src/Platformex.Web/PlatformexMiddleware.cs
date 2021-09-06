@@ -35,7 +35,7 @@ namespace Platformex.Web
 
             _commandPath = new Regex(basePath + "/(?<context>[a-z]+)/(?<name>[a-z]+)/{0,1}",
                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            _queryPath = new Regex(basePath + "//queries(?<name>[a-z0-9]+)/{0,1}",
+            _queryPath = new Regex(basePath + "/queries/(?<name>[a-z0-9]+)/{0,1}",
                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
         public async Task Invoke(HttpContext context)
