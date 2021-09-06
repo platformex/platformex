@@ -13,9 +13,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Platformex.Web.Swagger
 {
-    public sealed class EventFlySwaggerOptions
+    public sealed class PlatformexOpenApiOptions
     {
-        public EventFlySwaggerOptions(string url, string name)
+        public PlatformexOpenApiOptions(string url, string name)
         {
             Url = url;
             Name = name;
@@ -27,9 +27,9 @@ namespace Platformex.Web.Swagger
 
     public static class BuilderExtensions
     {
-        public static PlatformBuilder WithSwagger(this PlatformBuilder builder, Action<EventFlySwaggerOptions> optionsBuilder)
+        public static PlatformBuilder WithOpenApi(this PlatformBuilder builder, Action<PlatformexOpenApiOptions> optionsBuilder)
         {
-            var options = new EventFlySwaggerOptions("swagger", Assembly.GetEntryAssembly()?.GetName().Name);
+            var options = new PlatformexOpenApiOptions("swagger", Assembly.GetEntryAssembly()?.GetName().Name);
             optionsBuilder(options);
             builder.AddConfigureServicesActions(services =>
             {
@@ -38,6 +38,9 @@ namespace Platformex.Web.Swagger
                 services.TryAdd(ServiceDescriptor
                     .Transient<IApiDescriptionGroupCollectionProvider,
                         CommandsApiDescriptionGroupCollectionProvider>());
+                            
+                services.AddSingleton<IApiDescriptionGroupCollectionProvider,
+                    CommandsApiDescriptionGroupCollectionProvider>();
 
                 services.AddSwaggerGen(c =>
                 {
@@ -77,43 +80,31 @@ namespace Platformex.Web.Swagger
             });
             return builder;
         }
-
-        //public static IApplicationBuilder UseEventFlySwagger(this IApplicationBuilder app)
-        //{
-
-        //    app.UseSwagger();
-        //    var options = app.ApplicationServices.GetRequiredService<EventFlySwaggerOptions>();
-        //    app.UseSwaggerUI(c =>
-        //    {
-        //        c.SwaggerEndpoint("/" + options.Url.Trim('/') + "/v1/swagger.json", options.Name);
-
-        //        //c.OAuthClientId("swaggerui");
-        //        //c.OAuthAppName("Swagger UI");
-        //    });
-        //    return app;
-        //}
-
     }
 
     public class DescriptionFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (context.ApiDescription.ActionDescriptor is ControllerActionDescriptor desc)
+            if (context.ApiDescription.ActionDescriptor is not ControllerActionDescriptor desc) return;
+
+            var actionType = desc.ControllerTypeInfo.AsType();
+            var isCommand = actionType.GetInterfaces().Any(x =>
+                x.IsGenericType &&
+                x.GetGenericTypeDefinition() == typeof(ICommand<>));
+                
+            var isQuery = actionType.GetInterfaces().Any(x =>
+                x.IsGenericType &&
+                x.GetGenericTypeDefinition() == typeof(ICommand<>));
+
+            if (typeof(IService).IsAssignableFrom(actionType))
             {
-                var actionType = desc.ControllerTypeInfo.AsType();
-                bool isCommand = actionType.GetInterfaces().Any(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(ICommand<>));
-                
-                bool isQuery = actionType.GetInterfaces().Any(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(ICommand<>));
-                
-                if (isCommand || isQuery)
-                {
-                    operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>()?.Description;
-                }
+                operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            }
+
+            if (isCommand || isQuery)
+            {
+                operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>()?.Description;
             }
         }
     }

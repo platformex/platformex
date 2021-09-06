@@ -52,10 +52,27 @@ namespace Platformex.Domain
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
 
         private IDisposable _timer;
+        protected IDomainEvent PinnedEvent;
 
-        protected Task<CommandResult> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
+        public TDomainService Service<TDomainService>() where TDomainService : IService
+        // ReSharper disable once PossibleNullReferenceException
+            => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
+
+        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
             where TIdentity : Identity<TIdentity>
         {
+            var commandMetadata = (CommandMetadata) command.Metadata;
+
+            if (PinnedEvent != null)
+            {
+                commandMetadata.Merge(PinnedEvent.Metadata);
+            }
+
+            if (!command.Metadata.CorrelationIds.Contains(IdentityString))
+            {
+                commandMetadata.CorrelationIds = new List<string>(command.Metadata.CorrelationIds) { this.GetPrimaryKeyString() };
+            }
+
             var platform = ServiceProvider.GetService<IPlatform>();
             return platform?.ExecuteAsync(command.Id.Value, command);
         }
@@ -64,10 +81,6 @@ namespace Platformex.Domain
         internal void TestOnlySetState(TSagaState newState) => State = newState;
        
         public TSagaState State { get; private set; }
-
-        protected virtual string GetSagaId(IDomainEvent startDomainEvent) => startDomainEvent.GetIdentity().Value;
-        protected abstract Task<TSagaState> LoadStateAsync();
-        protected abstract Task SaveStateAsync();
 
         protected virtual string GetPrettyName() => $"{GetSagaName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetSagaName() => GetType().Name.Replace("Saga", "");
@@ -83,6 +96,8 @@ namespace Platformex.Domain
                 Logger.LogWarning( $"(Saga [{GetPrettyName()}] event {e.GetPrettyName()} is not start-event.");
                 return; //Игнорируем 
             }
+
+            PinnedEvent = e;
             
             //Запускаем транзакцию
             await State.BeginTransaction();
@@ -99,7 +114,7 @@ namespace Platformex.Domain
                 throw;
             }
 
-            await State.SaveState();
+            await State.SaveState(this.GetPrimaryKeyString());
             await State.CommitTransaction();
 
             _isStarted = true;
@@ -182,27 +197,39 @@ namespace Platformex.Domain
             await eventStream.SubscribeAsync(async (data, _) =>
             {
                 Logger.LogInformation($"(Saga Manager [{GetSagaName()}] received event {data.GetPrettyName()}.");
-
                 
                 //Определяем ID саги
-                var sagaId = GetSagaId(data);
+                var prefix = GetSagaPrefix();
+                var correlatedSagas = GetCorrelatedSagas(prefix, data.Metadata.CorrelationIds);
 
-                var saga = GrainFactory.GetGrain<ISaga>(sagaId, GetType().FullName);
-                
-                Logger.LogInformation(
-                    $"(Saga Manager [{GetSagaName()}] send event to Saga {data.GetPrettyName()}.");
-                //Вызываем сагу для обработки события
-                if (isSync)
+                if (!correlatedSagas.Any())
+                    correlatedSagas.Add($"{prefix}-{Guid.NewGuid()})");
+
+                foreach (var sagaId in correlatedSagas)
                 {
-                    await saga.ProcessEvent(data).ConfigureAwait(false);
-                }
-                else
-                {
-                    var __ = saga.ProcessEvent(data).ConfigureAwait(false);
+                    var saga = GrainFactory.GetGrain<ISaga>(sagaId, GetType().FullName);
+
+                    Logger.LogInformation(
+                        $"(Saga Manager [{GetSagaName()}] send event to Saga {data.GetPrettyName()}.");
+                    //Вызываем сагу для обработки события
+                    if (isSync)
+                    {
+                        await saga.ProcessEvent(data).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        var __ = saga.ProcessEvent(data).ConfigureAwait(false);
+                    }
                 }
 
             });
         }
+
+        private ICollection<string> GetCorrelatedSagas(string prefix, IReadOnlyCollection<string> correlationIds) 
+            => correlationIds.Where(i => i.StartsWith(prefix)).ToList();
+
+        private string GetSagaPrefix() => GetType().FullName;
+
         public override Task OnDeactivateAsync()
         {
             Logger.LogInformation(this.GetPrimaryKeyString() == null
@@ -230,7 +257,7 @@ namespace Platformex.Domain
         }
     }
 
-    public class EmptySagaState : ISagaState
+    /*public class EmptySagaState : ISagaState
     {
         public string Id => String.Empty;
 
@@ -250,5 +277,5 @@ namespace Platformex.Domain
     {
         protected override  Task<EmptySagaState> LoadStateAsync() => Task.FromResult(new EmptySagaState());
         protected override Task SaveStateAsync() => Task.CompletedTask;
-    }
+    }*/
 }

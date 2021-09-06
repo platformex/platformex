@@ -13,19 +13,19 @@ using Orleans;
 
 namespace Platformex.Domain
 {
-    public abstract class Aggregate<TIdentity, TState, TEventApplier> : Grain, IAggregate<TIdentity>, IIncomingGrainCallFilter
+    public abstract class Aggregate<TIdentity, TState, TAggregate> : Grain, IAggregate<TIdentity>, IIncomingGrainCallFilter
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
     {
-        private static readonly IReadOnlyDictionary<Type, Func<TEventApplier, ICommand, Task<CommandResult>>> DoCommands;
+        private static readonly IReadOnlyDictionary<Type, Func<TAggregate, ICommand, Task<Result>>> DoCommands;
         private ICommand _pinnedCommand;
 
-        protected SecurityContext SecurityContext;  
+        protected SecurityContext SecurityContext { get; private set; }
         static Aggregate()
         {
-            DoCommands = typeof(TEventApplier).GetAggregateDoMethods<TIdentity, TEventApplier>();
+            DoCommands = typeof(TAggregate).GetAggregateDoMethods<TIdentity, TAggregate>();
         }
-        public async Task<CommandResult> DoAsync(ICommand command)
+        public async Task<Result> DoAsync(ICommand command)
         {
             if (!DoCommands.TryGetValue(command.GetType(), out var applier))
             {
@@ -34,17 +34,17 @@ namespace Platformex.Domain
 
             await BeforeApplyingCommand(command);
 
-            CommandResult result;
+            Result result;
 
             try
             {
-                result = await applier((TEventApplier) (object) this, command);
+                result = await applier((TAggregate) (object) this, command);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message, e);
                 await RollbackApplyingCommand();
-                result = CommandResult.Fail(e.Message);
+                result = Result.Fail(e.Message);
                 return result;
             }
             
@@ -69,7 +69,7 @@ namespace Platformex.Domain
             await State.CommitTransaction();
 
             /*
-             * TODO:В это месте необходимо обеспечить синхронизацию трензакицй и отрпавки событий в шину.
+             * TODO:В это месте необходимо обеспечить синхронизацию транзакций и отправки событий в шину.
              * Если после сохранения состояния и до отправки сооющения произошел сбой, то при восстановления
              * нужно повтроно отпавить события в шину 
              */
@@ -105,7 +105,7 @@ namespace Platformex.Domain
         }
 
 
-        public TIdentity AggregateId => State?.Id ?? this.GetId<TIdentity>();
+        public TIdentity AggregateId => State?.Identity ?? this.GetId<TIdentity>();
         protected TState State { get; private set;}
         internal void TestOnlySetState(TState newState) => State = newState;
         internal TState TestOnlyGetState() => State;
@@ -187,7 +187,7 @@ namespace Platformex.Domain
         {
             var now = DateTimeOffset.UtcNow;
             var eventId = EventId.NewDeterministic(GuidFactories.Deterministic.Namespaces.Events, $"{AggregateId.Value}-v{now.ToUnixTime()}");
-            var eventMetadata = new EventMetadata(_pinnedCommand.Metadata)
+            var eventMetadata = new EventMetadata()
             {
                 Timestamp = now,
                 AggregateSequenceNumber = 0,
@@ -197,6 +197,8 @@ namespace Platformex.Domain
                 EventName = @event.GetPrettyName(),
                 EventVersion = 1
             };
+
+            eventMetadata.Merge(_pinnedCommand.Metadata);
 
             eventMetadata.AddOrUpdateValue(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
             return eventMetadata;
@@ -219,12 +221,16 @@ namespace Platformex.Domain
                 {
                     _logger.LogError(e.Message, e);
                     await RollbackApplyingCommand();
-                    context.Result = CommandResult.Fail(e.Message);
+                    context.Result = Result.Fail(e.Message);
                     return;
                 }
                 
                 await AfterApplyingCommand();
                 
+            }
+            else
+            {
+                await context.Invoke();
             }
         }
     }

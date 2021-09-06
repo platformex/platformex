@@ -14,6 +14,8 @@ namespace Platformex.Application
     [Reentrant]
     public abstract class ReadModel<TReadModel> : Grain, IReadModel where TReadModel : class, IReadModel
     {
+        protected abstract string GetReadModelId(IDomainEvent domainEvent);
+
         private static readonly IReadOnlyDictionary<Type, Func<TReadModel, IDomainEvent, Task>> ApplyMethods = typeof(TReadModel)
             .GetReadModelEventApplyMethods<TReadModel>();
         
@@ -25,14 +27,14 @@ namespace Platformex.Application
 
         private IDisposable _timer;
 
-        protected virtual Type GetIdenitityType() => null;
+        protected virtual Type GetIdentityType() => null;
         protected virtual string GetReadModelName() => GetType().Name.Replace("ReadModel", "");
         protected string GetPrettyName() => $"{GetReadModelName()}:{this.GetPrimaryKeyString()}";
 
         public sealed override async Task OnActivateAsync()
         {
             //Это корневой менеджер
-            bool isManager = this.GetPrimaryKeyString() == null;
+            var isManager = this.GetPrimaryKeyString() == null;
 
             Logger.LogInformation(isManager
                 ? $"(Read Model [{GetPrettyName()}] activating..."
@@ -49,7 +51,7 @@ namespace Platformex.Application
                 {
                     NoDeactivateRoot();
                     //Это фильтр на тип агрегата (null - без фильтра)
-                    var identytyType = GetIdenitityType();
+                    var identytyType = GetIdentityType();
 
 
                     //Асинхронные подписки
@@ -117,8 +119,6 @@ namespace Platformex.Application
 
             });
         }
-
-        protected abstract string GetReadModelId(IDomainEvent domainEvent);
 
         public virtual async Task ProcessEvent(IDomainEvent e)
         {

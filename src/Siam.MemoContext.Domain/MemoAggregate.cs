@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Platformex;
 using Platformex.Domain;
@@ -11,37 +12,46 @@ namespace Siam.MemoContext.Domain
         MemoStatus Status { get; }
         IEnumerable<MemoStatusHistory> History { get; }
     }
-    
+    [Description("Памятка")]
     public class MemoAggregate : Aggregate<MemoId, IMemoState, MemoAggregate>, IMemo
     {
-        public async Task<CommandResult> Do(UpdateMemo command)
+        public async Task<Result> Do(UpdateMemo command)
         {
-            await Emit(new MemoUpdated(State.Id, command.Document));
-            return CommandResult.Success;
+            if (State.Status != MemoStatus.Undefined)
+                return Result.Fail("Не возможно изменить документ");
+
+            await Emit(new MemoUpdated(State.Identity, command.Document));
+            return Result.Success;
         }
 
-        public async Task<CommandResult> Do(SignMemo command)
+        public async Task<Result> Do(SignMemo command)
         {
-            await Emit(new SigningStarted(State.Id, command.UserId));
-            return CommandResult.Success;
+            if (State.Status != MemoStatus.Undefined)
+                return Result.Fail("Не возможно начать подписание документа");
+
+            await Emit(new SigningStarted(State.Identity, command.UserId));
+            return Result.Success;
         }
 
-        public async Task<CommandResult> Do(ConfirmSigningMemo command)
+        public async Task<Result> Do(ConfirmSigningMemo command)
         {
-            await Emit(new MemoSigned(State.Id));
-            return CommandResult.Success;
+            if (State.Status != MemoStatus.SigningStarted)
+                return Result.Fail("Не возможно подписать документ");
+
+            await Emit(new MemoSigned(State.Identity));
+            return Result.Success;
         }
 
-        public async Task<CommandResult> Do(RejectMemo command)
+        public async Task<Result> Do(RejectMemo command)
         {
-            await Emit(new RejectionStarted(State.Id, command.UserId, command.RejectionReason));
-            return CommandResult.Success;
+            await Emit(new RejectionStarted(State.Identity, command.UserId, command.RejectionReason));
+            return Result.Success;
         }
 
-        public async Task<CommandResult> Do(ConfirmRejectionMemo command)
+        public async Task<Result> Do(ConfirmRejectionMemo command)
         {
-            await Emit(new MemoRejected(State.Id));
-            return CommandResult.Success;
+            await Emit(new MemoRejected(State.Identity));
+            return Result.Success;
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: EventFly.Web.Swagger.CustomMethodInfo
-// Assembly: EventFly.Web, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 043A546D-C869-4CCE-8BB0-8D9655232ADF
-// Assembly location: C:\Users\naych\source\repos\!!!!!\netcoreapp2.2\EventFly.Web.dll
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Reflection;
 
@@ -23,12 +17,12 @@ namespace Platformex.Web.Swagger
 
         public override object[] GetCustomAttributes(bool inherit)
         {
-            return new object[0];
+            return _parameterType.GetCustomAttributes(inherit);
         }
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
         {
-            return new object[0];
+            return _parameterType.GetCustomAttributes(attributeType, inherit);
         }
 
         public override bool IsDefined(Type attributeType, bool inherit)

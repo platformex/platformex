@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
+using FluentValidation;
 using Platformex;
 
 namespace Siam.MemoContext
@@ -22,8 +23,21 @@ namespace Siam.MemoContext
     /// <param name="Id">Идентификатор Памятки</param>
     /// <param name="Document">Документ</param>
     [Description("Обновить памятку")]
+    [Rules(typeof(UpdateMemoRules))]
     public record UpdateMemo(MemoId Id, MemoDocument Document): Command, ICommand<MemoId>;
-    
+
+    public class UpdateMemoRules : Rules<UpdateMemo>
+    {
+        public UpdateMemoRules()
+        {
+            RuleFor(c => c.Document).NotNull()
+                .WithMessage("Документ не может быть пустым");
+
+            RuleFor(c => c.Document.Number).NotNull()
+                .WithMessage("Не определен номер документа");
+        }
+    }
+
     /// <summary>
     /// Подписать памятку
     /// </summary>
@@ -131,7 +145,7 @@ namespace Siam.MemoContext
         /// </summary>
         /// <param name="document">Документ</param>
         /// <returns></returns>
-        public Task<CommandResult> Update(MemoDocument document) 
+        public Task<Result> Update(MemoDocument document) 
             => Do(new UpdateMemo(this.GetId<MemoId>(), document));
 
         /// <summary>
@@ -139,7 +153,7 @@ namespace Siam.MemoContext
         /// </summary>
         /// <param name="userId">Пользователь</param>
         /// <returns></returns>
-        public Task<CommandResult> Sign(string userId) 
+        public Task<Result> Sign(string userId) 
             => Do(new SignMemo(this.GetId<MemoId>(), userId));
         
         
@@ -149,21 +163,21 @@ namespace Siam.MemoContext
         /// <param name="userId">Пользователь</param>
         /// <param name="rejectionReason">Причина отклонения</param>
         /// <returns></returns>
-        public Task<CommandResult> Reject(string userId, RejectionReason rejectionReason) 
+        public Task<Result> Reject(string userId, RejectionReason rejectionReason) 
             => Do(new RejectMemo(this.GetId<MemoId>(), userId, rejectionReason));
 
         /// <summary>
         /// Подтвердить подписание
         /// </summary>
         /// <returns></returns>
-        public Task<CommandResult> ConfirmSigning() 
+        public Task<Result> ConfirmSigning() 
             => Do(new ConfirmSigningMemo(this.GetId<MemoId>()));
 
         /// <summary>
         /// Подтвердить отклонение
         /// </summary>
         /// <returns></returns>
-        public Task<CommandResult> ConfirmRejection() 
+        public Task<Result> ConfirmRejection() 
             => Do(new ConfirmRejectionMemo(this.GetId<MemoId>()));
         
     }
