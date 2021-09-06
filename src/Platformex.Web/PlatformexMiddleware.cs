@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -31,9 +33,9 @@ namespace Platformex.Web
 
             var basePath = "/*" + options.BasePath.Trim('/');
 
-            _commandPath = new Regex(basePath + "/(?<name>[a-z]+)/{0,1}",
+            _commandPath = new Regex(basePath + "/(?<context>[a-z]+)/(?<name>[a-z]+)/{0,1}",
                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            _queryPath = new Regex(basePath + "/(?<name>[a-z0-9]+)/{0,1}",
+            _queryPath = new Regex(basePath + "//queries(?<name>[a-z0-9]+)/{0,1}",
                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
         public async Task Invoke(HttpContext context)
@@ -44,7 +46,7 @@ namespace Platformex.Web
                 var match = _commandPath.Match(path.Value ?? string.Empty);
                 if (match.Success)
                 {
-                    await PublishCommandAsync(match.Groups["name"].Value, context);
+                    await PublishCommandOrServiceAsync(match.Groups["context"].Value, match.Groups["name"].Value, context);
                     return;
                 }
             }
@@ -108,15 +110,15 @@ namespace Platformex.Web
             return executionResult;            
         }
 
-        private async Task PublishCommandAsync(string name, HttpContext context)
+        private async Task PublishCommandOrServiceAsync(string contextName, string name, HttpContext context)
         {
-            _log.LogTrace($"Publishing command '{name}' from OWIN middleware");
+            _log.LogTrace($"Publishing command '{name}' in context '{contextName}' from OWIN middleware");
             string requestJson;
             using (var streamReader = new StreamReader(context.Request.Body))
                 requestJson = await streamReader.ReadToEndAsync();
             try
             {
-                var result = await PublishSerilizedCommandInternalAsync(name, requestJson, CancellationToken.None);
+                var result = await PublishSerilizedCommandOrServiceInternalAsync(contextName, name, requestJson, CancellationToken.None);
                 await WriteAsync(result, HttpStatusCode.OK, context);
             }
             catch (ArgumentException ex)
@@ -132,29 +134,48 @@ namespace Platformex.Web
         }
 
         // ReSharper disable once UnusedParameter.Local
-        private async Task<object> PublishSerilizedCommandInternalAsync(string name, string json, CancellationToken none)
+        private async Task<object> PublishSerilizedCommandOrServiceInternalAsync(string context, string name, string json, CancellationToken none)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
             if (string.IsNullOrEmpty(json))
                 throw new ArgumentNullException(nameof(json));
 
-            if (!_platform.Definitions.TryGetDefinition(name, out CommandDefinition commandDefinition))
-                throw new ArgumentException($"No command definition found for command '{name}'");
+            if (_platform.Definitions.TryGetDefinition(context, name, out CommandDefinition commandDefinition))
+            {
+                ICommand command;
+                string id;
+                try
+                {
+                    command = (ICommand) JsonConvert.DeserializeObject(json, commandDefinition.CommandType);
+                    id = ((JsonConvert.DeserializeObject<JObject>(json))?["Id"] ??
+                          throw new InvalidOperationException()).Value<string>();
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException($"Failed to deserialize command '{name}': {ex.Message}", ex);
+                }
 
-            ICommand command;
-            string id;
-            try
-            {
-                command = (ICommand)JsonConvert.DeserializeObject(json, commandDefinition.CommandType);
-                id = ((JsonConvert.DeserializeObject<JObject>(json))?["id"]?["value"] ?? throw new InvalidOperationException()).Value<string>();
+                var executionResult = await _platform.ExecuteAsync(id, command);
+                return executionResult;
             }
-            catch (Exception ex)
+
+            if (_platform.Definitions.TryGetDefinition(context, name, out ServiceDefinition serviceDefinition))
             {
-                throw new ArgumentException($"Failed to deserialize command '{name}': {ex.Message}", ex);
+                var value = JsonConvert.DeserializeObject(json);
+                if (value != null)
+                {
+                    var obj = JsonConvert.DeserializeObject<JObject>(json);
+                    var parameters = obj?.Properties()
+                        .ToDictionary(i => i.Name, v => v.Value.ToObject<object>()) ??
+                                     new Dictionary<string, object>();
+
+                    return  await _platform.Service(serviceDefinition.InterfaceType).Invoke(serviceDefinition.MethodName, parameters);
+                }
+
+
             }
-            var executionResult = await _platform.ExecuteAsync(id,command);
-            return executionResult;
+            throw new ArgumentException($"No command definition found for command '{name}'");
         }
 
         private async Task WriteAsync(object obj, HttpStatusCode statusCode, HttpContext context)

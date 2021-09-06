@@ -59,9 +59,12 @@ namespace Platformex.Infrastructure
             //TODO: Рефакторнг
             foreach (var type in assembly.GetTypes())
             {
-                if (type.GetInterfaces().Contains(typeof(IService)))
+                var tInterface = type.GetInterfaces().FirstOrDefault(i 
+                    => typeof(IService).IsAssignableFrom(i) && i != typeof(IService));
+
+                if (tInterface != null)
                 {
-                    RegisterService(type);
+                    RegisterService(type, tInterface);
                 }
             }
         }
@@ -69,13 +72,14 @@ namespace Platformex.Infrastructure
         public void RegisterCommand(Type tIdentity, Type tCommand)
         {
             _platform.Definitions.Register(new CommandDefinition(
+                TypeExtensions.GetContextName(tCommand),
                 tCommand.Name.Replace("Command",""), 
                 tIdentity, 
                 tCommand, 
                 tCommand.GetCustomAttribute<PublicAttribute>() != null
             ));
         }
-        
+
         public void RegisterCommand<TIdentity, TCommand>()
             where TIdentity : Identity<TIdentity>
             where TCommand : class, ICommand<TIdentity>
@@ -83,13 +87,25 @@ namespace Platformex.Infrastructure
             RegisterCommand(typeof(TIdentity), typeof(TCommand));
         }
 
-        public void RegisterService(Type tService)
+        public void RegisterService(Type tService, Type tInterface)
         {
-            _platform.Definitions.Register(new ServiceDefinition(
-                tService.Name.Replace("Service",""), 
-                tService,
-                tService.GetCustomAttribute<PublicAttribute>() != null
-            ));
+            var methods = tInterface.GetMethods()
+                .Where(i=>i.Name != "SetMetadata")
+                .Select(method => (method.Name, parameters: method.GetParameters(), returnType: method.ReturnType));
+
+            foreach (var method in methods)
+            {
+                _platform.Definitions.Register(new ServiceDefinition(
+                    TypeExtensions.GetContextName(tInterface),
+                    tService.Name.Replace("Service",""), 
+                    tService,
+                    tInterface,
+                    method.Name,
+                    method.parameters,
+                    method.returnType.GetGenericArguments()[0],
+                    tService.GetCustomAttribute<PublicAttribute>() != null
+                ));
+            }
         }
 
         public void RegisterQuery(Type tQuery, Type tResult)

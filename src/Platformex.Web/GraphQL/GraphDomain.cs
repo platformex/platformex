@@ -36,18 +36,12 @@ namespace Platformex.Web.GraphQL
                 ResolvedType = new ObjectGraphTypeFromDomain("Queries", 
                     _platform.Definitions.Queries.Select(i=>i.Value).ToList(), 
                     _provider),
-                Name = GetDomainName("Queries"),
+                Name = "Queries",
                 //Description = _domainDefinition.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description,
                 Arguments = new QueryArguments(),
                 Resolver = new FuncFieldResolver<object>(Execute),
             };
         }
-
-        private string GetDomainName(string name)
-        {
-            return !name.EndsWith("Context") ? name : name.Substring(0, name.Length - "Context".Length);
-        }
-
 
         private Task<object> Execute(IResolveFieldContext context)
         {

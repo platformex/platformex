@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Platformex
 {
@@ -16,5 +17,6 @@ namespace Platformex
         Task<Result> ExecuteAsync(string aggregateId, ICommand command);
         Task PublishEvent(IDomainEvent domainEvent);
         TDomainService Service<TDomainService>() where TDomainService : IService;
+        IService Service(Type serviceType);
     }
 }

@@ -22,5 +22,6 @@ namespace Siam.MemoContext.Domain
             }
             return memoCount;
         }
+
     }
 }

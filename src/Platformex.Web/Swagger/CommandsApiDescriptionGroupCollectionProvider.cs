@@ -49,19 +49,14 @@ namespace Platformex.Web.Swagger
 
         private List<ApiDescriptionGroup> PrepareQueries(List<ApiDescription> apis, ApiDescriptionGroupCollection data)
         {
-            var contexts = _platform.Definitions.Queries.Select(i => (GetDomainName(i.Value), i.Value))
-                .GroupBy(i=>i.Item1).ToList();
-
-            foreach (var domain in contexts)
+            foreach (var query in _platform.Definitions.Queries.Select(i=>i.Value))
             {
-                foreach (var query in domain.Select(i=>i.Value))
-                {
-                    apis.Add(CreateApiDescription("Queries", query.QueryType,
-                        query.Name, query.QueryType,"POST", 
-                        query.QueryType.GetProperties().Select(p=>(p.Name, p.PropertyType)).ToList(),
-                        query.ResultType));
-                }
+                apis.Add(CreateApiDescription("Queries", query.QueryType,
+                    query.Name, query.QueryType,"POST", 
+                    query.QueryType.GetProperties().Select(p=>(p.Name, p.PropertyType)).ToList(),
+                    query.ResultType));
             }
+
             var descriptionGroupList = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("Platformex", apis) };
             descriptionGroupList.AddRange(data.Items);
             return descriptionGroupList;
@@ -69,24 +64,20 @@ namespace Platformex.Web.Swagger
 
         private void PrepareServices(List<ApiDescription> apis, ApiDescriptionGroupCollection data)
         {
-            var contexts = _platform.Definitions.Services.Select(i => (GetDomainName(i.Value), i.Value))
-                .GroupBy(i=>i.Item1).ToList();
+            var contexts = _platform.Definitions.Services.Select(i 
+                => (context: i.Value.Context, definition: i.Value)).GroupBy(i=>i.context).ToList();
 
             foreach (var domain in contexts)
             {
-                foreach (var service in domain.Select(i => i.Value))
+                foreach (var service in domain.Select(i => i.definition))
                 {
                     var type = service.ServiceType;
                     var serviceInterface = type.GetInterfaces()
                         .FirstOrDefault(i => typeof(IService).IsAssignableFrom(i));
-
-                    foreach (var methodInfo in service.GetMethods())
-                    {
-                        apis.Add(CreateApiDescription(GetDomainName(serviceInterface), service.ServiceType,
-                            methodInfo.name, serviceInterface, "PUT", 
-                            methodInfo.parameters.Select(p=>(p.Name, p.ParameterType)).ToList(),
-                            typeof(Result)));
-                    }
+                        apis.Add(CreateApiDescription(TypeExtensions.GetContextName(serviceInterface), service.ServiceType,
+                            service.MethodName, serviceInterface, "PUT", 
+                            service.Parameters.Select(p=>(p.Name, p.ParameterType)).ToList(),
+                            service.ReturnType));
                 }
             }
             var descriptionGroupList = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("Platformex", apis) };
@@ -95,7 +86,8 @@ namespace Platformex.Web.Swagger
 
         private void PrepareCommands(List<ApiDescription> apis)
         {
-            var contexts = _platform.Definitions.Commands.Select(i => (GetDomainName(i.Value), i.Value))
+            var contexts = _platform.Definitions.Commands.Select(i 
+                => (TypeExtensions.GetContextName(i.Value.CommandType), i.Value))
                 .GroupBy(i=>i.Item1).ToList();
 
             foreach (var domain in contexts)
@@ -203,17 +195,5 @@ namespace Platformex.Web.Swagger
             }
             return apiDescription;
         }
-        private string GetDomainName(QueryDefinition definition) 
-            => definition.QueryType.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
-
-        private string GetDomainName(CommandDefinition definition)
-            => definition.CommandType.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
-
-        private string GetDomainName(ServiceDefinition definition)
-            => definition.ServiceType.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
-
-        private string GetDomainName(Type definition)
-            => definition.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
-
     }
 }

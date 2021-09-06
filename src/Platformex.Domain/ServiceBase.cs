@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -50,6 +51,44 @@ namespace Platformex.Domain
             Metadata = metadata;
             return  Task.CompletedTask;
         }
+
+        public async Task<object> Invoke(string methodName, Dictionary<string, object> parameters)
+        {
+            var method = GetType().GetMethod(methodName);
+            if (method == null)
+                throw new MissingMethodException($"Не найден метод {methodName} у сервиса {GetType().Name}");
+
+            var param = method.GetParameters();
+            var paramsList = new List<object>();
+            foreach (var p in param)
+            {
+                if (!parameters.ContainsKey(p.Name))
+                    throw new ArgumentException(
+                        $"Не указан параметр {p.Name} для метода {methodName} у сервиса {GetType().Name}");
+
+                object val;
+                try
+                {
+                    val = Convert.ChangeType(parameters[p.Name], p.ParameterType);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(
+                        $"Неверный тип параметра {p.Name} для метода {methodName} у сервиса {GetType().Name}", ex);
+                }
+
+                paramsList.Add(val);
+            }
+
+            var task = (Task)method.Invoke(this, paramsList.ToArray());
+            await task.ConfigureAwait(false);
+
+            var result = task.GetType().GetProperty(nameof(Task<object>.Result))?.GetValue(task);
+            return result;
+
+        }
+
         public async Task Invoke(IIncomingGrainCallContext context)
         {
             if (context.InterfaceMethod.Name != "SetMetdadta")

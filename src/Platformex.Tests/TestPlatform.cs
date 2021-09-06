@@ -33,6 +33,11 @@ namespace Platformex.Tests
             throw new NotImplementedException();
         }
 
+        public IService Service(Type serviceType)
+        {
+            throw new NotImplementedException();
+        }
+
         public TAggregate GetAggregate<TAggregate>(string id) where TAggregate : IAggregate
         {
             throw new NotImplementedException();

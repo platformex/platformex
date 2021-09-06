@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace Platformex
 {
@@ -11,6 +12,7 @@ namespace Platformex
         string Value { get; }
     }
 
+    [JsonConverter(typeof(IdentityConverter))]
     public abstract class Identity<T> : SingleValueObject<string>, IIdentity
         where T : Identity<T>
     {
@@ -120,5 +122,26 @@ namespace Platformex
         private readonly Lazy<Guid> _lazyGuid;
 
         public Guid GetGuid() => _lazyGuid.Value;
+    }
+
+    public class IdentityConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var strId = reader.Value?.ToString();
+            var result = Activator.CreateInstance(objectType, args: strId);
+            
+            return result;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

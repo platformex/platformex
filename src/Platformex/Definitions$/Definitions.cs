@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 #region hack
 namespace System.Runtime.CompilerServices
@@ -17,15 +16,11 @@ namespace System.Runtime.CompilerServices
 namespace Platformex
 {
     public record AggregateDefinition(Type IdentityType, Type AggregateType, Type InterfaceType, Type StateType);
-    public record CommandDefinition(string Name, Type IdentityType, Type CommandType, bool IsPublic);
+    public record CommandDefinition(string Context, string Name, Type IdentityType, Type CommandType, bool IsPublic);
     public record QueryDefinition(string Name,Type QueryType, Type ResultType, bool IsPublic);
-    public record ServiceDefinition(string Name,Type ServiceType, bool IsPublic)
-    {
-        public IEnumerable<(string name, ParameterInfo[] parameters)> GetMethods() =>
-            ServiceType.GetMethods()
-                .Where(i=>i.ReturnParameter?.ParameterType == typeof(Task<Result>))
-                .Select(method => (method.Name, method.GetParameters()));
-    }
+    public record ServiceDefinition(string Context,string Name, Type ServiceType, Type InterfaceType, string MethodName,
+        ParameterInfo[] Parameters, Type ReturnType, bool IsPublic);
+
 
     public sealed class Definitions
     {
@@ -44,7 +39,8 @@ namespace Platformex
         }
         public void Register(CommandDefinition definition)
         {
-            Commands.Add(definition.Name, definition);
+            var key = (definition.Context + ":" + definition.Name).ToLower();
+            Commands.Add(key, definition);
         }
         public void Register(QueryDefinition definition)
         {
@@ -52,7 +48,8 @@ namespace Platformex
         }
         public void Register(ServiceDefinition definition)
         {
-            Services.Add(definition.Name, definition);
+            var key = (definition.Context + ":" + definition.MethodName).ToLower();
+            Services.Add(key, definition);
         }
         public IEnumerable<Assembly> Assemblies =>
             Aggregates.Values.SelectMany(i => new []
@@ -72,15 +69,29 @@ namespace Platformex
 
         }
 
-        public bool TryGetDefinition(string name, out CommandDefinition commandDefinition)
+        public bool TryGetDefinition(string context, string name, out CommandDefinition commandDefinition)
         {
-            if (Commands.ContainsKey(name))
+            var key = (context + ":" + name).ToLower();
+            if (Commands.ContainsKey(key))
             {
-                commandDefinition = Commands[name];
+                commandDefinition = Commands[key];
                 return true;
             }
 
             commandDefinition = null;
+            return false;
+        }
+        
+        public bool TryGetDefinition(string context, string name, out ServiceDefinition serviceDefinition)
+        {
+            var key = (context + ":" + name).ToLower();
+            if (Services.ContainsKey(key))
+            {
+                serviceDefinition = Services[key];
+                return true;
+            }
+
+            serviceDefinition = null;
             return false;
         }
 
@@ -96,16 +107,5 @@ namespace Platformex
             return false;
         }
 
-        public bool TryGetDefinition(string name, out ServiceDefinition serviceDefinition)
-        {
-            if (Services.ContainsKey(name))
-            {
-                serviceDefinition = Services[name];
-                return true;
-            }
-
-            serviceDefinition = null;
-            return false;
-        }
     }
 }

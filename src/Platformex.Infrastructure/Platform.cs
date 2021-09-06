@@ -112,5 +112,8 @@ namespace Platformex.Infrastructure
 
         public TDomainService Service<TDomainService>() where TDomainService : IService 
             => _client.GetGrain<TDomainService>(Guid.NewGuid());
+
+        public IService Service(Type serviceType)
+            => (IService)_client.GetGrain(serviceType, Guid.NewGuid());
     }
 }
