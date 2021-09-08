@@ -66,7 +66,7 @@ namespace Platformex.Web.GraphQL
 
             });
 
-            UseExtensions.AddPostUseAction(app =>
+            UseExtensions.AddPreUseAction(app =>
             {
                             
                 if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlOptions)) is PlatformexGraphQlOptions optionsGraphQl)
