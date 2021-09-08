@@ -86,6 +86,12 @@ namespace Platformex
             set => AddOrUpdateValue(MetadataKeys.UserId, value);
         }
 
+        public string UserName
+        {
+            get => ContainsKey(MetadataKeys.UserName) ? GetMetadataValue(MetadataKeys.UserName) : null;
+            set => AddOrUpdateValue(MetadataKeys.UserName, value);
+        }
+
 #pragma warning disable 659
         public override bool Equals(object obj)
 #pragma warning restore 659

@@ -1,15 +1,26 @@
 namespace Platformex
 {
-    public abstract class Query<TResult> : IQuery<TResult>
+
+    public abstract class Query 
     {
-        public ICommonMetadata Metadata { get; init; }
+        public QueryMetadata Metadata { get; init; }
+
+        internal void MergeMetadata(QueryMetadata metadata)
+        {
+            Metadata.Merge(metadata);
+        }
+
+    }
+
+    public abstract class Query<TResult> : Query, IQuery<TResult>
+    {
 
         protected Query()
         {
-            Metadata = new CommandMetadata();
+            Metadata = new QueryMetadata();
         }
 
-        protected Query(ICommandMetadata metadata)
+        protected Query(QueryMetadata metadata)
         {
             Metadata = metadata;
         }

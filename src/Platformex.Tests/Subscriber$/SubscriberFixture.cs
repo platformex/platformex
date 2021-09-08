@@ -63,7 +63,7 @@ namespace Platformex.Tests
             StartMonitoring();
 
             var domainEvent = new DomainEvent<TIdentity, TEvent>(@event.Id, @event, DateTimeOffset.Now,
-                1, metadata ?? EventMetadata.Empty);
+                1, metadata != null ? metadata : EventMetadata.Empty);
             _subscriber.ProcessEventInternal(domainEvent).GetAwaiter().GetResult();
             _testKit.Platform.ClearCommandResults();
             

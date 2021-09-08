@@ -13,6 +13,7 @@ namespace Platformex
     public interface IMetadataContainer : IReadOnlyDictionary<string, string>
     {
         string UserId { get; }
+        string UserName { get; }
         string GetMetadataValue(string key);
         T GetMetadataValue<T>(string key, Func<string, T> converter);
     }

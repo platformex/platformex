@@ -50,7 +50,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             var stringSvo = JsonConvert.DeserializeObject<StringSvo>(json);
 
             // Assert
-            stringSvo?.Value.Should().Be(expectedValue);
+            (stringSvo != null ? stringSvo.Value.Should() : null)?.Be(expectedValue);
         }
 
         [Theory]
@@ -79,7 +79,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             var intSvo = JsonConvert.DeserializeObject<IntSvo>(json);
 
             // Assert
-            intSvo?.Value.Should().Be(expectedValue);
+            (intSvo != null ? intSvo.Value.Should() : null)?.Be(expectedValue);
         }
         
         [Theory]
@@ -92,7 +92,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             var intSvo = JsonConvert.DeserializeObject<EnumSvo>(json);
 
             // Assert
-            intSvo?.Value.Should().Be(expectedValue);
+            (intSvo != null ? intSvo.Value.Should() : null)?.Be(expectedValue);
         }
 
         [Theory]

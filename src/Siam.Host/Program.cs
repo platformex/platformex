@@ -12,6 +12,7 @@ using Platformex.Application;
 using Platformex.Infrastructure;
 using Platformex.Web;
 using Platformex.Web.GraphQL;
+using Platformex.Web.IdentityServer;
 using Platformex.Web.Swagger;
 using Siam.Application;
 using Siam.Application.Queries;
@@ -84,6 +85,9 @@ namespace Siam.Host
                     {
                         await platform.Service<IMemoService>().CreateMemos(10);
                     });
+
+                    p.ConfigureIdentity(o 
+                        => o.IdentityServerUri = "https://localhost:5000");
 
                     //Конфигурация WebAPI узла
                     p.ConfigureWebApi()

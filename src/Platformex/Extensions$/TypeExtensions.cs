@@ -6,10 +6,10 @@ namespace Platformex
     public static class TypeExtensions
     {
         public static string GetPrettyName(this IDomainEvent domainEvent)
-            => $"{domainEvent?.GetType().Name.Replace("Event","")} => {domainEvent}"; 
+            => $"{(domainEvent != null ? domainEvent.GetType().Name.Replace("Event","") : null)} => {domainEvent}"; 
         public static string GetPrettyName(this IAggregateEvent aggregateEvent)
-            => $"{aggregateEvent?.GetType().Name.Replace("Event","")} => {aggregateEvent}"; 
+            => $"{(aggregateEvent != null ? aggregateEvent.GetType().Name.Replace("Event","") : null)} => {aggregateEvent}"; 
         public static string GetContextName(Type definition)
-            => definition.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
+            => definition.Namespace != null ? definition.Namespace.Split(".").LastOrDefault() != null ? definition.Namespace.Split(".").LastOrDefault()?.Replace("Context","") : null : null;
     }
 }

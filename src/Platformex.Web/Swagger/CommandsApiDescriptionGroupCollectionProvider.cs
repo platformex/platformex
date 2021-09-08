@@ -119,7 +119,7 @@ namespace Platformex.Web.Swagger
                 ControllerName = controllerName,
                 DisplayName = methodName,
                 Parameters = parameters
-                    .Select(p=> new ParameterDescriptor { Name = p.name ?? "", ParameterType = p.type}).ToList(),
+                    .Select(p=> new ParameterDescriptor { Name = p.name != null ? p.name : "", ParameterType = p.type}).ToList(),
                 MethodInfo = new CustomMethodInfo(methodName, methodType),
                 ControllerTypeInfo = controllerType.GetTypeInfo(),
                 RouteValues = new Dictionary<string, string> {{"controller", controllerName}}
@@ -181,7 +181,7 @@ namespace Platformex.Web.Swagger
             foreach (var parameter in parameters)
             {
                 if (parameter.name == "Metadata") continue; 
-                var type = typeof(IIdentity).IsAssignableFrom(parameter.type) ? typeof(string) : parameter.type ?? typeof(string);
+                var type = typeof(IIdentity).IsAssignableFrom(parameter.type) ? typeof(string) : parameter.type != null ? parameter.type : typeof(string);
 
                 ((List<ApiParameterDescription>)apiDescription.ParameterDescriptions).Add(new ApiParameterDescription
                 {

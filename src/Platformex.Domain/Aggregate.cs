@@ -32,14 +32,36 @@ namespace Platformex.Domain
                 throw new MissingMethodException($"missing HandleAsync({command.GetType().Name})");
             }
 
-            await BeforeApplyingCommand(command);
-
+            try
+            {
+                await BeforeApplyingCommand(command);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                _logger.LogInformation($"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                return Result.Unauthorized($"Необходима аутентификация для доступа к агрегату {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+            }
+            catch (ForbiddenException e)
+            {
+                _logger.LogInformation($"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                return Result.Forbidden($"Недостаточно прав доступа для агрегата {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+            }
             Result result;
 
             try
             {
                 result = await applier((TAggregate) (object) this, command);
             }
+            catch (UnauthorizedAccessException e)
+            {
+                _logger.LogInformation($"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                return Result.Unauthorized($"Необходима аутентификация для доступа к агрегату {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+            }
+            catch (ForbiddenException e)
+            {
+                _logger.LogInformation($"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                return Result.Forbidden($"Недостаточно прав доступа для агрегата {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+            }            
             catch (Exception e)
             {
                 _logger.LogError(e.Message, e);
@@ -105,7 +127,7 @@ namespace Platformex.Domain
         }
 
 
-        public TIdentity AggregateId => State?.Identity ?? this.GetId<TIdentity>();
+        public TIdentity AggregateId => State != null ? State.Identity != null ? State.Identity : this.GetId<TIdentity>() : this.GetId<TIdentity>();
         protected TState State { get; private set;}
         internal void TestOnlySetState(TState newState) => State = newState;
         internal TState TestOnlyGetState() => State;
@@ -116,7 +138,7 @@ namespace Platformex.Domain
         protected ILogger Logger => GetLogger();
 
         private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         protected virtual string GetAggregateName() => GetType().Name.Replace("Aggregate", "");
         protected string GetPrettyName() => $"{GetAggregateName()}:{this.GetPrimaryKeyString()}";
@@ -126,17 +148,17 @@ namespace Platformex.Domain
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] activating...");
             try
             {
-                _platform = (IPlatform) this.ServiceProvider.GetService(typeof(IPlatform));
+                _platform = (IPlatform) ServiceProvider.GetService(typeof(IPlatform));
 
-                var stateType = _platform.Definitions.Aggregate<TIdentity>()?.StateType;
+                var stateType = _platform.Definitions.Aggregate<TIdentity>() != null ? _platform.Definitions.Aggregate<TIdentity>().StateType : null;
 
                 if (stateType == null)
                     throw new Exception($"Definitions on aggregate {typeof(TIdentity).Name} not found");
 
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] state loading...");
 
-                State = this.ServiceProvider.GetService<TState>() ?? Activator.CreateInstance<TState>();
-                await State.LoadState(this.GetId<TIdentity>());
+                State = ServiceProvider.GetService<TState>() != null ? ServiceProvider.GetService<TState>() : Activator.CreateInstance<TState>();
+                if (State != null) await State.LoadState(this.GetId<TIdentity>());
 
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] state loaded.");
 
@@ -211,11 +233,49 @@ namespace Platformex.Domain
                     x.IsGenericType &&
                     x.GetGenericTypeDefinition() == typeof(ICommand<>)))
             {
-                await BeforeApplyingCommand((ICommand)context.Arguments[0]);
-                
+                var command = (ICommand) context.Arguments[0];
+                try
+                {
+                    await BeforeApplyingCommand(command);
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    _logger.LogInformation(
+                        $"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}",
+                        e);
+                    context.Result = Result.Unauthorized(
+                        $"Необходима аутентификация для доступа к агрегату {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+                    return;
+                }
+                catch (ForbiddenException e)
+                {
+                    _logger.LogInformation(
+                        $"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}", e);
+                    context.Result = Result.Forbidden(
+                        $"Недостаточно прав доступа для агрегата {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+                    return;
+                }
+
                 try
                 {
                     await context.Invoke();
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    _logger.LogInformation(
+                        $"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}",
+                        e);
+                    context.Result = Result.Unauthorized(
+                        $"Необходима аутентификация для доступа к агрегату {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+                    return;
+                }
+                catch (ForbiddenException e)
+                {
+                    _logger.LogInformation(
+                        $"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}", e);
+                    context.Result = Result.Forbidden(
+                        $"Недостаточно прав доступа для агрегата {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
+                    return;
                 }
                 catch (Exception e)
                 {

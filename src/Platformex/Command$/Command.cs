@@ -1,4 +1,8 @@
-﻿namespace Platformex
+﻿using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("Platformex.Web")]
+
+namespace Platformex
 {
     public interface ICommand
     {
@@ -13,6 +17,11 @@
     public abstract record Command : ICommand
     {
         public ICommandMetadata Metadata { get; init; }
+
+        internal void MergeMetadata(CommandMetadata metadata)
+        {
+            ((MetadataContainer)Metadata).Merge(metadata);
+        }
 
         protected Command()
         {

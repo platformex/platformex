@@ -113,10 +113,10 @@ namespace Platformex.Tests.UnitTests.Aggregates
             var metadata = JsonConvert.DeserializeObject<Metadata>(json);
 
             // Assert
-            metadata?.Count.Should().Be(3);
-            metadata?.AggregateName.Should().Be(aggregateName);
-            metadata?.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);
-            metadata?.Timestamp.Should().Be(timestamp);
+            metadata?.Count.Should()?.Be(3);
+            metadata?.AggregateName.Should()?.Be(aggregateName);
+            metadata?.AggregateSequenceNumber.Should()?.Be(aggregateSequenceNumber);
+            metadata?.Timestamp.Should()?.Be(timestamp);
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace Platformex.Tests.UnitTests.Aggregates
 
             // Assert
             json.Should().Be("{}");
-            metadata?.Count.Should().Be(0);
+            metadata?.Count.Should()?.Be(0);
         }
     }
 }

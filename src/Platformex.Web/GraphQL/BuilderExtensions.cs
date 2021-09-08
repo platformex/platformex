@@ -4,7 +4,6 @@ using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Infrastructure;
-using Platformex.Web.Swagger;
 
 namespace Platformex.Web.GraphQL
 {
@@ -30,34 +29,15 @@ namespace Platformex.Web.GraphQL
 
     public static class BuilderExtensions
     {
-        public static IApplicationBuilder UsePlatformex(this IApplicationBuilder app)
-        {
-            app.UseSwagger();
 
-            var options = app.ApplicationServices.GetRequiredService<PlatformexOpenApiOptions>();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/" + options.Url.Trim('/') + "/v1/swagger.json", options.Name);
-
-                //c.OAuthClientId("swaggerui");
-                //c.OAuthAppName("Swagger UI");
-            });
-
-            app.UseMiddleware<PlatformexMiddleware>();
-            
-            if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlOptions)) is PlatformexGraphQlOptions optionsGraphQl)
-                app.UseGraphQL<ISchema>("/" + optionsGraphQl.BasePath.Trim('/'));
-
-            if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlConsoleOptions)) is PlatformexGraphQlConsoleOptions optionsConsole)
-                app.UseGraphQLPlayground("/" + optionsConsole.BasePath.Trim('/'));
-            return app;
-        }
         public static PlatformBuilder ConfigureGraphQl(this PlatformBuilder builder, Action<PlatformexGraphQlOptions> optionsBuilder)
         {
+
             var options = new PlatformexGraphQlOptions("graphql");
 
             builder.AddConfigureServicesActions(services =>
             {
+                optionsBuilder?.Invoke(options);
                 services.AddSingleton(options);
                 //services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
                 //services.AddSingleton<IDocumentWriter, DocumentWriter>();
@@ -84,6 +64,16 @@ namespace Platformex.Web.GraphQL
                     //services.AddSingleton(provider => (IGraphQueryHandler) provider.GetService(handlerFullType));
                 }
 
+            });
+
+            UseExtensions.AddPostUseAction(app =>
+            {
+                            
+                if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlOptions)) is PlatformexGraphQlOptions optionsGraphQl)
+                    app.UseGraphQL<ISchema>("/" + optionsGraphQl.BasePath.Trim('/'));
+
+                if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlConsoleOptions)) is PlatformexGraphQlConsoleOptions optionsConsole)
+                    app.UseGraphQLPlayground("/" + optionsConsole.BasePath.Trim('/'));
             });
             return builder;
         }

@@ -23,7 +23,6 @@ namespace Platformex.Domain
         }
 
         //Загрузка информации о пользователе изх метаданных
-        // ReSharper disable once UnusedParameter.Local
         private void LoadMetadata(ICommonMetadata metadata)
         {
             /*//Пока тестовые данные
@@ -32,13 +31,14 @@ namespace Platformex.Domain
             UserName = "test_user";*/
 
             UserId = metadata.UserId;
+            UserName = metadata.UserName;
             //TODO: доделать при реализации интеграции с IdentityServer4
         }
 
         public void HasRoles(params string[] roles)
         {
             if (!CheckRoles(roles))
-                throw new UnauthorizedAccessException();
+                throw new ForbiddenException();
         }
 
         public bool CheckRoles(params string[] roles) => roles.Length == 0 || _roles.Intersect(roles).Count() != roles.Length;
@@ -46,12 +46,10 @@ namespace Platformex.Domain
         internal static string[] GetRolesFrom(object obj)
         {
             var art = obj?.GetType().GetCustomAttribute<HasRolesAttribute>();
-            return art?.Roles ?? Array.Empty<string>();
+            return art != null ? art.Roles ?? Array.Empty<string>() : Array.Empty<string>();
         }
-        internal static bool IsUserRequiredFrom(object obj)
-        {
-            return obj?.GetType().GetCustomAttribute<AuthorizedAttribute>() != null;
-        }
+        internal static bool IsUserRequiredFrom(object obj) 
+            => obj?.GetType().GetCustomAttribute<AuthorizedAttribute>() != null;
     }
     
 }

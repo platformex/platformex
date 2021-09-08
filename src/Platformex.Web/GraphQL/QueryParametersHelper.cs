@@ -49,7 +49,7 @@ namespace Platformex.Web.GraphQL
                 
                 var allowNulls = prop.GetCustomAttribute<AllowNullAttribute>() != null;
 
-                var description = prop.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                var description = prop.GetCustomAttribute<DescriptionAttribute>() != null ? prop.GetCustomAttribute<DescriptionAttribute>()?.Description : null;
 
                 if (type == null)
                 {
@@ -150,7 +150,7 @@ namespace Platformex.Web.GraphQL
             var qas = new List<FieldType>();
             foreach (var prop in modelType.GetProperties())
             {
-                var description = prop.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                var description = prop.GetCustomAttribute<DescriptionAttribute>() != null ? prop.GetCustomAttribute<DescriptionAttribute>()?.Description : null;
 
                 var allowNulls = prop.GetCustomAttribute<AllowNullAttribute>() != null;
 

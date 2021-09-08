@@ -25,7 +25,7 @@ namespace Platformex.Domain
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
         private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         protected virtual string GetPrettyName() => $"{GetSubscriberName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetSubscriberName() => GetType().Name.Replace("Job", "");
@@ -58,6 +58,8 @@ namespace Platformex.Domain
             Logger.LogInformation($"(Subscriber [{GetSubscriberName()}] received event {data.GetPrettyName()}.");
 
             var sc = new SecurityContext(data.Metadata);
+
+
             //Проверим права
             var requiredUser = SecurityContext.IsUserRequiredFrom(data);
             if (requiredUser && !sc.IsAuthorized)
@@ -111,7 +113,7 @@ namespace Platformex.Domain
             where T : Identity<T>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform?.ExecuteAsync(command.Id.Value, command);
+            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
         }
 
         public override Task OnDeactivateAsync()

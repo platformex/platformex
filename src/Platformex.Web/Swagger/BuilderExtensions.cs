@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,39 +45,55 @@ namespace Platformex.Web.Swagger
 
                 services.AddSwaggerGen(c =>
                 {
-                    c.DocInclusionPredicate((docName, apiDesc) =>
-                    {
-                        if (apiDesc.TryGetMethodInfo(out _))
-                        {
-                            return apiDesc.HttpMethod != null;
-                        }
-
-                        return false;
-                    });
-                });
-                services.AddSwaggerGen(c =>
-                {
                     c.SwaggerDoc("v1", new OpenApiInfo {Title = options.Name + " API", Version = "v1"});
-
-
                     c.OperationFilter<DescriptionFilter>();
+                    c.OperationFilter<AuthorizeCheckOperationFilter>();
                     c.SchemaFilter<ReadOnlyFilter>();
                     c.CustomSchemaIds(i => i.FullName);
-                    var basePath = AppDomain.CurrentDomain.BaseDirectory;
+                    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows
+                        {
+                            AuthorizationCode = new OpenApiOAuthFlow
+                            {
+                                AuthorizationUrl = new Uri("https://localhost:5000/connect/authorize"),
+                                TokenUrl = new Uri("https://localhost:5000/connect/token"),
+                                Scopes = new Dictionary<string, string>
+                                {
+                                    { "openid", "User Profile" },
+                                    { "platformex", "Platformex API - full access"}
+                                }
+                            }
+                        }
+                    });
+                    c.DocInclusionPredicate((docName, apiDesc) 
+                        => apiDesc.TryGetMethodInfo(out _) && apiDesc.HttpMethod != null);
+                    
+                    /*var basePath = AppDomain.CurrentDomain.BaseDirectory;
                     var files = Directory.GetFiles(basePath, "*.xml");
                     foreach (var file in files)
                     {
                         c.IncludeXmlComments(file);
-                    }
-                    //c.AddSecurityDefinition("oauth2", new OAuth2Scheme
-                    //{
-                    //	Type = "oauth2",
-                    //	Flow = "implicit",
-                    //	AuthorizationUrl = $"{siteOptions?.Security?.BaseUrl}/connect/authorize",
-                    //	TokenUrl = $"{siteOptions?.Security?.BaseUrl}/connect/token",
-                    //	Scopes = currentScopes
-                    //});
+                    }*/
+
                 });
+            });
+            UseExtensions.AddPreUseAction(app =>
+            {
+                app.UseSwagger();
+
+                var apiOptions = app.ApplicationServices.GetRequiredService<PlatformexOpenApiOptions>();
+
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/" + apiOptions.Url.Trim('/') + "/v1/swagger.json", apiOptions.Name);
+
+                    c.OAuthClientId("swagger");
+                    c.OAuthAppName("Platformex Open API");
+                    c.OAuthUsePkce();
+                });
+
             });
             return builder;
         }
@@ -99,12 +116,12 @@ namespace Platformex.Web.Swagger
 
             if (typeof(IService).IsAssignableFrom(actionType))
             {
-                operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>() != null ? desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description : null;
             }
 
             if (isCommand || isQuery)
             {
-                operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>() != null ? actionType.GetCustomAttribute<DescriptionAttribute>()?.Description : null;
             }
         }
     }

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
 #region hack
+
 namespace System.Runtime.CompilerServices
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class IsExternalInit{}
+    internal static class IsExternalInit {}
 }
 #endregion
 
-
 namespace Platformex
 {
+
+
+
     public record AggregateDefinition(Type IdentityType, Type AggregateType, Type InterfaceType, Type StateType);
     public record CommandDefinition(string Context, string Name, Type IdentityType, Type CommandType, bool IsPublic);
     public record QueryDefinition(string Name,Type QueryType, Type ResultType, bool IsPublic);
@@ -53,13 +54,13 @@ namespace Platformex
         }
         public IEnumerable<Assembly> Assemblies =>
             Aggregates.Values.SelectMany(i => new []
-            {
-                i.AggregateType.Assembly,
-                i.IdentityType.Assembly,
-                i.InterfaceType.Assembly,
-                i.StateType.Assembly
-            }).Concat(_applicationPartsAssemblies)
-              .Distinct();
+                {
+                    i.AggregateType.Assembly,
+                    i.IdentityType.Assembly,
+                    i.InterfaceType.Assembly,
+                    i.StateType.Assembly
+                }).Concat(_applicationPartsAssemblies)
+                .Distinct();
 
         public void RegisterApplicationParts(Assembly contextAppliactionParts)
         {

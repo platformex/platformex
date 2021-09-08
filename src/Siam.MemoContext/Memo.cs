@@ -3,6 +3,14 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Platformex;
 
+#region hack
+
+namespace System.Runtime.CompilerServices
+{
+    internal static class IsExternalInit {}
+}
+#endregion
+
 namespace Siam.MemoContext
 {
     /// <summary>
@@ -44,6 +52,7 @@ namespace Siam.MemoContext
     /// <param name="Id">Идентификатор Памятки</param>
     /// <param name="UserId">Пользователь, подписавший документ</param>
     [Description("Подписать памятку")]
+    [Authorized]
     public record SignMemo(MemoId Id, string UserId) : Command, ICommand<MemoId>;
     
     /// <summary>

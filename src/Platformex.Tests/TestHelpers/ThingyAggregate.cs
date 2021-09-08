@@ -4,18 +4,16 @@ using System.Threading.Tasks;
 using Platformex.Application;
 using Platformex.Domain;
 
-#region hack
-namespace System.Runtime.CompilerServices
-{
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class IsExternalInit{}
-}
-#endregion
-
 namespace Platformex.Tests.TestHelpers
 {
+    #region hack
 
-    // События
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class IsExternalInit{}
+
+    #endregion
+
+// События
     public record ThingyDeletedEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
     public record ThingyDomainErrorAfterFirstEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
     public record ThingyMessageAddedEvent(ThingyId Id, ThingyMessage ThingyMessage) : IAggregateEvent<ThingyId>;
@@ -25,7 +23,7 @@ namespace Platformex.Tests.TestHelpers
     public record ThingySagaExceptionRequestedEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
     public record ThingySagaStartRequestedEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
 
-    //Команды
+//Команды
     public record ThingyAddMessageCommand(ThingyId Id, ThingyMessage ThingyMessage) : Command, ICommand<ThingyId>;
     public record ThingyAddMessageHistoryCommand(ThingyId Id, ThingyMessage[] ThingyMessages) : Command, ICommand<ThingyId>;
     public record ThingyDeleteCommand(ThingyId Id, PingId PingId) : Command, ICommand<ThingyId>;

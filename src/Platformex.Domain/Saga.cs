@@ -49,7 +49,7 @@ namespace Platformex.Domain
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
         private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         private IDisposable _timer;
         protected IDomainEvent PinnedEvent;
@@ -74,7 +74,7 @@ namespace Platformex.Domain
             }
 
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform?.ExecuteAsync(command.Id.Value, command);
+            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
         }
 
         internal TSagaState TestOnlyGetState() => State;
@@ -175,8 +175,8 @@ namespace Platformex.Domain
                 {
                     if (State == null)
                     {
-                        State = ServiceProvider.GetService<TSagaState>() ?? Activator.CreateInstance<TSagaState>();
-                        _isStarted = await State.LoadState(IdentityString);
+                        State = ServiceProvider.GetService<TSagaState>() != null ? ServiceProvider.GetService<TSagaState>() : Activator.CreateInstance<TSagaState>();
+                        if (State != null) _isStarted = await State.LoadState(IdentityString);
                     }
                 }
             }

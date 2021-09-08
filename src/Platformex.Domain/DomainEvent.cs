@@ -28,7 +28,7 @@ namespace Platformex.Domain
             if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException(nameof(aggregateIdentity));
             if (aggregateSequenceNumber <= 0) throw new ArgumentOutOfRangeException(nameof(aggregateSequenceNumber));
 
-            AggregateEvent = aggregateEvent ?? throw new ArgumentNullException(nameof(aggregateEvent));
+            AggregateEvent = aggregateEvent != null ? aggregateEvent : throw new ArgumentNullException(nameof(aggregateEvent));
             Timestamp = timestamp;
             AggregateIdentity = aggregateIdentity;
             AggregateSequenceNumber = aggregateSequenceNumber;

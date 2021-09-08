@@ -70,7 +70,7 @@ namespace Platformex.Tests
 
             if (commandResults != null) _testKit.Platform.SetCommandResults(commandResults);
             var domainEvent = new DomainEvent<TIdentity, TAggregateEvent>(@event.Id, @event, DateTimeOffset.Now,
-                1, metadata ?? EventMetadata.Empty);
+                1, metadata != null ? metadata : EventMetadata.Empty);
             _saga.ProcessEvent(domainEvent).GetAwaiter().GetResult();
             _testKit.Platform.ClearCommandResults();
             
@@ -102,7 +102,7 @@ namespace Platformex.Tests
 
         public ISagaFixtureAsserter<TSaga, TSagaState> ThenExpectState(Predicate<TSagaState> aggregateEventPredicate)
         {
-            Assert.True(aggregateEventPredicate?.Invoke(State),
+            Assert.True(aggregateEventPredicate != null ? aggregateEventPredicate(State) : null,
                 $"Невалидное состояние саги {typeof(TSaga).Name}");
             return this;
         }

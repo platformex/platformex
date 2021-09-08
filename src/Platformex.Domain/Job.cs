@@ -18,7 +18,7 @@ namespace Platformex.Domain
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
         private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         protected virtual string GetPrettyName() => $"{GetJobName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetJobName() => GetType().Name.Replace("Job", "");
@@ -61,7 +61,7 @@ namespace Platformex.Domain
             where TIdentity : Identity<TIdentity>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform?.ExecuteAsync(command.Id.Value, command);
+            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
         }
 
         public async Task ReceiveReminder(string reminderName, TickStatus status)

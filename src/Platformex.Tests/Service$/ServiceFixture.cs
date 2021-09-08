@@ -74,7 +74,7 @@ namespace Platformex.Tests
             Assert.True(tuple.Item1 != typeof(TResult),
                 $"Неверный тип результата, ожидался{typeof(TResult)} вместо {tuple.Item1}");
 
-            Assert.True(resultPredicate?.Invoke((TResult)tuple.Item2),
+            Assert.True(resultPredicate != null ? resultPredicate((TResult)tuple.Item2) : null,
                 $"Невалидный результат выполнения сервиса");
             return this;
         }

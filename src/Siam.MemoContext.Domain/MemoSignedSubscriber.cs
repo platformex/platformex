@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Platformex;
 using Platformex.Domain;
 
@@ -9,7 +10,9 @@ namespace Siam.MemoContext.Domain
     {
         public override async Task HandleAsync(IDomainEvent<MemoId, MemoUpdated> domainEvent)
         {
-            await ExecuteAsync(new SignMemo(domainEvent.AggregateEvent.Id, SecurityContext.UserId));
+            var result = await ExecuteAsync(new SignMemo(domainEvent.AggregateEvent.Id, SecurityContext.UserId));
+            if (!result.IsSuccess)
+                Debug.WriteLine(result.Error);
         }
     }
 }

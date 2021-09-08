@@ -56,7 +56,7 @@ namespace Platformex.Infrastructure
             //ѕроверка бизнес-правил на стороне клиента
             builder.AddOutgoingGrainCallFilter(async context =>
             {
-                if (context.Arguments?.Length == 1)
+                if (context.Arguments != null ? context.Arguments.Length == 1 : false)
                 {
                     var argument = context.Arguments[0];
                     var rulesAttribute = argument.GetType().GetCustomAttribute<RulesAttribute>();
@@ -130,7 +130,7 @@ namespace Platformex.Infrastructure
             //ѕроверка бизнес-правил на стороне клиента
             builder.AddOutgoingGrainCallFilter(async context =>
             {
-                if (context.Arguments?.Length == 1)
+                if (context.Arguments != null ? context.Arguments.Length == 1 : false)
                 {
                     var argument = context.Arguments[0];
                     var rulesAttribute = argument.GetType().GetCustomAttribute<RulesAttribute>();

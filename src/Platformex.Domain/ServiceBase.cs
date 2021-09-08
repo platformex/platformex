@@ -15,14 +15,14 @@ namespace Platformex.Domain
             where TIdentity : Identity<TIdentity>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform?.ExecuteAsync(command.Id.Value, command);
+            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
         }
         
         private ILogger _logger;
         protected ServiceMetadata Metadata { get; private set; } = new ServiceMetadata();
         protected ILogger Logger => GetLogger();
         private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         public TDomainService Service<TDomainService>() where TDomainService : IService
         // ReSharper disable once PossibleNullReferenceException
@@ -84,8 +84,16 @@ namespace Platformex.Domain
             var task = (Task)method.Invoke(this, paramsList.ToArray());
             await task.ConfigureAwait(false);
 
-            var result = task.GetType().GetProperty(nameof(Task<object>.Result))?.GetValue(task);
-            return result;
+            var props = task.GetType().GetProperty(nameof(Task<object>.Result));
+            if (props != null)
+            {
+                var result = task.GetType().GetProperty(nameof(Task<object>.Result)) != null
+                    ? props.GetValue(task)
+                    : null;
+                return result;
+            }
+
+            return null;
 
         }
 
@@ -95,22 +103,34 @@ namespace Platformex.Domain
             {
                 Logger.LogInformation($"(Service method [{context.InterfaceMethod.Name}] invoking...");
             
-                var sc = new SecurityContext(Metadata);
-                //Проверим права
-                var requiredUser = SecurityContext.IsUserRequiredFrom(this);
-                if (requiredUser && !sc.IsAuthorized)
-                    throw new UnauthorizedAccessException();
-            
-                var requiredRole = SecurityContext.GetRolesFrom(this);
-                if (requiredRole != null)
-                    sc.HasRoles(requiredRole);
-
-                SecurityContext = sc;
                 
                 try
                 {
+                    var sc = new SecurityContext(Metadata);
+                    //Проверим права
+                    var requiredUser = SecurityContext.IsUserRequiredFrom(this);
+                    if (requiredUser && !sc.IsAuthorized)
+                        throw new UnauthorizedAccessException();
+            
+                    var requiredRole = SecurityContext.GetRolesFrom(this);
+                    if (requiredRole != null)
+                        sc.HasRoles(requiredRole);
+
+                    SecurityContext = sc;
+                    
                     await context.Invoke();
                 }
+                catch (UnauthorizedAccessException e)
+                {
+                    _logger.LogInformation($"Unauthorized Access in Service{GetPrettyName()} method {context.InterfaceMethod.Name}" , e);
+                    context.Result = Result.Unauthorized($"Необходима аутентификация для доступа к сервису {GetPrettyName()} при выполнении метода {context.InterfaceMethod.Name}. {e.Message}");
+                    return;
+                }
+                catch (ForbiddenException e)
+                {
+                    _logger.LogInformation($"Request Forbidden in Service{GetPrettyName()} method {context.InterfaceMethod.Name}" , e);
+                    context.Result = Result.Forbidden($"Недостаточно прав доступа для доступа к сервису {GetPrettyName()} при выполнении метода {context.InterfaceMethod.Name}. {e.Message}");
+                }            
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message, e);

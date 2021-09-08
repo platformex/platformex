@@ -64,8 +64,7 @@ namespace Platformex.Web.GraphQL
 
         private T ParseModel<T>(IDictionary<string, ArgumentValue> arguments) where T : IQuery<TResult>
             => JsonConvert.DeserializeObject<T>(
-                JsonConvert.SerializeObject(arguments?.ToDictionary(i=>i.Key, i=>i.Value.Value) 
-                                            ?? new Dictionary<string, object>()));
+                JsonConvert.SerializeObject(arguments != null ? arguments.ToDictionary(i=>i.Key, i=>i.Value.Value) : new Dictionary<string, object>()));
 
         public static Func<object, object> ConvertFunc<TParent, TRes>(Func<TParent, TRes> func) => arg => func((TParent)arg);
     }

@@ -19,7 +19,7 @@ namespace Platformex.Web.GraphQL
                 ? modelType1.Name
                 : modelType1.Name.Substring(0, modelType1.Name.Length - "Model".Length);
             Name = name.Replace("`", "");
-            Description = modelType1.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            Description = modelType1.GetCustomAttribute<DescriptionAttribute>() != null ? modelType1.GetCustomAttribute<DescriptionAttribute>()?.Description : null;
 
             var fields = QueryParametersHelper.GetFields(modelType1, graphQueryHandler, isInput);
             foreach (var field in fields)
@@ -57,7 +57,7 @@ namespace Platformex.Web.GraphQL
             //IsTypeOf = type => type.GetType().IsAssignableFrom(modelType1);
 
             Name = "Input" + (!modelType1.Name.EndsWith("Model") ? modelType1.Name : modelType1.Name.Substring(0, modelType1.Name.Length - "Model".Length));
-            Description = modelType1.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            Description = modelType1.GetCustomAttribute<DescriptionAttribute>() != null ? modelType1.GetCustomAttribute<DescriptionAttribute>()?.Description : null;
 
             var fields = QueryParametersHelper.GetFields(modelType1, graphQueryHandler, true);
             foreach (var field in fields)

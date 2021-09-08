@@ -23,7 +23,7 @@ namespace Platformex.Application
         protected ILogger Logger => GetLogger();
 
         private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         private IDisposable _timer;
 

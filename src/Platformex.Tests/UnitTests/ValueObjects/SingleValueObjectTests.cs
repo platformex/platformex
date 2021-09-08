@@ -174,7 +174,7 @@ public class SingleValueObjectTests : Test
 
             // Assert
             with.Should().NotBeNull();
-            with?.I.Should().BeNull();
+            with?.I.Should()?.BeNull();
         }
 
         [Fact]
@@ -188,7 +188,7 @@ public class SingleValueObjectTests : Test
 
             // Assert
             with.Should().NotBeNull();
-            with?.I.Should().BeNull();
+            with?.I.Should()?.BeNull();
         }
 
         [Fact]
@@ -203,7 +203,7 @@ public class SingleValueObjectTests : Test
 
             // Assert
             with.Should().NotBeNull();
-            with?.I.Value.Should().Be(i);
+            with?.I.Value.Should()?.Be(i);
         }
 
         [Fact]

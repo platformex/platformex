@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Siam.Tests", "src\Siam.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platformex.Tests", "src\Platformex.Tests\Platformex.Tests.csproj", "{E9B8C916-84EA-4CFB-8D55-76F3CEA1BB91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siam.IdentityServer", "src\Siam.IdentityServer\Siam.IdentityServer.csproj", "{BAEFD350-14C6-4724-B04C-38267F4EE1E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{E9B8C916-84EA-4CFB-8D55-76F3CEA1BB91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9B8C916-84EA-4CFB-8D55-76F3CEA1BB91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9B8C916-84EA-4CFB-8D55-76F3CEA1BB91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAEFD350-14C6-4724-B04C-38267F4EE1E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAEFD350-14C6-4724-B04C-38267F4EE1E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAEFD350-14C6-4724-B04C-38267F4EE1E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAEFD350-14C6-4724-B04C-38267F4EE1E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +103,7 @@ Global
 		{03C3B9D1-795E-4868-BC58-39A1623B8D3F} = {2E10B10A-6BCC-4D6F-BB04-EE9BD6C101F0}
 		{2BB044BB-5064-487B-B383-E5D90FEC0B25} = {2E10B10A-6BCC-4D6F-BB04-EE9BD6C101F0}
 		{0507A52A-0182-4251-A764-594B19482008} = {2E10B10A-6BCC-4D6F-BB04-EE9BD6C101F0}
+		{BAEFD350-14C6-4724-B04C-38267F4EE1E3} = {2E10B10A-6BCC-4D6F-BB04-EE9BD6C101F0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A74ED1D7-E689-411B-9501-70466B920CFB}
