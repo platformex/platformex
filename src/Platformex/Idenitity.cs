@@ -12,6 +12,7 @@ namespace Platformex
         string Value { get; }
     }
 
+    [Serializable]
     [JsonConverter(typeof(IdentityConverter))]
     public abstract class Identity<T> : SingleValueObject<string>, IIdentity
         where T : Identity<T>

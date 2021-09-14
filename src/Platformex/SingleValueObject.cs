@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace Platformex
 {
+    [Serializable]
     public abstract class SingleValueObject<T> : ValueObject, IComparable, ISingleValueObject
         where T : IComparable
     {
