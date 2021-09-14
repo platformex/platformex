@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace Platformex
 {
+    [Serializable]
     public abstract class ValueObject
     {
         private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> TypeProperties = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();

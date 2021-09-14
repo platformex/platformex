@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Platformex
 {
+    [Serializable]
     public abstract class Entity<TIdentity> : ValueObject, IEntity<TIdentity>
     {
         protected Entity(TIdentity id)

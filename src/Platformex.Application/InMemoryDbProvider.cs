@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
@@ -63,11 +64,12 @@ namespace Platformex.Application
 
         private static T CreateDeepCopy<T>(T obj)
         {
-            var serializer = new XmlSerializer(obj.GetType());
             using var ms = new MemoryStream();
-            serializer.Serialize(ms, obj);
-            ms.Seek(0, SeekOrigin.Begin);
-            return (T)serializer.Deserialize(ms);
+            var formatter = new BinaryFormatter();
+            formatter.Serialize(ms, obj);
+            ms.Position = 0;
+
+            return (T) formatter.Deserialize(ms);
         }
 
         public Task CommitTransaction()

@@ -1,5 +1,8 @@
-﻿namespace Siam.MemoContext
+﻿using System;
+
+namespace Siam.MemoContext
 {
+    [Serializable]
     public enum MemoStatus
     {
         Undefined = 0,

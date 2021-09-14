@@ -6,6 +6,7 @@ using Siam.MemoContext.Domain;
 
 namespace Siam.Application
 {
+    [Serializable]
     public class MemoModel : IModel 
     {
         public Guid Id { get; set; }

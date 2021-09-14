@@ -77,7 +77,7 @@ namespace Siam.Host
                             => options.UseSqlServer(
                                 configuration.GetConnectionString("SqlServer")));
 
-                        services.AddScoped<IDbProvider<MemoModel>, MemoDbProvider>();
+                        services.AddScoped<IDbProvider<MemoModel>, InMemoryDbProvider<MemoModel>>();
                     });
 
                     //Действия, которые буду выполнены при запуске узла

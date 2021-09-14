@@ -3,6 +3,7 @@ using Platformex;
 
 namespace Siam.MemoContext
 {
+    [Serializable]
     public class MemoStatusHistory : ValueObject
     {
         public MemoStatusHistory(){}
