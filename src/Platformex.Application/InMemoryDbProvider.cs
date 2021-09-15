@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Platformex.Application
 {
@@ -12,8 +11,9 @@ namespace Platformex.Application
         where TModel : IModel, new()
     {
         private static readonly Dictionary<Guid, TModel> Items = new();
+        private static readonly object _loc = new();
         private Dictionary<Guid, TModel> _transactionalItems;
-
+        
         public InMemoryDbProvider(Dictionary<Guid, TModel> items = null)
         {
             if (items == null) return;
@@ -21,8 +21,13 @@ namespace Platformex.Application
                 Items.Add(key, value);
         }
 
-        private Task<TModel> FindAsync(Guid id) 
-            => Task.FromResult(Items.ContainsKey(id) ? Items[id] : default);
+        private Task<TModel> FindAsync(Guid id)
+        {
+            lock (_loc)
+            {
+                return Task.FromResult(Items.ContainsKey(id) ? Items[id] : default);
+            }
+        }
 
         // ReSharper disable once UnusedParameter.Local
         private TModel Create(Guid id)
@@ -46,19 +51,27 @@ namespace Platformex.Application
 
         public Task SaveChangesAsync(Guid id, TModel model)
         {
-            if (_transactionalItems.ContainsKey(id))
-                _transactionalItems[id] = model;
-            else
+            lock (_loc)
             {
-                _transactionalItems.Add(id, model);
+
+                if (_transactionalItems.ContainsKey(id))
+                    _transactionalItems[id] = model;
+                else
+                {
+                    _transactionalItems.Add(id, model);
+                }
             }
+
             return Task.CompletedTask;
         }
 
         public Task BeginTransaction()
         {
-            _transactionalItems = Items.ToDictionary(entry => entry.Key, 
-                entry => CreateDeepCopy(entry.Value));
+            lock (_loc)
+            {
+                _transactionalItems = Items.ToDictionary(entry => entry.Key, 
+                    entry => CreateDeepCopy(entry.Value));
+            }
             return Task.CompletedTask;
         }
 
@@ -74,22 +87,31 @@ namespace Platformex.Application
 
         public Task CommitTransaction()
         {
-            foreach (var (key, value) in _transactionalItems)
+            lock (_loc)
             {
-                if (Items.ContainsKey(key))
-                    Items[key] = value;
-                else
+                foreach (var (key, value) in _transactionalItems)
                 {
-                    Items.Add(key, value);
+                    if (Items.ContainsKey(key))
+                        Items[key] = value;
+                    else
+                    {
+                        Items.Add(key, value);
+                    }
                 }
+
+                _transactionalItems = null;
             }
-            _transactionalItems = null;
+
             return Task.CompletedTask;
         }
 
         public Task RollbackTransaction()
         {
-            _transactionalItems = null;
+            lock (_loc)
+            {
+                _transactionalItems = null;
+            }
+
             return Task.CompletedTask;
         }
     }
