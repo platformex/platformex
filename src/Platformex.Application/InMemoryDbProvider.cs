@@ -11,7 +11,8 @@ namespace Platformex.Application
         where TModel : IModel, new()
     {
         private static readonly Dictionary<Guid, TModel> Items = new();
-        private static readonly object _loc = new();
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly object Loc = new();
         private Dictionary<Guid, TModel> _transactionalItems;
         
         public InMemoryDbProvider(Dictionary<Guid, TModel> items = null)
@@ -23,7 +24,7 @@ namespace Platformex.Application
 
         private Task<TModel> FindAsync(Guid id)
         {
-            lock (_loc)
+            lock (Loc)
             {
                 return Task.FromResult(Items.ContainsKey(id) ? Items[id] : default);
             }
@@ -51,7 +52,7 @@ namespace Platformex.Application
 
         public Task SaveChangesAsync(Guid id, TModel model)
         {
-            lock (_loc)
+            lock (Loc)
             {
 
                 if (_transactionalItems.ContainsKey(id))
@@ -67,7 +68,7 @@ namespace Platformex.Application
 
         public Task BeginTransaction()
         {
-            lock (_loc)
+            lock (Loc)
             {
                 _transactionalItems = Items.ToDictionary(entry => entry.Key, 
                     entry => CreateDeepCopy(entry.Value));
@@ -87,7 +88,7 @@ namespace Platformex.Application
 
         public Task CommitTransaction()
         {
-            lock (_loc)
+            lock (Loc)
             {
                 foreach (var (key, value) in _transactionalItems)
                 {
@@ -107,7 +108,7 @@ namespace Platformex.Application
 
         public Task RollbackTransaction()
         {
-            lock (_loc)
+            lock (Loc)
             {
                 _transactionalItems = null;
             }
