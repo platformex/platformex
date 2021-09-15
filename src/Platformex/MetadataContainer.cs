@@ -110,5 +110,8 @@ namespace Platformex
 
             return false;
         }
+
+        // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
+        public override int GetHashCode() => base.GetHashCode();
     }
 }

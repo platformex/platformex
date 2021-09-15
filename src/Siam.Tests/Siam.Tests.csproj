@@ -21,7 +21,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Platformex.Tests\Platformex.Tests.csproj" />
       <ProjectReference Include="..\Siam.Application\Siam.Application.csproj" />
-      <ProjectReference Include="..\Siam.Data\Siam.Data.csproj" />
     </ItemGroup>
 
 </Project>
