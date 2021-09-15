@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
-using Platformex;
+﻿using Platformex;
 using Platformex.Domain;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Siam.MemoContext.Domain
 {

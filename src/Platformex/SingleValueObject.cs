@@ -10,7 +10,7 @@ namespace Platformex
     {
         private static readonly Type Type = typeof(T);
         private static readonly TypeInfo TypeInfo = typeof(T).GetTypeInfo();
-        
+
         public T Value { get; }
 
         protected SingleValueObject(T value)
@@ -19,7 +19,7 @@ namespace Platformex
             {
                 throw new ArgumentException($"The value '{value}' isn't defined in enum '{Type.Name}'");
             }
-            
+
             Value = value;
         }
 

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 
 namespace Platformex
 {
@@ -67,7 +67,7 @@ namespace Platformex
         {
             try
             {
-                return (T) Activator.CreateInstance(typeof(T), value);
+                return (T)Activator.CreateInstance(typeof(T), value);
             }
             catch (TargetInvocationException e)
             {
@@ -136,7 +136,7 @@ namespace Platformex
         {
             var strId = reader.Value != null ? reader.Value.ToString() : null;
             var result = Activator.CreateInstance(objectType, args: strId);
-            
+
             return result;
         }
 

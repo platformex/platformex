@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Platformex;
 using Platformex.Domain;
 using Siam.MemoContext;
+using System.Threading.Tasks;
 
 namespace Siam.Application
 {
@@ -22,9 +22,9 @@ namespace Siam.Application
     }
 
     [Subscriber]
-    public class AutoConfimMemoSaga : Saga<AutoConfirmSagaState,AutoConfimMemoSaga>,
-        IStartedBy<MemoId,SigningStarted>,
-        ISubscribeTo<MemoId,MemoSigned>
+    public class AutoConfimMemoSaga : Saga<AutoConfirmSagaState, AutoConfimMemoSaga>,
+        IStartedBy<MemoId, SigningStarted>,
+        ISubscribeTo<MemoId, MemoSigned>
     {
         public async Task<string> HandleAsync(IDomainEvent<MemoId, SigningStarted> domainEvent)
         {

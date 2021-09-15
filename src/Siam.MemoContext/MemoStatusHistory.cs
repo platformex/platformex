@@ -1,12 +1,12 @@
-﻿using System;
-using Platformex;
+﻿using Platformex;
+using System;
 
 namespace Siam.MemoContext
 {
     [Serializable]
     public class MemoStatusHistory : ValueObject
     {
-        public MemoStatusHistory(){}
+        public MemoStatusHistory() { }
         public MemoStatusHistory(DateTime changeDate, string userId, MemoStatus status)
         {
             ChangeDate = changeDate;

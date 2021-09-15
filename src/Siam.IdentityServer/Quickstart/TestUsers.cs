@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Text.Json;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Test;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace Siam.IdentityServer.Quickstart
 {
@@ -24,7 +24,7 @@ namespace Siam.IdentityServer.Quickstart
                     postal_code = 69118,
                     country = "Germany"
                 };
-                
+
                 return new List<TestUser>
                 {
                     new TestUser

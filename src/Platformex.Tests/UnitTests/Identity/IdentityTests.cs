@@ -1,6 +1,6 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Platformex.Tests.TestHelpers;
+using System;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.Identity

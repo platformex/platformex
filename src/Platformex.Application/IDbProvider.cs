@@ -12,7 +12,7 @@ namespace Platformex.Application
         /// <param name="id"></param>
         /// <returns>(модель и флаг создания модели) </returns>
         Task<(TModel model, bool isCreated)> LoadOrCreate(Guid id);
-        Task SaveChangesAsync(Guid id,  TModel model);
+        Task SaveChangesAsync(Guid id, TModel model);
         Task BeginTransaction();
         Task CommitTransaction();
         Task RollbackTransaction();

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Platformex;
+﻿using Platformex;
 using Siam.MemoContext;
+using System.Collections.Generic;
 
 namespace Siam.Application.Queries
 {

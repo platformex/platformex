@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GraphQL;
+﻿using GraphQL;
 using GraphQL.Execution;
 using GraphQL.Language.AST;
 using GraphQL.Resolvers;
 using GraphQL.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Platformex.Web.GraphQL
 {
@@ -24,7 +24,7 @@ namespace Platformex.Web.GraphQL
             {
                 var name = query.Value.QueryType.Name;
                 name = !name.EndsWith("Query") ? name : name.Substring(0, name.Length - "Query".Length);
-                _handlers.Add(name, typeof(IGraphQueryHandler<,>).MakeGenericType(query.Value.QueryType, 
+                _handlers.Add(name, typeof(IGraphQueryHandler<,>).MakeGenericType(query.Value.QueryType,
                     query.Value.ResultType));
             }
         }
@@ -33,8 +33,8 @@ namespace Platformex.Web.GraphQL
         {
             return new FieldType
             {
-                ResolvedType = new ObjectGraphTypeFromDomain("Queries", 
-                    _platform.Definitions.Queries.Select(i=>i.Value).ToList(), 
+                ResolvedType = new ObjectGraphTypeFromDomain("Queries",
+                    _platform.Definitions.Queries.Select(i => i.Value).ToList(),
                     _provider),
                 Name = "Queries",
                 //Description = _domainDefinition.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description,

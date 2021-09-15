@@ -1,12 +1,12 @@
-﻿using System;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.ValueObjects
 {
-public class SingleValueObjectTests : Test
+    public class SingleValueObjectTests : Test
     {
         public class StringSingleValue : SingleValueObject<string>
         {
@@ -77,21 +77,21 @@ public class SingleValueObjectTests : Test
             // Arrange
             var values = new[]
                 {
-                    new MagicEnumSingleValue(MagicEnum.Zero), 
-                    new MagicEnumSingleValue(MagicEnum.Three), 
-                    new MagicEnumSingleValue(MagicEnum.One), 
-                    new MagicEnumSingleValue(MagicEnum.Two), 
+                    new MagicEnumSingleValue(MagicEnum.Zero),
+                    new MagicEnumSingleValue(MagicEnum.Three),
+                    new MagicEnumSingleValue(MagicEnum.One),
+                    new MagicEnumSingleValue(MagicEnum.Two),
                 };
-            
+
             // Act
             var orderedValues = values
                 .OrderBy(v => v)
                 .Select(v => v.Value)
                 .ToList();
-            
+
             // Assert
             orderedValues.Should().BeEquivalentTo(
-                new []
+                new[]
                 {
                     MagicEnum.Zero,
                     MagicEnum.One,
@@ -141,10 +141,10 @@ public class SingleValueObjectTests : Test
         }
 
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
-            {
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore
-            };
+        {
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore
+        };
 
         [JsonConverter(typeof(SingleValueObjectConverter))]
         public class IntSingleValue : SingleValueObject<int>

@@ -1,25 +1,25 @@
-﻿using System;
-using GraphQL.Types;
+﻿using GraphQL.Types;
+using System;
 
 namespace Platformex.Web.GraphQL
 {
     internal class GraphSchemaInternal : Schema
     {
         public GraphSchemaInternal(IServiceProvider provider) : base(new CustomServiceProvider(provider))
-            /*, type =>
+        /*, type =>
+    {
+        var result = (IGraphType)provider.GetService(type);
+        if (result == null && type.GetGenericTypeDefinition() == typeof(EnumerationGraphType<>))
         {
-            var result = (IGraphType)provider.GetService(type);
-            if (result == null && type.GetGenericTypeDefinition() == typeof(EnumerationGraphType<>))
-            {
-                //TODO: Refactoring
-                return (IGraphType)Activator.CreateInstance(type);
-            }
+            //TODO: Refactoring
+            return (IGraphType)Activator.CreateInstance(type);
+        }
 
-            return null;
-        })*/
+        return null;
+    })*/
         {
-            var root = (Root) provider.GetService(typeof(Root));
-            if (root != null) 
+            var root = (Root)provider.GetService(typeof(Root));
+            if (root != null)
                 Query = root;
         }
     }

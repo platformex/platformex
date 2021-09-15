@@ -1,5 +1,5 @@
-﻿using System;
-using Orleans;
+﻿using Orleans;
+using System;
 
 namespace Platformex
 {
@@ -8,7 +8,7 @@ namespace Platformex
         public static TIdentity GetId<TIdentity>(this IGrain grain)
         {
             var strId = grain.GetGrainIdentity().PrimaryKeyString;
-            return  (TIdentity) Activator.CreateInstance(typeof(TIdentity), strId);
+            return (TIdentity)Activator.CreateInstance(typeof(TIdentity), strId);
         }
     }
 }

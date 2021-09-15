@@ -40,5 +40,5 @@ namespace Siam.MemoContext
             CustomerAddress = customerAddress;
         }
     }
-    
+
 }

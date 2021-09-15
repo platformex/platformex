@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-[assembly:InternalsVisibleTo("Platformex.Application")]
+[assembly: InternalsVisibleTo("Platformex.Application")]
 
 namespace Platformex.Domain
 {
@@ -13,7 +13,7 @@ namespace Platformex.Domain
     {
         internal static IReadOnlyList<Tuple<Type, Type, bool>> GetSubscribersTypes(this Type type, bool isSync)
         {
-            var interfaceTypes = new [] {
+            var interfaceTypes = new[] {
                 (isSync ? typeof(ISubscribeSyncTo<,>) : typeof(ISubscribeTo<,>)),
                 (isSync ? typeof(IStartedBySync<,>) : typeof(IStartedBy<,>))
             };
@@ -25,7 +25,7 @@ namespace Platformex.Domain
                 .ToList();
             var types = interfaces
                 .Where(i => i.IsGenericType && interfaceTypes.Contains(i.GetGenericTypeDefinition()))
-                .Select(i => new Tuple<Type, Type, bool>(i.GetGenericArguments()[0], 
+                .Select(i => new Tuple<Type, Type, bool>(i.GetGenericArguments()[0],
                     i.GetGenericArguments()[1], i.Name.Contains("Sync")))
                 .ToList();
 

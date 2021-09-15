@@ -1,4 +1,9 @@
-﻿using System;
+﻿using IdentityModel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,11 +12,6 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using IdentityModel;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Platformex.Web
 {
@@ -139,7 +139,7 @@ namespace Platformex.Web
                 throw new ArgumentException($"Failed to deserialize query '{name}': {ex.Message}", ex);
             }
             var executionResult = await _platform.QueryAsync(query);
-            return executionResult;            
+            return executionResult;
         }
 
         private async Task PublishCommandOrServiceAsync(string contextName, string name, HttpContext context,
@@ -191,7 +191,7 @@ namespace Platformex.Web
                 string id;
                 try
                 {
-                    command = (ICommand) JsonConvert.DeserializeObject(json, commandDefinition.CommandType);
+                    command = (ICommand)JsonConvert.DeserializeObject(json, commandDefinition.CommandType);
                     id = ((JsonConvert.DeserializeObject<JObject>(json))?["Id"] ??
                           throw new InvalidOperationException()).Value<string>();
                     ((Command)command)?.MergeMetadata(new CommandMetadata(metadata));
@@ -214,7 +214,7 @@ namespace Platformex.Web
                     var parameters = obj != null ? obj.Properties()
                         .ToDictionary(i => i.Name, v => v.Value.ToObject<object>()) : new Dictionary<string, object>();
 
-                    return  await _platform.Service(serviceDefinition.InterfaceType).Invoke(serviceDefinition.MethodName, parameters);
+                    return await _platform.Service(serviceDefinition.InterfaceType).Invoke(serviceDefinition.MethodName, parameters);
                 }
 
 

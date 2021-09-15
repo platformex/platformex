@@ -1,6 +1,6 @@
-﻿using System;
+﻿using FluentValidation.Results;
+using System;
 using System.Threading.Tasks;
-using FluentValidation.Results;
 
 namespace Platformex
 {
@@ -23,7 +23,7 @@ namespace Platformex
             ValidationResult = result;
             Error = result.ToString();
         }
-        
+
         public static Result Success => new Result(true, null);
         public static async Task<Result> SucceedAsync(Func<Task> func)
         {
@@ -45,7 +45,7 @@ namespace Platformex
     }
     public class ForbiddenResult : Result
     {
-        public ForbiddenResult (string error) : base(false, error)
+        public ForbiddenResult(string error) : base(false, error)
         {
         }
     }

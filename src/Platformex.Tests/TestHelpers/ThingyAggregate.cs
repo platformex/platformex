@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using Platformex.Application;
+using Platformex.Domain;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Platformex.Application;
-using Platformex.Domain;
 
 namespace Platformex.Tests.TestHelpers
 {
     #region hack
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class IsExternalInit{}
+    public class IsExternalInit { }
 
     #endregion
 
-// События
+    // События
     public record ThingyDeletedEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
     public record ThingyDomainErrorAfterFirstEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
     public record ThingyMessageAddedEvent(ThingyId Id, ThingyMessage ThingyMessage) : IAggregateEvent<ThingyId>;
@@ -23,7 +23,7 @@ namespace Platformex.Tests.TestHelpers
     public record ThingySagaExceptionRequestedEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
     public record ThingySagaStartRequestedEvent(ThingyId Id) : IAggregateEvent<ThingyId>;
 
-//Команды
+    //Команды
     public record ThingyAddMessageCommand(ThingyId Id, ThingyMessage ThingyMessage) : Command, ICommand<ThingyId>;
     public record ThingyAddMessageHistoryCommand(ThingyId Id, ThingyMessage[] ThingyMessages) : Command, ICommand<ThingyId>;
     public record ThingyDeleteCommand(ThingyId Id, PingId PingId) : Command, ICommand<ThingyId>;
@@ -36,7 +36,7 @@ namespace Platformex.Tests.TestHelpers
     public record ThingyRequestSagaCompleteCommand(ThingyId Id) : Command, ICommand<ThingyId>;
     public record ThingyRequestSagaStartCommand(ThingyId Id) : Command, ICommand<ThingyId>;
     public record ThingyThrowExceptionInSagaCommand(ThingyId Id) : Command, ICommand<ThingyId>;
-   
+
 
     public interface IThingyAggregate : IAggregate<ThingyId>,
         ICanDo<ThingyAddMessageCommand, ThingyId>,
@@ -63,9 +63,9 @@ namespace Platformex.Tests.TestHelpers
 
     }
 
-    public class ThingyAggregate : Aggregate<ThingyId, IThingyState,ThingyAggregate>, IThingyAggregate
+    public class ThingyAggregate : Aggregate<ThingyId, IThingyState, ThingyAggregate>, IThingyAggregate
     {
-        public Task<Result> Do(ThingyAddMessageCommand command) 
+        public Task<Result> Do(ThingyAddMessageCommand command)
             => Result.SucceedAsync(() => Emit(new ThingyMessageAddedEvent(command.Id, command.ThingyMessage)));
 
         public Task<Result> Do(ThingyAddMessageHistoryCommand command)

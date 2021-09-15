@@ -61,12 +61,12 @@ namespace Platformex.Domain
 
             var instanceArgument = Expression.Parameter(genericArguments[0]);
 
-            var argumentPairs = funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}).ToList();
+            var argumentPairs = funcArgumentList.Zip(methodArgumentList, (s, d) => new { Source = s, Destination = d }).ToList();
             if (argumentPairs.All(a => a.Source == a.Destination))
             {
                 // No need to do anything fancy, the types are the same
                 var parameters = funcArgumentList.Select(Expression.Parameter).ToList();
-                return Expression.Lambda<TResult>(Expression.Call(instanceArgument, methodInfo, parameters), new [] { instanceArgument }.Concat(parameters)).Compile();
+                return Expression.Lambda<TResult>(Expression.Call(instanceArgument, methodInfo, parameters), new[] { instanceArgument }.Concat(parameters)).Compile();
             }
 
             var lambdaArgument = new List<ParameterExpression>

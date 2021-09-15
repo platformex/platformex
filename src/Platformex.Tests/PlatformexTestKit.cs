@@ -16,9 +16,9 @@ namespace Platformex.Tests
             Silo.AddService<ILoggerFactory>(loggerFactory);
 
             Platform = new TestPlatform();
-            Builder = new PlatformBuilder(Platform); 
+            Builder = new PlatformBuilder(Platform);
             Silo.AddService<IPlatform>(Platform);
-           
+
         }
     }
 }

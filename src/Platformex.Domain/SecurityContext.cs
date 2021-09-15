@@ -42,14 +42,14 @@ namespace Platformex.Domain
         }
 
         public bool CheckRoles(params string[] roles) => roles.Length == 0 || _roles.Intersect(roles).Count() != roles.Length;
-        
+
         internal static string[] GetRolesFrom(object obj)
         {
             var art = obj?.GetType().GetCustomAttribute<HasRolesAttribute>();
             return art != null ? art.Roles ?? Array.Empty<string>() : Array.Empty<string>();
         }
-        internal static bool IsUserRequiredFrom(object obj) 
+        internal static bool IsUserRequiredFrom(object obj)
             => obj?.GetType().GetCustomAttribute<AuthorizedAttribute>() != null;
     }
-    
+
 }

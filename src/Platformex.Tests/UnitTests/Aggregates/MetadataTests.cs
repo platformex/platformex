@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.Aggregates
@@ -16,9 +16,9 @@ namespace Platformex.Tests.UnitTests.Aggregates
 
             // Act
             var sut = new Metadata
-                {
-                    Timestamp = timestamp
-                };
+            {
+                Timestamp = timestamp
+            };
 
             // Assert
             sut.Timestamp.Should().Be(timestamp);
@@ -32,9 +32,9 @@ namespace Platformex.Tests.UnitTests.Aggregates
 
             // Act
             var sut = new Metadata
-                {
-                    EventName = eventName
-                };
+            {
+                EventName = eventName
+            };
 
             // Assert
             sut.EventName.Should().Be(eventName);
@@ -48,9 +48,9 @@ namespace Platformex.Tests.UnitTests.Aggregates
 
             // Act
             var sut = new Metadata
-                {
-                    EventVersion = eventVersion
-                };
+            {
+                EventVersion = eventVersion
+            };
 
             // Assert
             sut.EventVersion.Should().Be(eventVersion);
@@ -64,9 +64,9 @@ namespace Platformex.Tests.UnitTests.Aggregates
 
             // Act
             var sut = new Metadata
-                {
-                    AggregateSequenceNumber = aggregateSequenceNumber
-                };
+            {
+                AggregateSequenceNumber = aggregateSequenceNumber
+            };
 
             // Assert
             sut.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);

@@ -16,7 +16,7 @@ namespace Platformex.Domain
         public IEventMetadata Metadata { get; }
 
         public DateTimeOffset Timestamp { get; }
-        
+
         public DomainEvent(
             TIdentity aggregateIdentity,
             TAggregateEvent aggregateEvent,

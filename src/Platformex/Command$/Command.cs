@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("Platformex.Web")]
+[assembly: InternalsVisibleTo("Platformex.Web")]
 
 namespace Platformex
 {
@@ -34,7 +34,7 @@ namespace Platformex
         }
 
     }
-    
-    
-    
+
+
+
 }

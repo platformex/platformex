@@ -1,8 +1,8 @@
-﻿using System;
+﻿using GraphQL.Execution;
+using GraphQL.Types;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GraphQL.Execution;
-using GraphQL.Types;
 
 namespace Platformex.Web.GraphQL
 {

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Streams;
+using System;
+using System.Threading.Tasks;
 
 namespace Platformex.Domain
 {
@@ -17,7 +17,7 @@ namespace Platformex.Domain
 
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
-        private ILogger GetLogger() 
+        private ILogger GetLogger()
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         protected virtual string GetPrettyName() => $"{GetJobName()}:{this.GetPrimaryKeyString()}";
@@ -53,11 +53,11 @@ namespace Platformex.Domain
         }
 
         public TDomainService Service<TDomainService>() where TDomainService : IService
-        // ReSharper disable once PossibleNullReferenceException
+            // ReSharper disable once PossibleNullReferenceException
             => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
 
 
-        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
+        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command)
             where TIdentity : Identity<TIdentity>
         {
             var platform = ServiceProvider.GetService<IPlatform>();

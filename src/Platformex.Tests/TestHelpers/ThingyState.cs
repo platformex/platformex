@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Platformex.Application;
+using System;
 using System.Collections.Generic;
-using Platformex.Application;
 
 namespace Platformex.Tests.TestHelpers
 {
     public class ThingyState : AggregateStateEx<ThingyId, ThingyState, IThingyState>, IThingyState,
-        ICanApply<ThingyDeletedEvent, ThingyId>, 
+        ICanApply<ThingyDeletedEvent, ThingyId>,
         ICanApply<ThingyDomainErrorAfterFirstEvent, ThingyId>,
         ICanApply<ThingyMessageAddedEvent, ThingyId>,
         ICanApply<ThingyMessageHistoryAddedEvent, ThingyId>,
@@ -18,8 +18,8 @@ namespace Platformex.Tests.TestHelpers
         public Guid Id { get; set; }
 
         private readonly List<PingId> _pingsReceived = new List<PingId>();
-        public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived; 
-        
+        public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
+
         private readonly List<ThingyMessage> _messages = new List<ThingyMessage>();
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
 
@@ -37,12 +37,12 @@ namespace Platformex.Tests.TestHelpers
 
         public void Apply(ThingyPingEvent e) => _pingsReceived.Add(e.PingId);
 
-        public void Apply(ThingySagaCompleteRequestedEvent _) {}
+        public void Apply(ThingySagaCompleteRequestedEvent _) { }
 
-        public void Apply(ThingySagaExceptionRequestedEvent _) {}
+        public void Apply(ThingySagaExceptionRequestedEvent _) { }
 
-        public void Apply(ThingySagaStartRequestedEvent _) {}
+        public void Apply(ThingySagaStartRequestedEvent _) { }
 
-        public ThingyState(IDbProvider<IThingyState> provider) : base(provider) {}
+        public ThingyState(IDbProvider<IThingyState> provider) : base(provider) { }
     }
 }

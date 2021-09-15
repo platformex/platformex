@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Platformex.Application;
+﻿using Platformex.Application;
 using Siam.MemoContext;
 using Siam.MemoContext.Domain;
+using System;
+using System.Collections.Generic;
 
 namespace Siam.Application
 {
@@ -15,7 +15,7 @@ namespace Siam.Application
         public ICollection<MemoStatusHistory> History { get; } = new List<MemoStatusHistory>();
     }
 
-    public class MemoState :  AggregateStateEx<MemoId, MemoState, MemoModel>, IMemoState,
+    public class MemoState : AggregateStateEx<MemoId, MemoState, MemoModel>, IMemoState,
     ICanApply<MemoUpdated, MemoId>,
     ICanApply<SigningStarted, MemoId>,
     ICanApply<MemoSigned, MemoId>,

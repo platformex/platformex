@@ -1,9 +1,9 @@
-﻿using System;
-using GraphQL.Server;
+﻿using GraphQL.Server;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Infrastructure;
+using System;
 
 namespace Platformex.Web.GraphQL
 {
@@ -51,7 +51,7 @@ namespace Platformex.Web.GraphQL
                     })
                     .AddSystemTextJson()
                     .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true);
-                
+
                 //services.AddTransient<IGraphQLRequestDeserializer, GraphQLRequestDeserializer>();
 
 
@@ -68,7 +68,7 @@ namespace Platformex.Web.GraphQL
 
             UseExtensions.AddPreUseAction(app =>
             {
-                            
+
                 if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlOptions)) is PlatformexGraphQlOptions optionsGraphQl)
                     app.UseGraphQL<ISchema>("/" + optionsGraphQl.BasePath.Trim('/'));
 
@@ -85,7 +85,7 @@ namespace Platformex.Web.GraphQL
             builder.AddConfigureServicesActions(services =>
             {
                 services.AddSingleton(options);
-                
+
             });
 
             return builder;

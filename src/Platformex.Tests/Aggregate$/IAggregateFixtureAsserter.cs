@@ -1,5 +1,5 @@
-﻿using System;
-using Platformex.Domain;
+﻿using Platformex.Domain;
+using System;
 
 namespace Platformex.Tests
 {
@@ -15,7 +15,7 @@ namespace Platformex.Tests
 
         IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectState(
             Predicate<TState> aggregateEventPredicate = null);
-            
+
 
         IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectResult(Predicate<Result> aggregateReply = null);
 

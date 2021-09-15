@@ -1,16 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Concurrency;
 using Orleans.Streams;
+using System;
+using System.Threading.Tasks;
 
 namespace Platformex.Domain
 {
     [Reentrant]
-    public abstract class Subscriber<TIdentity, TEvent> : Grain, ISubscriber<TIdentity, TEvent> 
-        where TIdentity : Identity<TIdentity> 
+    public abstract class Subscriber<TIdentity, TEvent> : Grain, ISubscriber<TIdentity, TEvent>
+        where TIdentity : Identity<TIdentity>
         where TEvent : IAggregateEvent<TIdentity>
     {
         protected bool IsSync { get; }
@@ -24,7 +24,7 @@ namespace Platformex.Domain
 
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
-        private ILogger GetLogger() 
+        private ILogger GetLogger()
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         protected virtual string GetPrettyName() => $"{GetSubscriberName()}:{this.GetPrimaryKeyString()}";
@@ -41,8 +41,8 @@ namespace Platformex.Domain
                 .SubscribeAsync((_, _) => Task.CompletedTask);
 
 
-            var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty, 
-                StreamHelper.EventStreamName(typeof(TEvent),IsSync));
+            var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty,
+                StreamHelper.EventStreamName(typeof(TEvent), IsSync));
 
             //Подписываемся на события
             await eventStream.SubscribeAsync(async (data, _) => { await ProcessEventInternal(data); });
@@ -78,7 +78,7 @@ namespace Platformex.Domain
 
                 try
                 {
-                    await HandleAsync((IDomainEvent<TIdentity, TEvent>) data).ConfigureAwait(false);
+                    await HandleAsync((IDomainEvent<TIdentity, TEvent>)data).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -93,7 +93,7 @@ namespace Platformex.Domain
                 Logger.LogInformation($"(Subscriber [{GetSubscriberName()}] handling event async {data.GetPrettyName()}...");
                 try
                 {
-                    var __ = HandleAsync((IDomainEvent<TIdentity, TEvent>) data).ConfigureAwait(false);
+                    var __ = HandleAsync((IDomainEvent<TIdentity, TEvent>)data).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -106,10 +106,10 @@ namespace Platformex.Domain
         }
 
         public TDomainService Service<TDomainService>() where TDomainService : IService
-        // ReSharper disable once PossibleNullReferenceException
+            // ReSharper disable once PossibleNullReferenceException
             => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
 
-        protected Task<Result> ExecuteAsync<T>(ICommand<T> command) 
+        protected Task<Result> ExecuteAsync<T>(ICommand<T> command)
             where T : Identity<T>
         {
             var platform = ServiceProvider.GetService<IPlatform>();

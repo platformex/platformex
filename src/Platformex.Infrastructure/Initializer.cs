@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Orleans;
+using System;
+using System.Threading.Tasks;
 
 namespace Platformex.Infrastructure
 {
@@ -21,7 +21,7 @@ namespace Platformex.Infrastructure
         }
         public static async Task InitAsync(IServiceProvider provider)
         {
-            await  provider
+            await provider
                 .GetRequiredService<IGrainFactory>()
                 .GetGrain<IInitializer>("IInitializer")
                 .InitAsync();

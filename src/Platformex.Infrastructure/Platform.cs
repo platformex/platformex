@@ -1,13 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Orleans;
 using Platformex.Application;
 using Platformex.Domain;
+using System;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Platformex.Infrastructure
 {
@@ -43,11 +43,11 @@ namespace Platformex.Infrastructure
                 }
                 return sb.ToString();
             }
-            
+
             var json = JsonConvert.SerializeObject(query);
             return CalculateMd5Hash(json);
         }
-        public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) 
+        public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
         {
             var id = GenerateQueryId(query);
             var queryGarin = _client.GetGrain<IQueryHandler<TResult>>(id);
@@ -64,13 +64,13 @@ namespace Platformex.Infrastructure
                                                                             && j.GetGenericTypeDefinition() ==
                                                                             typeof(IQuery<>));
             if (queryInterface == null) throw new InvalidOperationException();
-                    
+
             var resultType = queryInterface.GetGenericArguments()[0];
 
             var handlerInterface = typeof(IQueryHandler<>).MakeGenericType(resultType);
 
-            var queryGarin = (IQueryHandler) _client.GetGrain(handlerInterface, id);
-            
+            var queryGarin = (IQueryHandler)_client.GetGrain(handlerInterface, id);
+
             return await queryGarin.QueryAsync(query);
         }
 
@@ -83,13 +83,13 @@ namespace Platformex.Infrastructure
                                                                           && j.GetGenericTypeDefinition() ==
                                                                           typeof(ICommand<>));
             if (commandType == null) throw new InvalidOperationException();
-                    
+
             var identityType = commandType.GetGenericArguments()[0];
 
             if (!Definitions.Aggregates.TryGetValue(identityType, out var aggregateDefinition))
                 throw new InvalidOperationException();
 
-            var grain = (IAggregate) _client.GetGrain(aggregateDefinition.InterfaceType, aggregateId);
+            var grain = (IAggregate)_client.GetGrain(aggregateDefinition.InterfaceType, aggregateId);
 
             var result = await grain.DoAsync(command);
             return result;
@@ -99,18 +99,18 @@ namespace Platformex.Infrastructure
         {
             //Посылаем сообщения асинхронно
             var _ = _client.GetStreamProvider("EventBusProvider")
-                .GetStream<IDomainEvent>(Guid.Empty, 
-                    StreamHelper.EventStreamName(domainEvent.EventType,false))
+                .GetStream<IDomainEvent>(Guid.Empty,
+                    StreamHelper.EventStreamName(domainEvent.EventType, false))
                 .OnNextAsync(domainEvent).ConfigureAwait(false);
 
             //Посылаем сообщения синхронно
             await _client.GetStreamProvider("EventBusProvider")
-                .GetStream<IDomainEvent>(Guid.Empty, 
+                .GetStream<IDomainEvent>(Guid.Empty,
                     StreamHelper.EventStreamName(domainEvent.EventType, true))
-                .OnNextAsync(domainEvent).ConfigureAwait(false);        
+                .OnNextAsync(domainEvent).ConfigureAwait(false);
         }
 
-        public TDomainService Service<TDomainService>() where TDomainService : IService 
+        public TDomainService Service<TDomainService>() where TDomainService : IService
             => _client.GetGrain<TDomainService>(Guid.NewGuid());
 
         public IService Service(Type serviceType)

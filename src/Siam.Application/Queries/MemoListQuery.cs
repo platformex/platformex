@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Platformex;
+﻿using Platformex;
 using Platformex.Application;
 using Siam.MemoContext;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Siam.Application.Queries
 {
@@ -10,7 +10,7 @@ namespace Siam.Application.Queries
     {
         public int Take { get; set; }
         public int Skip { get; set; }
-        
+
     }
 
     public class MemoListItem
@@ -18,7 +18,7 @@ namespace Siam.Application.Queries
         public string Id { get; set; }
         public MemoDocument Document { get; set; }
         public MemoStatus Status { get; set; }
-        public ICollection<MemoStatusHistory> History { get; set; } = new List<MemoStatusHistory>();    
+        public ICollection<MemoStatusHistory> History { get; set; } = new List<MemoStatusHistory>();
     }
 
     //Обработчик запроса

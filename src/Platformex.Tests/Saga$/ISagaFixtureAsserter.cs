@@ -1,12 +1,12 @@
-﻿using System;
-using Platformex.Domain;
+﻿using Platformex.Domain;
+using System;
 
 namespace Platformex.Tests
 {
     public interface ISagaFixtureAsserter<TSaga, out TSagaState>
-        where TSaga :Saga<TSagaState, TSaga> where TSagaState : ISagaState
+        where TSaga : Saga<TSagaState, TSaga> where TSagaState : ISagaState
     {
-        ISagaFixtureAsserter<TSaga, TSagaState> AndWhen<TIdentity,TAggregateEvent>(TAggregateEvent @event,
+        ISagaFixtureAsserter<TSaga, TSagaState> AndWhen<TIdentity, TAggregateEvent>(TAggregateEvent @event,
             Result[] commandResults = null, EventMetadata metadata = null)
             where TAggregateEvent : IAggregateEvent<TIdentity> where TIdentity : Identity<TIdentity>;
 

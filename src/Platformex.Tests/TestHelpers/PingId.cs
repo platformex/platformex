@@ -7,7 +7,7 @@ namespace Platformex.Tests.TestHelpers
         public static PingId New => new PingId(Guid.NewGuid().ToString());
         public static PingId With(string value) { return new PingId(value); }
 
-        public PingId(string value) : base (value)
+        public PingId(string value) : base(value)
         {
         }
     }

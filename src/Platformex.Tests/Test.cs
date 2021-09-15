@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Platformex.Tests
 {
@@ -14,7 +14,7 @@ namespace Platformex.Tests
         protected IFixture Fixture { get; private set; }
         protected ILogger Log => LogHelper.Logger;
 
-        public  Test()
+        public Test()
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
             Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
@@ -56,7 +56,7 @@ namespace Platformex.Tests
             return mock;
         }
 
-        
+
 
         protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)
         {

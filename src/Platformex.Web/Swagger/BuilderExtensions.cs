@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -11,6 +6,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Platformex.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 
 namespace Platformex.Web.Swagger
 {
@@ -35,17 +35,17 @@ namespace Platformex.Web.Swagger
             builder.AddConfigureServicesActions(services =>
             {
                 services.AddSingleton(options);
-                
+
                 services.TryAdd(ServiceDescriptor
                     .Transient<IApiDescriptionGroupCollectionProvider,
                         CommandsApiDescriptionGroupCollectionProvider>());
-                            
+
                 services.AddSingleton<IApiDescriptionGroupCollectionProvider,
                     CommandsApiDescriptionGroupCollectionProvider>();
 
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo {Title = options.Name + " API", Version = "v1"});
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = options.Name + " API", Version = "v1" });
                     c.OperationFilter<DescriptionFilter>();
                     c.OperationFilter<AuthorizeCheckOperationFilter>();
                     c.SchemaFilter<ReadOnlyFilter>();
@@ -67,9 +67,9 @@ namespace Platformex.Web.Swagger
                             }
                         }
                     });
-                    c.DocInclusionPredicate((docName, apiDesc) 
+                    c.DocInclusionPredicate((docName, apiDesc)
                         => apiDesc.TryGetMethodInfo(out _) && apiDesc.HttpMethod != null);
-                    
+
                     /*var basePath = AppDomain.CurrentDomain.BaseDirectory;
                     var files = Directory.GetFiles(basePath, "*.xml");
                     foreach (var file in files)
@@ -109,7 +109,7 @@ namespace Platformex.Web.Swagger
             var isCommand = actionType.GetInterfaces().Any(x =>
                 x.IsGenericType &&
                 x.GetGenericTypeDefinition() == typeof(ICommand<>));
-                
+
             var isQuery = actionType.GetInterfaces().Any(x =>
                 x.IsGenericType &&
                 x.GetGenericTypeDefinition() == typeof(ICommand<>));

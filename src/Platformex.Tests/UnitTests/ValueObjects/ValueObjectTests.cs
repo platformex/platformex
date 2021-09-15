@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using FluentAssertions;
+using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.ValueObjects
@@ -18,7 +18,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
 
             public ListObject(params string[] strings)
             {
-                StringValues = strings.Select(s => new StringObject{StringValue = s}).ToList();
+                StringValues = strings.Select(s => new StringObject { StringValue = s }).ToList();
             }
 
             protected override IEnumerable<object> GetEqualityComponents()

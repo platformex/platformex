@@ -7,7 +7,7 @@ namespace Platformex
     {
         public ValidationResult Validate(object source)
         {
-            return base.Validate((T) source);
+            return base.Validate((T)source);
         }
     }
 }

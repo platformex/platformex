@@ -1,27 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Concurrency;
 using Orleans.Streams;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Platformex.Domain
 {
     public interface ISaga : IGrainWithStringKey
     {
         Task ProcessEvent(IDomainEvent e);
-    } 
+    }
 
-    public interface IStartedBy<in TIdentity, in TAggregateEvent> 
+    public interface IStartedBy<in TIdentity, in TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent<TIdentity>
         where TIdentity : Identity<TIdentity>
     {
         Task<string> HandleAsync(IDomainEvent<TIdentity, TAggregateEvent> domainEvent);
     }
-    public interface IStartedBySync<in TIdentity, in TAggregateEvent> : IStartedBy<TIdentity, TAggregateEvent> 
+    public interface IStartedBySync<in TIdentity, in TAggregateEvent> : IStartedBy<TIdentity, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent<TIdentity>
         where TIdentity : Identity<TIdentity>
     {
@@ -34,11 +34,11 @@ namespace Platformex.Domain
     {
         private static readonly IReadOnlyDictionary<Type, Func<TSaga, IDomainEvent, Task>> ApplyMethods = typeof(TSaga)
             .GetReadModelEventApplyMethods<TSaga>();
-        
-        private static readonly IReadOnlyList<Tuple<Type, Type, bool>> AsyncSubscriptionTypes = 
+
+        private static readonly IReadOnlyList<Tuple<Type, Type, bool>> AsyncSubscriptionTypes =
             typeof(TSaga).GetSubscribersTypes(false);
 
-        private static readonly IReadOnlyList<Tuple<Type, Type, bool>> SyncSubscriptionTypes = 
+        private static readonly IReadOnlyList<Tuple<Type, Type, bool>> SyncSubscriptionTypes =
             typeof(TSaga).GetSubscribersTypes(true);
 
         // ReSharper disable once StaticMemberInGenericType
@@ -48,20 +48,20 @@ namespace Platformex.Domain
 
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
-        private ILogger GetLogger() 
+        private ILogger GetLogger()
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         private IDisposable _timer;
         protected IDomainEvent PinnedEvent;
 
         public TDomainService Service<TDomainService>() where TDomainService : IService
-        // ReSharper disable once PossibleNullReferenceException
+            // ReSharper disable once PossibleNullReferenceException
             => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
 
-        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
+        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command)
             where TIdentity : Identity<TIdentity>
         {
-            var commandMetadata = (CommandMetadata) command.Metadata;
+            var commandMetadata = (CommandMetadata)command.Metadata;
 
             if (PinnedEvent != null)
             {
@@ -79,7 +79,7 @@ namespace Platformex.Domain
 
         internal TSagaState TestOnlyGetState() => State;
         internal void TestOnlySetState(TSagaState newState) => State = newState;
-       
+
         public TSagaState State { get; private set; }
 
         protected virtual string GetPrettyName() => $"{GetSagaName()}:{this.GetPrimaryKeyString()}";
@@ -89,16 +89,16 @@ namespace Platformex.Domain
         public virtual async Task ProcessEvent(IDomainEvent e)
         {
             Logger.LogInformation("(Saga [{PrettyName}] received event {EventPrettyName}", GetPrettyName(), e.GetPrettyName());
-            
+
             //Проверяем, является ли он стартовым 
             if (!StartedEventTypes.Contains(e.EventType) && !_isStarted)
             {
-                Logger.LogWarning( $"(Saga [{GetPrettyName()}] event {e.GetPrettyName()} is not start-event.");
+                Logger.LogWarning($"(Saga [{GetPrettyName()}] event {e.GetPrettyName()} is not start-event.");
                 return; //Игнорируем 
             }
 
             PinnedEvent = e;
-            
+
             //Запускаем транзакцию
             await State.BeginTransaction();
 
@@ -146,27 +146,27 @@ namespace Platformex.Domain
             try
             {
                 var streamProvider = GetStreamProvider("EventBusProvider");
-                
+
                 //Игнорируем инициализирующее событие 
                 await streamProvider.GetStream<string>(Guid.Empty, "InitializeSubscriptions")
                     .SubscribeAsync((_, _) => Task.CompletedTask);
 
-                if (isManager) 
+                if (isManager)
                 {
                     NoDeactivateRoot();
 
                     foreach (var subscriptionType in AsyncSubscriptionTypes)
                     {
-                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty, 
-                                StreamHelper.EventStreamName(subscriptionType.Item2,false));
+                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty,
+                                StreamHelper.EventStreamName(subscriptionType.Item2, false));
 
                         await SubscribeAndProcess(eventStream, false);
                     }
-                   
+
                     foreach (var subscriptionType in SyncSubscriptionTypes)
                     {
-                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty, 
-                            StreamHelper.EventStreamName(subscriptionType.Item2,true));
+                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty,
+                            StreamHelper.EventStreamName(subscriptionType.Item2, true));
 
                         await SubscribeAndProcess(eventStream, true);
                     }
@@ -197,7 +197,7 @@ namespace Platformex.Domain
             await eventStream.SubscribeAsync(async (data, _) =>
             {
                 Logger.LogInformation($"(Saga Manager [{GetSagaName()}] received event {data.GetPrettyName()}.");
-                
+
                 //Определяем ID саги
                 var prefix = GetSagaPrefix();
                 var correlatedSagas = GetCorrelatedSagas(prefix, data.Metadata.CorrelationIds);
@@ -225,7 +225,7 @@ namespace Platformex.Domain
             });
         }
 
-        private ICollection<string> GetCorrelatedSagas(string prefix, IReadOnlyCollection<string> correlationIds) 
+        private ICollection<string> GetCorrelatedSagas(string prefix, IReadOnlyCollection<string> correlationIds)
             => correlationIds.Where(i => i.StartsWith(prefix)).ToList();
 
         private string GetSagaPrefix() => GetType().FullName;
@@ -245,8 +245,8 @@ namespace Platformex.Domain
             _timer = RegisterTimer(_ =>
             {
                 var key = this.GetPrimaryKeyString();
-                
-                if (key == null) 
+
+                if (key == null)
                     DelayDeactivation(TimeSpan.FromDays(100));
 
                 _timer?.Dispose();

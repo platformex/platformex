@@ -1,14 +1,14 @@
-﻿using System;
+﻿using GraphQL;
+using GraphQL.Execution;
+using GraphQL.Resolvers;
+using GraphQL.Types;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using GraphQL;
-using GraphQL.Execution;
-using GraphQL.Resolvers;
-using GraphQL.Types;
-using Newtonsoft.Json;
 
 namespace Platformex.Web.GraphQL
 {
@@ -59,12 +59,12 @@ namespace Platformex.Web.GraphQL
             return await ReadAsync(ParseModel<TQuery>(arguments));
         }
 
-        private Task<TResult> ExecuteQuery(IResolveFieldContext context) => 
+        private Task<TResult> ExecuteQuery(IResolveFieldContext context) =>
             ReadAsync(ParseModel<TQuery>(context.Arguments));
 
         private T ParseModel<T>(IDictionary<string, ArgumentValue> arguments) where T : IQuery<TResult>
             => JsonConvert.DeserializeObject<T>(
-                JsonConvert.SerializeObject(arguments != null ? arguments.ToDictionary(i=>i.Key, i=>i.Value.Value) : new Dictionary<string, object>()));
+                JsonConvert.SerializeObject(arguments != null ? arguments.ToDictionary(i => i.Key, i => i.Value.Value) : new Dictionary<string, object>()));
 
         public static Func<object, object> ConvertFunc<TParent, TRes>(Func<TParent, TRes> func) => arg => func((TParent)arg);
     }

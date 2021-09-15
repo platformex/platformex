@@ -7,7 +7,7 @@ namespace Platformex.Application
     {
         Guid Id { get; set; }
     }
-    public abstract class AggregateStateEx<TIdentity, TAggregateState, TModel> :AggregateState<TIdentity, TAggregateState> 
+    public abstract class AggregateStateEx<TIdentity, TAggregateState, TModel> : AggregateState<TIdentity, TAggregateState>
         where TIdentity : Identity<TIdentity>
         where TModel : IModel
     {
@@ -17,7 +17,7 @@ namespace Platformex.Application
 
         public static TAggregateState FromModel(TModel model)
         {
-            var item = (TAggregateState)Activator.CreateInstance(typeof(TAggregateState), new object[]{null});
+            var item = (TAggregateState)Activator.CreateInstance(typeof(TAggregateState), new object[] { null });
 
             (item as AggregateStateEx<TIdentity, TAggregateState, TModel>)?.SetModel(model);
             return item;
@@ -34,7 +34,7 @@ namespace Platformex.Application
         protected override async Task<bool> LoadStateInternal(TIdentity id)
         {
             bool isCreated;
-            (Model,isCreated) = await Provider.LoadOrCreate(id.GetGuid());
+            (Model, isCreated) = await Provider.LoadOrCreate(id.GetGuid());
             Model.Id = Model.Id == Guid.Empty ? id.GetGuid() : Model.Id;
             return isCreated;
         }

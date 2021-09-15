@@ -2,7 +2,7 @@
 
 namespace Platformex.Domain
 {
-    public interface ISagaState 
+    public interface ISagaState
     {
         /// <summary>
         /// Загрузка состояния

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Orleans;
+﻿using Orleans;
 using Platformex.Domain;
+using System;
+using System.Threading.Tasks;
 
 namespace Platformex.Application
 {
@@ -16,16 +16,16 @@ namespace Platformex.Application
             var requiredUser = SecurityContext.IsUserRequiredFrom(query);
             if (requiredUser && !sc.IsAuthorized)
                 throw new UnauthorizedAccessException();
-            
+
             var requiredRole = SecurityContext.GetRolesFrom(query);
             if (requiredRole != null)
                 sc.HasRoles(requiredRole);
 
             SecurityContext = sc;
-            return ExecuteAsync((TQuery) query);
+            return ExecuteAsync((TQuery)query);
         }
 
         protected abstract Task<TResult> ExecuteAsync(TQuery query);
-        public async Task<object> QueryAsync(IQuery query) => await QueryAsync((IQuery<TResult>) query);
+        public async Task<object> QueryAsync(IQuery query) => await QueryAsync((IQuery<TResult>)query);
     }
 }

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Platformex.Domain;
+using System;
 using System.Collections.Generic;
-using Platformex.Domain;
 using Xunit;
 
 namespace Platformex.Tests
@@ -12,13 +12,13 @@ namespace Platformex.Tests
         private readonly PlatformexTestKit _testKit;
         private TSaga _saga;
         // ReSharper disable once UnusedMember.Local
-        private TSagaState State => _saga.TestOnlyGetState(); 
+        private TSagaState State => _saga.TestOnlyGetState();
         private readonly Stack<ICommand> _commands = new Stack<ICommand>();
         private readonly Stack<IDomainEvent> _events = new Stack<IDomainEvent>();
-        
+
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
-        private void StartMonitoring()=> _isMonitoring = true;
+        private void StartMonitoring() => _isMonitoring = true;
 
 
         public SagaFixture(PlatformexTestKit testKit)
@@ -30,15 +30,15 @@ namespace Platformex.Tests
         {
             _testKit.Platform.EventPublished += (_, args) =>
             {
-                if (_isMonitoring) 
+                if (_isMonitoring)
                     _events.Push(args.DomainEvent);
             };
             _testKit.Platform.CommandExecuted += (_, args) =>
             {
-                if (_isMonitoring) 
+                if (_isMonitoring)
                     _commands.Push(args.Command);
             };
-            
+
             _saga = _testKit.TestKitSilo.CreateGrainAsync<TSaga>(Guid.NewGuid().ToString()).GetAwaiter().GetResult();
             return this;
         }
@@ -62,9 +62,9 @@ namespace Platformex.Tests
             return this;
         }
 
-        public ISagaFixtureAsserter<TSaga, TSagaState> When<TIdentity,TAggregateEvent>(TAggregateEvent @event, 
+        public ISagaFixtureAsserter<TSaga, TSagaState> When<TIdentity, TAggregateEvent>(TAggregateEvent @event,
             Result[] commandResults = null, EventMetadata metadata = null)
-            where TIdentity : Identity<TIdentity> where TAggregateEvent : IAggregateEvent<TIdentity> 
+            where TIdentity : Identity<TIdentity> where TAggregateEvent : IAggregateEvent<TIdentity>
         {
             StartMonitoring();
 
@@ -73,7 +73,7 @@ namespace Platformex.Tests
                 1, metadata != null ? metadata : EventMetadata.Empty);
             _saga.ProcessEvent(domainEvent).GetAwaiter().GetResult();
             _testKit.Platform.ClearCommandResults();
-            
+
             StopMonitoring();
             return this;
         }
@@ -84,7 +84,7 @@ namespace Platformex.Tests
             where TIdentity : Identity<TIdentity>
             => When<TIdentity, TAggregateEvent>(@event, commandResults, metadata);
 
-        public ISagaFixtureAsserter<TSaga, TSagaState> ThenExpect<TIdentity, TCommand>(Predicate<TCommand> commandPredicate = null) 
+        public ISagaFixtureAsserter<TSaga, TSagaState> ThenExpect<TIdentity, TCommand>(Predicate<TCommand> commandPredicate = null)
             where TIdentity : Identity<TIdentity> where TCommand : ICommand<TIdentity>
         {
             if (_commands.Count == 0)
@@ -93,7 +93,7 @@ namespace Platformex.Tests
             var command = _commands.Pop();
             Assert.True(command.GetType() == typeof(TCommand),
                 $"Невалидная комнда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
-            
+
             if (commandPredicate != null)
                 Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидая команда {typeof(TCommand).Name}");
             return this;

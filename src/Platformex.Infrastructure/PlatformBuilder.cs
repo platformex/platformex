@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Platformex.Application;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Platformex.Application;
 
 namespace Platformex.Infrastructure
 {
@@ -48,9 +48,9 @@ namespace Platformex.Infrastructure
                     && j.GetGenericTypeDefinition() ==
                     typeof(IQuery<>));
                 if (queryInterface == null) continue;
-                
+
                 var resultType = queryInterface.GetGenericArguments()[0];
-                RegisterQuery(type,resultType);
+                RegisterQuery(type, resultType);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Platformex.Infrastructure
             //TODO: Рефакторнг
             foreach (var type in assembly.GetTypes())
             {
-                var tInterface = type.GetInterfaces().FirstOrDefault(i 
+                var tInterface = type.GetInterfaces().FirstOrDefault(i
                     => typeof(IService).IsAssignableFrom(i) && i != typeof(IService));
 
                 if (tInterface != null)
@@ -73,9 +73,9 @@ namespace Platformex.Infrastructure
         {
             _platform.Definitions.Register(new CommandDefinition(
                 TypeExtensions.GetContextName(tCommand),
-                tCommand.Name.Replace("Command",""), 
-                tIdentity, 
-                tCommand, 
+                tCommand.Name.Replace("Command", ""),
+                tIdentity,
+                tCommand,
                 tCommand.GetCustomAttribute<PublicAttribute>() != null
             ));
         }
@@ -90,14 +90,14 @@ namespace Platformex.Infrastructure
         public void RegisterService(Type tService, Type tInterface)
         {
             var methods = tInterface.GetMethods()
-                .Where(i=>i.Name != "SetMetadata")
+                .Where(i => i.Name != "SetMetadata")
                 .Select(method => (method.Name, parameters: method.GetParameters(), returnType: method.ReturnType));
 
             foreach (var method in methods)
             {
                 _platform.Definitions.Register(new ServiceDefinition(
                     TypeExtensions.GetContextName(tInterface),
-                    tService.Name.Replace("Service",""), 
+                    tService.Name.Replace("Service", ""),
                     tService,
                     tInterface,
                     method.Name,
@@ -111,13 +111,13 @@ namespace Platformex.Infrastructure
         public void RegisterQuery(Type tQuery, Type tResult)
         {
             _platform.Definitions.Register(new QueryDefinition(
-                tQuery.Name.Replace("Query",""), 
+                tQuery.Name.Replace("Query", ""),
                 tQuery,
                 tResult,
                 tQuery.GetCustomAttribute<PublicAttribute>() != null
             ));
         }
-        
+
         public void RegisterQuery<TQuery, TQueryType>()
             where TQuery : IQuery<TQueryType>
         {
@@ -130,7 +130,7 @@ namespace Platformex.Infrastructure
             where TState : AggregateState<TIdentity, TState>
         {
             var aggregateInterfaceType = typeof(TAggregate).GetInterfaces()
-                .First(i => i.GetInterfaces().Any(j=> j.IsGenericType && j.GetGenericTypeDefinition() == typeof(IAggregate<>)));
+                .First(i => i.GetInterfaces().Any(j => j.IsGenericType && j.GetGenericTypeDefinition() == typeof(IAggregate<>)));
             var info = new AggregateDefinition(typeof(TIdentity), typeof(TAggregate),
                 aggregateInterfaceType, typeof(TState));
 
@@ -157,11 +157,12 @@ namespace Platformex.Infrastructure
         public void WithCommands()
         {
             var assembles = _aggregateDefinition.AggregateType.Assembly.GetReferencedAssemblies()
-                .Select(i=>i.ToString()).ToList();
+                .Select(i => i.ToString()).ToList();
             assembles.Add(_aggregateDefinition.AggregateType.Assembly.GetName().ToString());
-            
+
             //TODO: Рефакторнг
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
                 if (!assembles.Contains(asm.GetName().ToString())) continue;
                 foreach (var type in asm.GetTypes())
                 {
@@ -169,7 +170,7 @@ namespace Platformex.Infrastructure
                                                                          && j.GetGenericTypeDefinition() ==
                                                                          typeof(ICommand<>));
                     if (commandInterface == null) continue;
-                    
+
                     var identityType = commandInterface.GetGenericArguments()[0];
                     if (identityType != _aggregateDefinition.IdentityType) continue;
 

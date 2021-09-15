@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Platformex;
+using Platformex.Domain;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Platformex;
-using Platformex.Domain;
 
 namespace Siam.MemoContext.Domain
 {

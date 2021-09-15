@@ -1,11 +1,11 @@
-using System;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans;
 using Orleans.ApplicationParts;
 using Orleans.Hosting;
 using Platformex.Domain;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Platformex.Infrastructure
 {
@@ -15,7 +15,7 @@ namespace Platformex.Infrastructure
         {
             var platform = new Platform();
 
-            var platformBuilder = new PlatformBuilder(platform); 
+            var platformBuilder = new PlatformBuilder(platform);
             configureAction(platformBuilder);
 
             foreach (var asm in platform.Definitions.Assemblies)
@@ -32,7 +32,7 @@ namespace Platformex.Infrastructure
                     .FirstOrDefault(i => !i.IsGenericType && i.GetInterfaces()
                         .Any(j => j.IsGenericType && j.GetGenericTypeDefinition() == typeof(IAggregateState<>)));
                 if (stateInterface != null)
-                    builder.ConfigureServices(s => s.AddTransient(stateInterface,stateImpl));
+                    builder.ConfigureServices(s => s.AddTransient(stateInterface, stateImpl));
             }
 
             builder.ConfigureServices(collection =>
@@ -81,7 +81,7 @@ namespace Platformex.Infrastructure
         public static ISiloBuilder ConfigurePlatformex(this ISiloBuilder builder, Action<PlatformBuilder> configureAction)
         {
             var platform = new Platform();
-            var platformBuilder = new PlatformBuilder(platform); 
+            var platformBuilder = new PlatformBuilder(platform);
             configureAction(platformBuilder);
 
             foreach (var asm in platform.Definitions.Assemblies)
@@ -98,7 +98,7 @@ namespace Platformex.Infrastructure
                     .FirstOrDefault(i => !i.IsGenericType && i.GetInterfaces()
                         .Any(j => j.IsGenericType && j.GetGenericTypeDefinition() == typeof(IAggregateState<>)));
                 if (stateInterface != null)
-                    builder.ConfigureServices(s => s.AddTransient(stateInterface,stateImpl));
+                    builder.ConfigureServices(s => s.AddTransient(stateInterface, stateImpl));
             }
 
             builder.ConfigureServices(collection =>

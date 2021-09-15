@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Platformex
 {
@@ -100,13 +100,13 @@ namespace Platformex
         }
 
         public Metadata(params KeyValuePair<string, string>[] keyValuePairs)
-            : this((IEnumerable<KeyValuePair<string, string>>) keyValuePairs)
+            : this((IEnumerable<KeyValuePair<string, string>>)keyValuePairs)
         {
         }
 
         public IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs)
         {
-            return CloneWith((IEnumerable<KeyValuePair<string, string>>) keyValuePairs);
+            return CloneWith((IEnumerable<KeyValuePair<string, string>>)keyValuePairs);
         }
 
         public IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs)

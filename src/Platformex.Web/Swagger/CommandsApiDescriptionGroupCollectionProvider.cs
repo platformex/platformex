@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc.Abstractions;
+﻿using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Platformex.Web.Swagger
 {
@@ -41,7 +41,7 @@ namespace Platformex.Web.Swagger
                 var descriptionGroups = _internal.ApiDescriptionGroups;
                 var apis = new List<ApiDescription>();
                 PrepareCommands(apis);
-                PrepareServices(apis,descriptionGroups);
+                PrepareServices(apis, descriptionGroups);
                 _apiDescriptionGroups = new ApiDescriptionGroupCollection(PrepareQueries(apis, descriptionGroups), 1);
                 return _apiDescriptionGroups;
             }
@@ -49,11 +49,11 @@ namespace Platformex.Web.Swagger
 
         private List<ApiDescriptionGroup> PrepareQueries(List<ApiDescription> apis, ApiDescriptionGroupCollection data)
         {
-            foreach (var query in _platform.Definitions.Queries.Select(i=>i.Value))
+            foreach (var query in _platform.Definitions.Queries.Select(i => i.Value))
             {
                 apis.Add(CreateApiDescription("Queries", query.QueryType,
-                    query.Name, query.QueryType,"POST", 
-                    query.QueryType.GetProperties().Select(p=>(p.Name, p.PropertyType)).ToList(),
+                    query.Name, query.QueryType, "POST",
+                    query.QueryType.GetProperties().Select(p => (p.Name, p.PropertyType)).ToList(),
                     query.ResultType));
             }
 
@@ -64,8 +64,8 @@ namespace Platformex.Web.Swagger
 
         private void PrepareServices(List<ApiDescription> apis, ApiDescriptionGroupCollection data)
         {
-            var contexts = _platform.Definitions.Services.Select(i 
-                => (context: i.Value.Context, definition: i.Value)).GroupBy(i=>i.context).ToList();
+            var contexts = _platform.Definitions.Services.Select(i
+                => (context: i.Value.Context, definition: i.Value)).GroupBy(i => i.context).ToList();
 
             foreach (var domain in contexts)
             {
@@ -74,10 +74,10 @@ namespace Platformex.Web.Swagger
                     var type = service.ServiceType;
                     var serviceInterface = type.GetInterfaces()
                         .FirstOrDefault(i => typeof(IService).IsAssignableFrom(i));
-                        apis.Add(CreateApiDescription(TypeExtensions.GetContextName(serviceInterface), service.ServiceType,
-                            service.MethodName, serviceInterface, "PUT", 
-                            service.Parameters.Select(p=>(p.Name, p.ParameterType)).ToList(),
-                            service.ReturnType));
+                    apis.Add(CreateApiDescription(TypeExtensions.GetContextName(serviceInterface), service.ServiceType,
+                        service.MethodName, serviceInterface, "PUT",
+                        service.Parameters.Select(p => (p.Name, p.ParameterType)).ToList(),
+                        service.ReturnType));
                 }
             }
             var descriptionGroupList = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("Platformex", apis) };
@@ -86,24 +86,24 @@ namespace Platformex.Web.Swagger
 
         private void PrepareCommands(List<ApiDescription> apis)
         {
-            var contexts = _platform.Definitions.Commands.Select(i 
+            var contexts = _platform.Definitions.Commands.Select(i
                 => (TypeExtensions.GetContextName(i.Value.CommandType), i.Value))
-                .GroupBy(i=>i.Item1).ToList();
+                .GroupBy(i => i.Item1).ToList();
 
             foreach (var domain in contexts)
             {
-                foreach (var allDefinition in domain.Select(i=>i.Value))
+                foreach (var allDefinition in domain.Select(i => i.Value))
                 {
                     apis.Add(CreateApiDescription(domain.Key, allDefinition.CommandType,
-                        allDefinition.Name, allDefinition.CommandType, "PUT", 
+                        allDefinition.Name, allDefinition.CommandType, "PUT",
                         allDefinition.CommandType.GetProperties()
-                            .Select(i=>(i.Name, i.PropertyType)).ToList(),
+                            .Select(i => (i.Name, i.PropertyType)).ToList(),
                         typeof(Result)));
                 }
             }
         }
 
-        private ApiDescription CreateApiDescription(string controllerName, Type controllerType , string methodName, 
+        private ApiDescription CreateApiDescription(string controllerName, Type controllerType, string methodName,
             Type methodType, string method, ICollection<(string name, Type type)> parameters, Type resultType)
         {
             var str = _options.BasePath.Trim('/') + "/" + controllerName + "/" + methodName;
@@ -119,10 +119,10 @@ namespace Platformex.Web.Swagger
                 ControllerName = controllerName,
                 DisplayName = methodName,
                 Parameters = parameters
-                    .Select(p=> new ParameterDescriptor { Name = p.name != null ? p.name : "", ParameterType = p.type}).ToList(),
+                    .Select(p => new ParameterDescriptor { Name = p.name != null ? p.name : "", ParameterType = p.type }).ToList(),
                 MethodInfo = new CustomMethodInfo(methodName, methodType),
                 ControllerTypeInfo = controllerType.GetTypeInfo(),
-                RouteValues = new Dictionary<string, string> {{"controller", controllerName}}
+                RouteValues = new Dictionary<string, string> { { "controller", controllerName } }
             };
             apiDescription.ActionDescriptor = actionDescriptor;
             apiDescription.SupportedRequestFormats.Add(new ApiRequestFormat
@@ -180,7 +180,7 @@ namespace Platformex.Web.Swagger
 
             foreach (var parameter in parameters)
             {
-                if (parameter.name == "Metadata") continue; 
+                if (parameter.name == "Metadata") continue;
                 var type = typeof(IIdentity).IsAssignableFrom(parameter.type) ? typeof(string) : parameter.type != null ? parameter.type : typeof(string);
 
                 ((List<ApiParameterDescription>)apiDescription.ParameterDescriptions).Add(new ApiParameterDescription
@@ -191,7 +191,7 @@ namespace Platformex.Web.Swagger
                     ModelMetadata = _metadataProvider.GetMetadataForType(type),
                     IsRequired = true,
                 });
-                
+
             }
             return apiDescription;
         }

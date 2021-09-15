@@ -1,5 +1,5 @@
-﻿using System;
-using Platformex.Domain;
+﻿using Platformex.Domain;
+using System;
 
 namespace Platformex.Tests
 {

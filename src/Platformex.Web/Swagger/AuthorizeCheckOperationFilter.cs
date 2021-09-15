@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Platformex.Web.Swagger
 {
@@ -10,9 +10,9 @@ namespace Platformex.Web.Swagger
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            var hasAuthorize = 
-                context.MethodInfo.DeclaringType != null && 
-                (context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() 
+            var hasAuthorize =
+                context.MethodInfo.DeclaringType != null &&
+                (context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any()
                  || context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any());
 
             if (!hasAuthorize)
@@ -28,9 +28,9 @@ namespace Platformex.Web.Swagger
                     new()
                     {
                         [
-                            new OpenApiSecurityScheme {Reference = new OpenApiReference 
+                            new OpenApiSecurityScheme {Reference = new OpenApiReference
                                 {
-                                    Type = ReferenceType.SecurityScheme, 
+                                    Type = ReferenceType.SecurityScheme,
                                     Id = "oauth2"}
                             }
                         ] = new[] {"platformex"}

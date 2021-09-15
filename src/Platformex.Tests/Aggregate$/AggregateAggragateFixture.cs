@@ -1,28 +1,28 @@
-﻿using System;
+﻿using Platformex.Application;
+using Platformex.Domain;
+using System;
 using System.Collections.Generic;
 using Xunit;
-using Platformex.Application;
-using Platformex.Domain;
 
 namespace Platformex.Tests
 {
-    public class AggregateFixture<TIdentity, TAggregate, TState, TStateImpl> : IAggregateFixtureArranger<TAggregate, TIdentity,TState>,
-        IAggregateFixtureExecutor<TAggregate, TIdentity, TState>, IAggregateFixtureAsserter<TAggregate, TIdentity,TState>
+    public class AggregateFixture<TIdentity, TAggregate, TState, TStateImpl> : IAggregateFixtureArranger<TAggregate, TIdentity, TState>,
+        IAggregateFixtureExecutor<TAggregate, TIdentity, TState>, IAggregateFixtureAsserter<TAggregate, TIdentity, TState>
         where TAggregate : Aggregate<TIdentity, TState, TAggregate>
         where TIdentity : Identity<TIdentity>
-        where TState :  IAggregateState<TIdentity>
-        where TStateImpl : AggregateState<TIdentity,TStateImpl>, TState
+        where TState : IAggregateState<TIdentity>
+        where TStateImpl : AggregateState<TIdentity, TStateImpl>, TState
     {
         private readonly PlatformexTestKit _testKit;
         private TAggregate _aggregate;
-        private TState State => _aggregate.TestOnlyGetState(); 
+        private TState State => _aggregate.TestOnlyGetState();
         public TIdentity AggregateId => _aggregate != null ? _aggregate.GetId<TIdentity>() : null;
-        private readonly Stack<(Type,Result)> _commandResults = new Stack<(Type,Result)>();
+        private readonly Stack<(Type, Result)> _commandResults = new Stack<(Type, Result)>();
         private readonly Stack<IDomainEvent> _events = new Stack<IDomainEvent>();
-        
+
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
-        private void StartMonitoring()=> _isMonitoring = true;
+        private void StartMonitoring() => _isMonitoring = true;
 
 
         public AggregateFixture(PlatformexTestKit testKit)
@@ -34,10 +34,10 @@ namespace Platformex.Tests
         {
             _testKit.Platform.EventPublished += (_, args) =>
             {
-                if (_isMonitoring) 
+                if (_isMonitoring)
                     _events.Push(args.DomainEvent);
             };
-            
+
             _aggregate = _testKit.TestKitSilo.CreateGrainAsync<TAggregate>(aggregateId.Value).GetAwaiter().GetResult();
             return this;
         }
@@ -82,11 +82,11 @@ namespace Platformex.Tests
         }
 
 
-        public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> AndWhen(params ICommand[] commands) 
+        public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> AndWhen(params ICommand[] commands)
             => When(commands);
 
         public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpect<TAggregateEvent>(
-            Predicate<TAggregateEvent> aggregateEventPredicate = null) 
+            Predicate<TAggregateEvent> aggregateEventPredicate = null)
             where TAggregateEvent : class, IAggregateEvent<TIdentity>
         {
             if (_events.Count == 0)
@@ -109,7 +109,7 @@ namespace Platformex.Tests
             if (_commandResults.Count == 0)
                 Assert.True(false, $"Нет ожидаемого результат команды.");
 
-            var tuple = _commandResults.Pop(); 
+            var tuple = _commandResults.Pop();
             Assert.True(aggregateReply != null ? aggregateReply(tuple.Item2) : null,
                     $"Невалидный результ выполнения команды {tuple.Item1.Name}");
             return this;
@@ -117,18 +117,18 @@ namespace Platformex.Tests
 
 
         public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectDomainEvent<TAggregateEvent>(
-            Predicate<IDomainEvent<TIdentity, TAggregateEvent>> domainEventPredicate = null) 
+            Predicate<IDomainEvent<TIdentity, TAggregateEvent>> domainEventPredicate = null)
             where TAggregateEvent : IAggregateEvent<TIdentity>
         {
             var @event = _events.Pop();
             Assert.True(@event.EventType == typeof(TAggregateEvent),
                 $"Невалидное событие, ожидалось {typeof(TAggregateEvent).Name} вместо {@event.EventType.Name}");
-            
+
             if (domainEventPredicate != null)
-                Assert.True(domainEventPredicate.Invoke((IDomainEvent<TIdentity, TAggregateEvent>) @event),
+                Assert.True(domainEventPredicate.Invoke((IDomainEvent<TIdentity, TAggregateEvent>)@event),
                     $"Невалидное доменное событие {typeof(TAggregateEvent).Name}");
             return this;
         }
-        
+
     }
 }

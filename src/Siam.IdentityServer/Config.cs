@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4.Models;
-using System.Collections.Generic;
 using IdentityModel;
 using IdentityServer4;
+using IdentityServer4.Models;
+using System.Collections.Generic;
 
 namespace Siam.IdentityServer
 {
@@ -13,7 +13,7 @@ namespace Siam.IdentityServer
     {
         public static IEnumerable<IdentityResource> IdentityResources =>
             new[]
-            { 
+            {
                 new IdentityResource("openid", new []{JwtClaimTypes.Id, JwtClaimTypes.Subject})
             };
 
@@ -40,7 +40,7 @@ namespace Siam.IdentityServer
 
                     RedirectUris = {"https://localhost:44317/swagger/oauth2-redirect.html"},
                     AllowedCorsOrigins = {"https://localhost:44317"},
-                    AllowedScopes = 
+                    AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         "platformex"

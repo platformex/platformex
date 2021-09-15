@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Concurrency;
 using Orleans.Streams;
 using Platformex.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Platformex.Application
 {
@@ -18,11 +18,11 @@ namespace Platformex.Application
 
         private static readonly IReadOnlyDictionary<Type, Func<TReadModel, IDomainEvent, Task>> ApplyMethods = typeof(TReadModel)
             .GetReadModelEventApplyMethods<TReadModel>();
-        
+
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
 
-        private ILogger GetLogger() 
+        private ILogger GetLogger()
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         private IDisposable _timer;
@@ -42,12 +42,12 @@ namespace Platformex.Application
             try
             {
                 var streamProvider = GetStreamProvider("EventBusProvider");
-                
+
                 //Игнорируем инициализирующее событие 
                 await streamProvider.GetStream<string>(Guid.Empty, "InitializeSubscriptions")
                     .SubscribeAsync((_, _) => Task.CompletedTask);
 
-                if (isManager) 
+                if (isManager)
                 {
                     NoDeactivateRoot();
                     //Это фильтр на тип агрегата (null - без фильтра)
@@ -61,8 +61,8 @@ namespace Platformex.Application
 
                     foreach (var subscriptionType in asyncSubscriptionTypes)
                     {
-                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty, 
-                                StreamHelper.EventStreamName(subscriptionType.Item2,false));
+                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty,
+                                StreamHelper.EventStreamName(subscriptionType.Item2, false));
 
                         await SubscribeAndProcess(eventStream, false);
                     }
@@ -71,11 +71,11 @@ namespace Platformex.Application
                     var syncSubscriptionTypes =
                         typeof(TReadModel).GetSubscribersTypes(true)
                             .Where(i => identytyType == null || identytyType == i.Item1);
-                    
+
                     foreach (var subscriptionType in syncSubscriptionTypes)
                     {
-                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty, 
-                            StreamHelper.EventStreamName(subscriptionType.Item2,true));
+                        var eventStream = streamProvider.GetStream<IDomainEvent>(Guid.Empty,
+                            StreamHelper.EventStreamName(subscriptionType.Item2, true));
 
                         await SubscribeAndProcess(eventStream, true);
                     }
@@ -114,7 +114,7 @@ namespace Platformex.Application
                 {
                     var __ = GrainFactory.GetGrain<IReadModel>(readModelId, GetType().FullName)
                         .ProcessEvent(data).ConfigureAwait(false);
-                    
+
                 }
 
             });
@@ -154,8 +154,8 @@ namespace Platformex.Application
             _timer = RegisterTimer(_ =>
             {
                 var key = this.GetPrimaryKeyString();
-                
-                if (key == null) 
+
+                if (key == null)
                     DelayDeactivation(TimeSpan.FromDays(100));
 
                 _timer?.Dispose();

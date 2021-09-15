@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +19,7 @@ using Siam.Data.MemoContext;
 using Siam.Data.QueryHandlers;
 using Siam.MemoContext;
 using Siam.MemoContext.Domain;
+using System.Net;
 
 namespace Siam.Host
 {
@@ -44,9 +44,9 @@ namespace Siam.Host
                     options.ClusterId = "dev";
                     options.ServiceId = "MemoDemo";
                 })
-                .Configure<EndpointOptions>(options 
+                .Configure<EndpointOptions>(options
                     => options.AdvertisedIPAddress = IPAddress.Loopback)
-                .UseDashboard(options => { options.Port = 8081; }) 
+                .UseDashboard(options => { options.Port = 8081; })
 
                 //Конфигурация шины событий
                 .AddSimpleMessageStreamProvider("EventBusProvider")
@@ -73,7 +73,7 @@ namespace Siam.Host
                     //Конфигурация сервисов узла (инфраструктуры)
                     p.ConfigureServices((services, configuration) =>
                     {
-                        services.AddDbContext<MemoDbContext>(options 
+                        services.AddDbContext<MemoDbContext>(options
                             => options.UseSqlServer(
                                 configuration.GetConnectionString("SqlServer")));
 
@@ -86,7 +86,7 @@ namespace Siam.Host
                         await platform.Service<IMemoService>().CreateMemos(10);
                     });
 
-                    p.ConfigureIdentity(o 
+                    p.ConfigureIdentity(o
                         => o.IdentityServerUri = "https://localhost:5000");
 
                     //Конфигурация WebAPI узла
@@ -99,9 +99,9 @@ namespace Siam.Host
 
                 });
 
-                
+
 
             });
-        
+
     }
 }

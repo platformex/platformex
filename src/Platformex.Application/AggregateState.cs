@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Platformex.Domain;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Platformex.Domain;
 
 namespace Platformex.Application
 {
@@ -13,7 +13,7 @@ namespace Platformex.Application
         public abstract Task CommitTransaction();
         public abstract Task RollbackTransaction();
 
-        private static readonly IReadOnlyDictionary<Type, Action<TAggregateState, IAggregateEvent>> ApplyMethods; 
+        private static readonly IReadOnlyDictionary<Type, Action<TAggregateState, IAggregateEvent>> ApplyMethods;
 
         static AggregateState()
         {
@@ -30,7 +30,7 @@ namespace Platformex.Application
         public async Task Apply(IAggregateEvent<TIdentity> e)
         {
             await BeforeApply(e);
-            
+
             var aggregateEventType = e.GetType();
             Action<TAggregateState, IAggregateEvent> applier;
 
@@ -39,14 +39,14 @@ namespace Platformex.Application
                 throw new MissingMethodException($"missing HandleAsync({aggregateEventType.Name})");
             }
 
-            applier((TAggregateState) (object) this, e);
-            
+            applier((TAggregateState)(object)this, e);
+
             await AfterApply(e);
         }
 
         protected virtual Task BeforeApply(IAggregateEvent<TIdentity> id) => Task.CompletedTask;
 
-        protected  virtual Task AfterApply(IAggregateEvent<TIdentity> id) => Task.CompletedTask;
+        protected virtual Task AfterApply(IAggregateEvent<TIdentity> id) => Task.CompletedTask;
 
     }
 }

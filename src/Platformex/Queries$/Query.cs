@@ -1,7 +1,7 @@
 namespace Platformex
 {
 
-    public abstract class Query 
+    public abstract class Query
     {
         public QueryMetadata Metadata { get; init; }
 

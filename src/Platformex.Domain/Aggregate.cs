@@ -1,15 +1,15 @@
 ﻿
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Orleans;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Orleans;
 
-[assembly:InternalsVisibleTo("Platformex.Infrastructure")]
-[assembly:InternalsVisibleTo("Platformex.Tests")]
+[assembly: InternalsVisibleTo("Platformex.Infrastructure")]
+[assembly: InternalsVisibleTo("Platformex.Tests")]
 
 namespace Platformex.Domain
 {
@@ -38,30 +38,30 @@ namespace Platformex.Domain
             }
             catch (UnauthorizedAccessException e)
             {
-                _logger.LogInformation($"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                _logger.LogInformation($"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}", e);
                 return Result.Unauthorized($"Необходима аутентификация для доступа к агрегату {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
             }
             catch (ForbiddenException e)
             {
-                _logger.LogInformation($"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                _logger.LogInformation($"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}", e);
                 return Result.Forbidden($"Недостаточно прав доступа для агрегата {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
             }
             Result result;
 
             try
             {
-                result = await applier((TAggregate) (object) this, command);
+                result = await applier((TAggregate)(object)this, command);
             }
             catch (UnauthorizedAccessException e)
             {
-                _logger.LogInformation($"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                _logger.LogInformation($"Unauthorized Access in Aggregate{GetPrettyName()} handle command {command.GetType().Name}", e);
                 return Result.Unauthorized($"Необходима аутентификация для доступа к агрегату {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
             }
             catch (ForbiddenException e)
             {
-                _logger.LogInformation($"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}" , e);
+                _logger.LogInformation($"Request Forbidden in Aggregate{GetPrettyName()} handle command {command.GetType().Name}", e);
                 return Result.Forbidden($"Недостаточно прав доступа для агрегата {GetPrettyName()} при выполнении команды {command.GetType().Name}. {e.Message}");
-            }            
+            }
             catch (Exception e)
             {
                 _logger.LogError(e.Message, e);
@@ -69,9 +69,9 @@ namespace Platformex.Domain
                 result = Result.Fail(e.Message);
                 return result;
             }
-            
+
             await AfterApplyingCommand();
-            
+
             return result;
 
         }
@@ -86,7 +86,7 @@ namespace Platformex.Domain
 
         private async Task AfterApplyingCommand()
         {
-            
+
             //Завершаем транзакцию
             await State.CommitTransaction();
 
@@ -95,7 +95,7 @@ namespace Platformex.Domain
              * Если после сохранения состояния и до отправки сооющения произошел сбой, то при восстановления
              * нужно повтроно отпавить события в шину 
              */
-            
+
             //Отправяем все события в шину
             foreach (var ent in _uncommitedEvents)
             {
@@ -114,21 +114,21 @@ namespace Platformex.Domain
             var requiredUser = SecurityContext.IsUserRequiredFrom(command);
             if (requiredUser && !sc.IsAuthorized)
                 throw new UnauthorizedAccessException();
-            
+
             var requiredRole = SecurityContext.GetRolesFrom(command);
             if (requiredRole != null)
                 sc.HasRoles(requiredRole);
 
             SecurityContext = sc;
             _pinnedCommand = command;
-            
+
             //Наичнаем транзакцию
             await State.BeginTransaction();
         }
 
 
         public TIdentity AggregateId => State != null ? State.Identity != null ? State.Identity : this.GetId<TIdentity>() : this.GetId<TIdentity>();
-        protected TState State { get; private set;}
+        protected TState State { get; private set; }
         internal void TestOnlySetState(TState newState) => State = newState;
         internal TState TestOnlyGetState() => State;
 
@@ -137,7 +137,7 @@ namespace Platformex.Domain
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
 
-        private ILogger GetLogger() 
+        private ILogger GetLogger()
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         protected virtual string GetAggregateName() => GetType().Name.Replace("Aggregate", "");
@@ -148,7 +148,7 @@ namespace Platformex.Domain
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] activating...");
             try
             {
-                _platform = (IPlatform) ServiceProvider.GetService(typeof(IPlatform));
+                _platform = (IPlatform)ServiceProvider.GetService(typeof(IPlatform));
 
                 var stateType = _platform.Definitions.Aggregate<TIdentity>() != null ? _platform.Definitions.Aggregate<TIdentity>().StateType : null;
 
@@ -184,7 +184,7 @@ namespace Platformex.Domain
         {
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] preparing to emit event {e.GetPrettyName()}...");
             var metadata = CreateEventMetadata(e);
-            var domainEvent = new DomainEvent<TIdentity, TEvent>(e.Id, e, DateTimeOffset.Now, 1, 
+            var domainEvent = new DomainEvent<TIdentity, TEvent>(e.Id, e, DateTimeOffset.Now, 1,
                 metadata);
             try
             {
@@ -195,7 +195,7 @@ namespace Platformex.Domain
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] fires event {e.GetPrettyName()}...");
 
                 _uncommitedEvents.Add(domainEvent);
-               
+
             }
             catch (Exception ex)
             {
@@ -228,12 +228,12 @@ namespace Platformex.Domain
 
         public async Task Invoke(IIncomingGrainCallContext context)
         {
-            if (context.InterfaceMethod.Name == "Do" && context.Arguments.Length == 1 && 
+            if (context.InterfaceMethod.Name == "Do" && context.Arguments.Length == 1 &&
                 context.Arguments[0].GetType().GetInterfaces().Any(x =>
                     x.IsGenericType &&
                     x.GetGenericTypeDefinition() == typeof(ICommand<>)))
             {
-                var command = (ICommand) context.Arguments[0];
+                var command = (ICommand)context.Arguments[0];
                 try
                 {
                     await BeforeApplyingCommand(command);
@@ -284,9 +284,9 @@ namespace Platformex.Domain
                     context.Result = Result.Fail(e.Message);
                     return;
                 }
-                
+
                 await AfterApplyingCommand();
-                
+
             }
             else
             {

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using GraphQL.Types;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using GraphQL.Types;
 
 namespace Platformex.Web.GraphQL
 {
@@ -46,7 +46,7 @@ namespace Platformex.Web.GraphQL
                     continue;
 
                 var type = GetGraphType(prop.PropertyType, isInput);
-                
+
                 var allowNulls = prop.GetCustomAttribute<AllowNullAttribute>() != null;
 
                 var description = prop.GetCustomAttribute<DescriptionAttribute>() != null ? prop.GetCustomAttribute<DescriptionAttribute>()?.Description : null;

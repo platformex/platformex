@@ -1,10 +1,10 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Platformex.Application;
 using Siam.Application.Queries;
 using Siam.Data.MemoContext;
 using Siam.MemoContext;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Siam.Data.QueryHandlers
 {

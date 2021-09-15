@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Infrastructure;
+using System;
+using System.Threading.Tasks;
 
 namespace Platformex.Web
 {
@@ -14,7 +14,7 @@ namespace Platformex.Web
             optionsBuilder(options);
             builder.AddConfigureServicesActions(collection =>
             {
-                collection.AddSingleton(options);                
+                collection.AddSingleton(options);
             });
             return builder;
         }
@@ -26,7 +26,7 @@ namespace Platformex.Web
         public static PlatformBuilder ConfigureServices(this PlatformBuilder builder, Action<IServiceCollection, IConfiguration> configAction)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                    
+
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{environment}.json", optional: true)

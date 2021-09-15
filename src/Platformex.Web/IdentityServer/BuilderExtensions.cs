@@ -1,9 +1,9 @@
-﻿using System;
-using IdentityModel;
+﻿using IdentityModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Platformex.Infrastructure;
+using System;
 
 namespace Platformex.Web.IdentityServer
 {
@@ -16,7 +16,7 @@ namespace Platformex.Web.IdentityServer
     {
         public static PlatformBuilder ConfigureIdentity(this PlatformBuilder builder, Action<PlatformexIdentityOptions> optionsBuilder)
         {
-            var opt = new PlatformexIdentityOptions{ IdentityServerUri = "https://localhost:5000" };
+            var opt = new PlatformexIdentityOptions { IdentityServerUri = "https://localhost:5000" };
 
             builder.AddConfigureServicesActions(services =>
             {

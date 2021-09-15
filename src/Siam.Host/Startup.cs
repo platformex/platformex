@@ -18,7 +18,7 @@ namespace Siam.Host
         {
             if (env.IsDevelopment())
             {
-                IdentityModelEventSource.ShowPII = true; 
+                IdentityModelEventSource.ShowPII = true;
             }
             app.UsePlatformex();
         }

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using GraphQL.Types;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using GraphQL.Types;
 using Type = System.Type;
 
 namespace Platformex.Web.GraphQL
@@ -31,7 +31,7 @@ namespace Platformex.Web.GraphQL
     internal sealed class ObjectGraphTypeFromDomain : ObjectGraphType<object>
     {
 
-        public ObjectGraphTypeFromDomain(string domainName ,List<QueryDefinition> queries, IServiceProvider provider)
+        public ObjectGraphTypeFromDomain(string domainName, List<QueryDefinition> queries, IServiceProvider provider)
         {
             Name = domainName;
             //Description = modelType1.GetCustomAttribute<DescriptionAttribute>()?.Description;

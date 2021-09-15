@@ -13,7 +13,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             Three = 3,
             One = 1
         }
-        
+
         [Theory]
         [InlineData("test  test", "\"test  test\"")]
         [InlineData("42", "\"42\"")]
@@ -81,7 +81,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             // Assert
             (intSvo != null ? intSvo.Value.Should() : null)?.Be(expectedValue);
         }
-        
+
         [Theory]
         [InlineData("\"One\"", MagicEnum.One)]
         [InlineData("1", MagicEnum.One)]
@@ -111,7 +111,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             // Assert
             json.Should().Be(expectedJson);
         }
-       
+
         [JsonConverter(typeof(SingleValueObjectConverter))]
         public class StringSvo : SingleValueObject<string>
         {
@@ -123,7 +123,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
         {
             public IntSvo(int value) : base(value) { }
         }
-        
+
         [JsonConverter(typeof(SingleValueObjectConverter))]
         public class EnumSvo : SingleValueObject<MagicEnum>
         {

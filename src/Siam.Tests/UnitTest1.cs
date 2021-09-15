@@ -1,5 +1,3 @@
-using System;
-using Xunit;
 using Orleans.TestKit;
 using Platformex.Application;
 using Platformex.Domain;
@@ -7,6 +5,8 @@ using Platformex.Tests;
 using Siam.Application;
 using Siam.MemoContext;
 using Siam.MemoContext.Domain;
+using System;
+using Xunit;
 
 namespace Siam.Tests
 {
@@ -28,17 +28,17 @@ namespace Siam.Tests
             //Параметры документа
             var docId = Guid.NewGuid().ToString();
             var docNumber = new DocumentNumber("100");
-            var docAddress = new Address("12700", "Россия", 
+            var docAddress = new Address("12700", "Россия",
                 "Москва", "проспект Мира", "1");
-            
+
             //BDD тест (сценарий)
             fixture.For(id)
-                
+
                 //Допустим (предусловия)
                 .GivenNothing()
 
                 //Когда (тестируемые действия)
-                .When(new UpdateMemo(id, 
+                .When(new UpdateMemo(id,
                     new MemoDocument(docId, docNumber, docAddress)))
 
                 //Тогда (проверка результатов)
@@ -107,7 +107,7 @@ namespace Siam.Tests
 
             var docId = Guid.NewGuid().ToString();
             var docNumber = new DocumentNumber("100");
-            var docAddress = new Address("12700", "Россия", 
+            var docAddress = new Address("12700", "Россия",
                 "Москва", "проспект Мира", "1");
             var userId = "TestUser";
 
@@ -121,7 +121,7 @@ namespace Siam.Tests
 
                 //Когда (тестируемые действия)
                 .When(new MemoUpdated(id, new MemoDocument(docId, docNumber, docAddress)),
-                    new EventMetadata { UserId = userId})
+                    new EventMetadata { UserId = userId })
 
                 //Тогда (проверка результатов)
                 .ThenExpect<MemoId, SignMemo>(command =>
@@ -129,7 +129,7 @@ namespace Siam.Tests
                     && command.UserId == userId);
         }
 
-        
+
         [Fact]
         public void TestJob()
         {

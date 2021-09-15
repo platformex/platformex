@@ -1,5 +1,5 @@
-﻿using System;
-using GraphQL.Types;
+﻿using GraphQL.Types;
+using System;
 
 namespace Platformex.Web.GraphQL
 {
@@ -7,7 +7,7 @@ namespace Platformex.Web.GraphQL
     {
         public Root(IPlatform platform, IServiceProvider provider)
         {
-            var graphDomain = new GraphDomain(platform , provider);
+            var graphDomain = new GraphDomain(platform, provider);
             AddField(graphDomain.GetFieldType());
         }
     }

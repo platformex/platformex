@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Platformex.Domain;
+using System;
 using System.Threading.Tasks;
-using Platformex.Domain;
 
 namespace Siam.MemoContext.Domain
 {
@@ -12,12 +12,12 @@ namespace Siam.MemoContext.Domain
 
             for (var i = 0; i < memoCount; i++)
             {
-                await ExecuteAsync(new UpdateMemo(MemoId.New, 
+                await ExecuteAsync(new UpdateMemo(MemoId.New,
                     new MemoDocument(
                         Guid.NewGuid().ToString(),
                         new DocumentNumber(rnd.Next(1000).ToString()),
                         new Address("127000", "Россия", "Москва",
-                            "проспект Мира",rnd.Next(1000).ToString()
+                            "проспект Мира", rnd.Next(1000).ToString()
                         ))));
             }
             return memoCount;

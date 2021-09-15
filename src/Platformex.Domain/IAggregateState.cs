@@ -4,8 +4,8 @@ namespace Platformex.Domain
 {
     public interface IAggregateState<TIdentity> where TIdentity : Identity<TIdentity>
     {
-        TIdentity Identity {get;}
-       
+        TIdentity Identity { get; }
+
         /// <summary>
         /// Загрузка состояния
         /// </summary>

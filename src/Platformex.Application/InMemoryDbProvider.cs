@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Platformex.Application
 {
-    public class InMemoryDbProvider<TModel> : IDbProvider<TModel> 
+    public class InMemoryDbProvider<TModel> : IDbProvider<TModel>
         where TModel : IModel, new()
     {
         private static readonly Dictionary<Guid, TModel> Items = new();

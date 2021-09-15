@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Platformex.Domain;
+using System;
 using System.Collections.Generic;
-using Platformex.Domain;
 using Xunit;
 
 namespace Platformex.Tests
@@ -13,10 +13,10 @@ namespace Platformex.Tests
         private TJob _job;
         // ReSharper disable once UnusedMember.Local
         private readonly Stack<ICommand> _commands = new Stack<ICommand>();
-        
+
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
-        private void StartMonitoring()=> _isMonitoring = true;
+        private void StartMonitoring() => _isMonitoring = true;
 
 
         public JobFixture(PlatformexTestKit testKit)
@@ -28,10 +28,10 @@ namespace Platformex.Tests
         {
             _testKit.Platform.CommandExecuted += (_, args) =>
             {
-                if (_isMonitoring) 
+                if (_isMonitoring)
                     _commands.Push(args.Command);
             };
-            
+
             _job = _testKit.TestKitSilo.CreateGrainAsync<TJob>(Guid.NewGuid().ToString()).GetAwaiter().GetResult();
             return this;
         }
@@ -39,7 +39,7 @@ namespace Platformex.Tests
 
 
 
-        public IJobFixtureAsserter<TJob> ThenExpect<TCommandIdentity, TCommand>(Predicate<TCommand> commandPredicate = null) 
+        public IJobFixtureAsserter<TJob> ThenExpect<TCommandIdentity, TCommand>(Predicate<TCommand> commandPredicate = null)
             where TCommandIdentity : Identity<TCommandIdentity> where TCommand : ICommand<TCommandIdentity>
         {
             if (_commands.Count == 0)
@@ -48,7 +48,7 @@ namespace Platformex.Tests
             var command = _commands.Pop();
             Assert.True(command.GetType() == typeof(TCommand),
                 $"Невалидная комнда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
-            
+
             if (commandPredicate != null)
                 Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидая команда {typeof(TCommand).Name}");
             return this;
@@ -59,7 +59,7 @@ namespace Platformex.Tests
             StartMonitoring();
 
             _job.ExecuteAsync().GetAwaiter().GetResult();
-            
+
             StopMonitoring();
             return this;
         }
