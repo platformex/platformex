@@ -27,7 +27,7 @@ namespace Siam.IdentityServer.Quickstart
 
                 return new List<TestUser>
                 {
-                    new TestUser
+                    new()
                     {
                         SubjectId = "818727",
                         Username = "alice",
@@ -43,7 +43,7 @@ namespace Siam.IdentityServer.Quickstart
                             new Claim(JwtClaimTypes.Address, JsonSerializer.Serialize(address), IdentityServerConstants.ClaimValueTypes.Json)
                         }
                     },
-                    new TestUser
+                    new()
                     {
                         SubjectId = "88421113",
                         Username = "bob",

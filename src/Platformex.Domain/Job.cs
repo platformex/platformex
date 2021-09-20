@@ -61,7 +61,7 @@ namespace Platformex.Domain
             where TIdentity : Identity<TIdentity>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
+            return platform?.ExecuteAsync(command.Id.Value, command);
         }
 
         public async Task ReceiveReminder(string reminderName, TickStatus status)

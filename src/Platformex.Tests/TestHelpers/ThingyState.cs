@@ -17,10 +17,10 @@ namespace Platformex.Tests.TestHelpers
         // IModel.Identity
         public Guid Id { get; set; }
 
-        private readonly List<PingId> _pingsReceived = new List<PingId>();
+        private readonly List<PingId> _pingsReceived = new();
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
 
-        private readonly List<ThingyMessage> _messages = new List<ThingyMessage>();
+        private readonly List<ThingyMessage> _messages = new();
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
 
         public bool IsDeleted { get; private set; }

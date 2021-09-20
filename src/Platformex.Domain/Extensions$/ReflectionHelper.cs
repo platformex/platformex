@@ -48,7 +48,7 @@ namespace Platformex.Domain
         /// Handles correct upcast. If no upcast was needed, then this could be exchanged to an <c>Expression.Call</c>
         /// and an <c>Expression.Lambda</c>.
         /// </summary>
-        public static TResult CompileMethodInvocation<TResult>(MethodInfo methodInfo)
+        private static TResult CompileMethodInvocation<TResult>(MethodInfo methodInfo)
         {
             var genericArguments = typeof(TResult).GetTypeInfo().GetGenericArguments();
             var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();

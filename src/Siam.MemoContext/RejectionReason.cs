@@ -5,7 +5,7 @@ namespace Siam.MemoContext
     [Serializable]
     public enum RejectionReason
     {
-        Undefined = 0,
+        Undefined = 0
 
     }
 }

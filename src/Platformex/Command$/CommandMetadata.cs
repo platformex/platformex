@@ -11,7 +11,7 @@ namespace Platformex
         }
         public CommandMetadata(ISourceId sourceId)
         {
-            SourceId = sourceId != null ? sourceId : Platformex.SourceId.New;
+            SourceId = sourceId ?? Platformex.SourceId.New;
         }
 
         public CommandMetadata(IDictionary<string, string> keyValuePairs)

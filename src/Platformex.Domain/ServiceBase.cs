@@ -15,11 +15,11 @@ namespace Platformex.Domain
             where TIdentity : Identity<TIdentity>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
+            return platform?.ExecuteAsync(command.Id.Value, command);
         }
 
         private ILogger _logger;
-        protected ServiceMetadata Metadata { get; private set; } = new ServiceMetadata();
+        protected ServiceMetadata Metadata { get; private set; } = new();
         protected ILogger Logger => GetLogger();
         private ILogger GetLogger()
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;

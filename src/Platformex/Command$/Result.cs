@@ -11,7 +11,7 @@ namespace Platformex
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         private ValidationResult ValidationResult { get; }
 
-        public Result(bool isSuccess, string error)
+        protected Result(bool isSuccess, string error)
         {
             IsSuccess = isSuccess;
             Error = error;
@@ -24,17 +24,17 @@ namespace Platformex
             Error = result.ToString();
         }
 
-        public static Result Success => new Result(true, null);
+        public static Result Success => new(true, null);
         public static async Task<Result> SucceedAsync(Func<Task> func)
         {
             await func();
             return new Result(true, null);
         }
 
-        public static Result Fail(string message) => new Result(false, message);
+        public static Result Fail(string message) => new(false, message);
 
-        public static UnauthorizedResult Unauthorized(string message) => new UnauthorizedResult(message);
-        public static ForbiddenResult Forbidden(string message) => new ForbiddenResult(message);
+        public static UnauthorizedResult Unauthorized(string message) => new(message);
+        public static ForbiddenResult Forbidden(string message) => new(message);
     }
 
     public class UnauthorizedResult : Result

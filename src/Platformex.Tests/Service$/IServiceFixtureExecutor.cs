@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Platformex.Tests
 {
-    public interface IServiceFixtureExecutor<TServiceInterface, TService>
+    public interface IServiceFixtureExecutor<out TServiceInterface, TService>
         where TService : ServiceBase, TServiceInterface
         where TServiceInterface : IService
     {

@@ -13,8 +13,8 @@ namespace Platformex.Tests
         private TSaga _saga;
         // ReSharper disable once UnusedMember.Local
         private TSagaState State => _saga.TestOnlyGetState();
-        private readonly Stack<ICommand> _commands = new Stack<ICommand>();
-        private readonly Stack<IDomainEvent> _events = new Stack<IDomainEvent>();
+        private readonly Stack<ICommand> _commands = new();
+        private readonly Stack<IDomainEvent> _events = new();
 
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
@@ -70,7 +70,7 @@ namespace Platformex.Tests
 
             if (commandResults != null) _testKit.Platform.SetCommandResults(commandResults);
             var domainEvent = new DomainEvent<TIdentity, TAggregateEvent>(@event.Id, @event, DateTimeOffset.Now,
-                1, metadata != null ? metadata : EventMetadata.Empty);
+                1, metadata ?? EventMetadata.Empty);
             _saga.ProcessEvent(domainEvent).GetAwaiter().GetResult();
             _testKit.Platform.ClearCommandResults();
 
@@ -92,17 +92,17 @@ namespace Platformex.Tests
 
             var command = _commands.Pop();
             Assert.True(command.GetType() == typeof(TCommand),
-                $"Невалидная комнда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
+                $"Невалидная команда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
 
             if (commandPredicate != null)
-                Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидая команда {typeof(TCommand).Name}");
+                Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидная команда {typeof(TCommand).Name}");
             return this;
         }
 
 
         public ISagaFixtureAsserter<TSaga, TSagaState> ThenExpectState(Predicate<TSagaState> aggregateEventPredicate)
         {
-            Assert.True(aggregateEventPredicate != null ? aggregateEventPredicate(State) : null,
+            Assert.True(aggregateEventPredicate?.Invoke(State),
                 $"Невалидное состояние саги {typeof(TSaga).Name}");
             return this;
         }

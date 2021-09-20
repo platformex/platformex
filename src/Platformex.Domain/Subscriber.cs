@@ -113,7 +113,7 @@ namespace Platformex.Domain
             where T : Identity<T>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
+            return platform?.ExecuteAsync(command.Id.Value, command);
         }
 
         public override Task OnDeactivateAsync()

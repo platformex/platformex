@@ -44,7 +44,7 @@ namespace Siam.IdentityServer.Quickstart.Account
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
             // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-            _users = users != null ? users : new TestUserStore(TestUsers.Users);
+            _users = users ?? new TestUserStore(TestUsers.Users);
 
             _interaction = interaction;
             _clientStore = clientStore;
@@ -113,7 +113,7 @@ namespace Siam.IdentityServer.Quickstart.Account
                 if (_users.ValidateCredentials(model.Username, model.Password))
                 {
                     var user = _users.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context != null ? context.Client.ClientId : null));
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -164,7 +164,7 @@ namespace Siam.IdentityServer.Quickstart.Account
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context != null ? context.Client.ClientId : null));
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
                 ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
 
@@ -203,7 +203,7 @@ namespace Siam.IdentityServer.Quickstart.Account
             // build a model so the logged out page knows what to display
             var vm = await BuildLoggedOutViewModelAsync(model.LogoutId);
 
-            if (User != null ? User.Identity != null ? User.Identity.IsAuthenticated : false : false)
+            if (User != null ? User.Identity?.IsAuthenticated ?? false : false)
             {
                 // delete local authentication cookie
                 await HttpContext.SignOutAsync();
@@ -266,7 +266,7 @@ namespace Siam.IdentityServer.Quickstart.Account
                 .Where(x => x.DisplayName != null)
                 .Select(x => new ExternalProvider
                 {
-                    DisplayName = x.DisplayName != null ? x.DisplayName : x.Name,
+                    DisplayName = x.DisplayName ?? x.Name,
                     AuthenticationScheme = x.Name
                 }).ToList();
 
@@ -290,7 +290,7 @@ namespace Siam.IdentityServer.Quickstart.Account
                 AllowRememberLogin = AccountOptions.AllowRememberLogin,
                 EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
                 ReturnUrl = returnUrl,
-                Username = context != null ? context.LoginHint : null,
+                Username = context?.LoginHint,
                 ExternalProviders = providers.ToArray()
             };
         }
@@ -315,7 +315,7 @@ namespace Siam.IdentityServer.Quickstart.Account
             }
 
             var context = await _interaction.GetLogoutContextAsync(logoutId);
-            if (context != null ? !context.ShowSignoutPrompt : false)
+            if (!context?.ShowSignoutPrompt ?? false)
             {
                 // it's safe to automatically sign-out
                 vm.ShowLogoutPrompt = false;
@@ -335,9 +335,9 @@ namespace Siam.IdentityServer.Quickstart.Account
             var vm = new LoggedOutViewModel
             {
                 AutomaticRedirectAfterSignOut = AccountOptions.AutomaticRedirectAfterSignOut,
-                PostLogoutRedirectUri = logout != null ? logout.PostLogoutRedirectUri : null,
-                ClientName = (logout == null || string.IsNullOrEmpty(logout.ClientName)) ? logout != null ? logout.ClientId : null : logout.ClientName,
-                SignOutIframeUrl = logout != null ? logout.SignOutIFrameUrl : null,
+                PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
+                ClientName = (logout == null || string.IsNullOrEmpty(logout.ClientName)) ? logout?.ClientId : logout.ClientName,
+                SignOutIframeUrl = logout?.SignOutIFrameUrl,
                 LogoutId = logoutId
             };
 

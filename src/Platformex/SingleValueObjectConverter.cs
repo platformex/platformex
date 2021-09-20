@@ -8,11 +8,11 @@ namespace Platformex
 {
     public class SingleValueObjectConverter : JsonConverter
     {
-        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumentTypes = new ConcurrentDictionary<Type, Type>();
+        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumentTypes = new();
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (!(value is ISingleValueObject singleValueObject))
+            if (value is not ISingleValueObject singleValueObject)
             {
                 return;
             }

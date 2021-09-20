@@ -167,7 +167,7 @@ namespace Platformex
                 return new Guid(newGuid);
             }
 
-            internal static void SwapByteOrder(byte[] guid)
+            private static void SwapByteOrder(byte[] guid)
             {
                 SwapBytes(guid, 0, 3);
                 SwapBytes(guid, 1, 2);
@@ -175,11 +175,9 @@ namespace Platformex
                 SwapBytes(guid, 6, 7);
             }
 
-            internal static void SwapBytes(byte[] guid, int left, int right)
+            private static void SwapBytes(byte[] guid, int left, int right)
             {
-                var temp = guid[left];
-                guid[left] = guid[right];
-                guid[right] = temp;
+                (guid[left], guid[right]) = (guid[right], guid[left]);
             }
         }
     }

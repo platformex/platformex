@@ -14,7 +14,7 @@ namespace Platformex.Tests
         private readonly PlatformexTestKit _testKit;
         private TService _service;
         // ReSharper disable once UnusedMember.Local
-        private readonly Stack<ICommand> _commands = new Stack<ICommand>();
+        private readonly Stack<ICommand> _commands = new();
 
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
@@ -39,7 +39,7 @@ namespace Platformex.Tests
         }
 
         public IServiceFixtureExecutor<TServiceInterface, TService> GivenNothing() => this;
-        private ServiceMetadata _metadata = new ServiceMetadata();
+        private ServiceMetadata _metadata = new();
         public IServiceFixtureExecutor<TServiceInterface, TService> GivenMetadata(ServiceMetadata metadata)
         {
             _metadata = metadata;
@@ -57,25 +57,25 @@ namespace Platformex.Tests
 
             var command = _commands.Pop();
             Assert.True(command.GetType() == typeof(TCommand),
-                $"Невалидная комнда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
+                $"Невалидная команда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
 
             if (commandPredicate != null)
-                Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидая команда {typeof(TCommand).Name}");
+                Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидная команда {typeof(TCommand).Name}");
             return this;
         }
 
         public IServiceFixtureAsserter<TServiceInterface, TService> ThenExpectResult<TResult>(Predicate<TResult> resultPredicate = null)
         {
             if (_results.Count == 0)
-                Assert.True(false, $"Нет ожидаемого результата.");
+                Assert.True(false, "Нет ожидаемого результата.");
 
             var tuple = _results.Pop();
 
             Assert.True(tuple.Item1 != typeof(TResult),
                 $"Неверный тип результата, ожидался{typeof(TResult)} вместо {tuple.Item1}");
 
-            Assert.True(resultPredicate != null ? resultPredicate((TResult)tuple.Item2) : null,
-                $"Невалидный результат выполнения сервиса");
+            Assert.True(resultPredicate?.Invoke((TResult)tuple.Item2),
+                "Невалидный результат выполнения сервиса");
             return this;
         }
 

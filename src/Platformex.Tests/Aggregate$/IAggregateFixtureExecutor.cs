@@ -2,7 +2,7 @@ using Platformex.Domain;
 
 namespace Platformex.Tests
 {
-    public interface IAggregateFixtureExecutor<TAggregate, TIdentity, TState>
+    public interface IAggregateFixtureExecutor<TAggregate, TIdentity, out TState>
         where TAggregate : IAggregate<TIdentity>
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>

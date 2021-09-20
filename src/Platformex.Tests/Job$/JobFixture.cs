@@ -12,7 +12,7 @@ namespace Platformex.Tests
         private readonly PlatformexTestKit _testKit;
         private TJob _job;
         // ReSharper disable once UnusedMember.Local
-        private readonly Stack<ICommand> _commands = new Stack<ICommand>();
+        private readonly Stack<ICommand> _commands = new();
 
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
@@ -47,10 +47,10 @@ namespace Platformex.Tests
 
             var command = _commands.Pop();
             Assert.True(command.GetType() == typeof(TCommand),
-                $"Невалидная комнда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
+                $"Невалидная команда, ожидалась {typeof(TCommand).Name} вместо {command.GetType().Name}");
 
             if (commandPredicate != null)
-                Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидая команда {typeof(TCommand).Name}");
+                Assert.True(commandPredicate.Invoke((TCommand)command), $"Невалидная команда {typeof(TCommand).Name}");
             return this;
         }
 

@@ -74,14 +74,14 @@ namespace Siam.IdentityServer.Quickstart.Grants
                     var item = new GrantViewModel()
                     {
                         ClientId = client.ClientId,
-                        ClientName = client.ClientName != null ? client.ClientName : client.ClientId,
+                        ClientName = client.ClientName ?? client.ClientId,
                         ClientLogoUrl = client.LogoUri,
                         ClientUrl = client.ClientUri,
                         Description = grant.Description,
                         Created = grant.CreationTime,
                         Expires = grant.Expiration,
-                        IdentityGrantNames = resources.IdentityResources.Select(x => x.DisplayName != null ? x.DisplayName : x.Name).ToArray(),
-                        ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName != null ? x.DisplayName : x.Name).ToArray()
+                        IdentityGrantNames = resources.IdentityResources.Select(x => x.DisplayName ?? x.Name).ToArray(),
+                        ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName ?? x.Name).ToArray()
                     };
 
                     list.Add(item);

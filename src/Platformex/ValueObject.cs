@@ -9,7 +9,7 @@ namespace Platformex
     [Serializable]
     public abstract class ValueObject
     {
-        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> TypeProperties = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
+        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> TypeProperties = new();
 
         public override bool Equals(object obj)
         {

@@ -58,7 +58,7 @@ namespace Platformex.Web.Swagger
 
         public override MethodAttributes Attributes => MethodAttributes.Public;
 
-        public override RuntimeMethodHandle MethodHandle => new RuntimeMethodHandle();
+        public override RuntimeMethodHandle MethodHandle => new();
 
         public override MethodInfo GetBaseDefinition()
         {

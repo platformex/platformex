@@ -32,9 +32,8 @@ namespace Platformex.Application
             await BeforeApply(e);
 
             var aggregateEventType = e.GetType();
-            Action<TAggregateState, IAggregateEvent> applier;
 
-            if (!ApplyMethods.TryGetValue(aggregateEventType, out applier))
+            if (!ApplyMethods.TryGetValue(aggregateEventType, out var applier))
             {
                 throw new MissingMethodException($"missing HandleAsync({aggregateEventType.Name})");
             }

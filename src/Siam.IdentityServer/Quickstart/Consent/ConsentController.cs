@@ -67,7 +67,7 @@ namespace Siam.IdentityServer.Quickstart.Consent
             if (result.IsRedirect)
             {
                 var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-                if (context != null ? context.IsNativeClient() : false)
+                if (context?.IsNativeClient() ?? false)
                 {
                     // The client is native, so this change in how to
                     // return the response is for better UX for the end user.
@@ -182,13 +182,13 @@ namespace Siam.IdentityServer.Quickstart.Consent
         {
             var vm = new ConsentViewModel
             {
-                RememberConsent = model != null ? model.RememberConsent : true,
-                ScopesConsented = model != null ? model.ScopesConsented != null ? model.ScopesConsented : Enumerable.Empty<string>() : Enumerable.Empty<string>(),
-                Description = model != null ? model.Description : null,
+                RememberConsent = model?.RememberConsent ?? true,
+                ScopesConsented = model != null ? model.ScopesConsented ?? Enumerable.Empty<string>() : Enumerable.Empty<string>(),
+                Description = model?.Description,
 
                 ReturnUrl = returnUrl,
 
-                ClientName = request.Client.ClientName != null ? request.Client.ClientName : request.Client.ClientId,
+                ClientName = request.Client.ClientName ?? request.Client.ClientId,
                 ClientUrl = request.Client.ClientUri,
                 ClientLogoUrl = request.Client.LogoUri,
                 AllowRememberConsent = request.Client.AllowRememberConsent
@@ -220,7 +220,7 @@ namespace Siam.IdentityServer.Quickstart.Consent
             return new ScopeViewModel
             {
                 Value = identity.Name,
-                DisplayName = identity.DisplayName != null ? identity.DisplayName : identity.Name,
+                DisplayName = identity.DisplayName ?? identity.Name,
                 Description = identity.Description,
                 Emphasize = identity.Emphasize,
                 Required = identity.Required,
@@ -230,7 +230,7 @@ namespace Siam.IdentityServer.Quickstart.Consent
 
         public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
         {
-            var displayName = apiScope.DisplayName != null ? apiScope.DisplayName : apiScope.Name;
+            var displayName = apiScope.DisplayName ?? apiScope.Name;
             if (!String.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter))
             {
                 displayName += ":" + parsedScopeValue.ParsedParameter;

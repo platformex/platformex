@@ -14,7 +14,7 @@ namespace Platformex.Web.GraphQL
     {
         private readonly IPlatform _platform;
         private readonly IServiceProvider _provider;
-        private readonly Dictionary<string, Type> _handlers = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> _handlers = new();
 
         public GraphDomain(IPlatform platform, IServiceProvider provider)
         {

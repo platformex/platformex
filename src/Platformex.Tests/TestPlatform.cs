@@ -6,7 +6,7 @@ namespace Platformex.Tests
 {
     public class TestPlatform : IPlatform
     {
-        public Definitions Definitions { get; } = new Definitions();
+        public Definitions Definitions { get; } = new();
 
         public event EventHandler<EventPublishedArgs> EventPublished;
         public event EventHandler<CommandExecutedArgs> CommandExecuted;
@@ -53,7 +53,7 @@ namespace Platformex.Tests
             throw new NotImplementedException();
         }
 
-        private readonly Stack<Result> _results = new Stack<Result>();
+        private readonly Stack<Result> _results = new();
         public void SetCommandResults(Result[] results)
         {
             foreach (var result in results) _results.Push(result);

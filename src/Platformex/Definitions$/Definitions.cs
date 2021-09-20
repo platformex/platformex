@@ -62,11 +62,11 @@ namespace Platformex
                 }).Concat(_applicationPartsAssemblies)
                 .Distinct();
 
-        public void RegisterApplicationParts(Assembly contextAppliactionParts)
+        public void RegisterApplicationParts(Assembly contextApplicationParts)
         {
-            if (_applicationPartsAssemblies.Contains(contextAppliactionParts)) return;
+            if (_applicationPartsAssemblies.Contains(contextApplicationParts)) return;
 
-            _applicationPartsAssemblies.Add(contextAppliactionParts);
+            _applicationPartsAssemblies.Add(contextApplicationParts);
 
         }
 

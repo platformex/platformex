@@ -56,9 +56,7 @@ namespace Platformex
 
         public T GetMetadataValue<T>(string key, Func<string, T> converter)
         {
-            string value;
-
-            if (!TryGetValue(key, out value))
+            if (!TryGetValue(key, out var value))
             {
                 throw new MetadataKeyNotFoundException(key);
             }

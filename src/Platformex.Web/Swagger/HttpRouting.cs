@@ -14,7 +14,7 @@ namespace Platformex.Web.Swagger
         {
             public readonly string AggregateId = "{aggregateId}";
 
-            public static Params ForController { get; } = new Params { DomainName = "{domainRouteParam}", AggregateName = "{aggregateRouteParam}", ActionName = "{actionRouteParam}" };
+            public static Params ForController { get; } = new() { DomainName = "{domainRouteParam}", AggregateName = "{aggregateRouteParam}", ActionName = "{actionRouteParam}" };
 
             public string DomainName { get; set; }
 

@@ -6,8 +6,8 @@ namespace Platformex.Web
 {
     public static class UseExtensions
     {
-        private static readonly List<Action<IApplicationBuilder>> PreUseActions = new List<Action<IApplicationBuilder>>();
-        private static readonly List<Action<IApplicationBuilder>> PostUseActions = new List<Action<IApplicationBuilder>>();
+        private static readonly List<Action<IApplicationBuilder>> PreUseActions = new();
+        private static readonly List<Action<IApplicationBuilder>> PostUseActions = new();
 
         public static void AddPreUseAction(Action<IApplicationBuilder> action) => PreUseActions.Add(action);
         public static void AddPostUseAction(Action<IApplicationBuilder> action) => PostUseActions.Add(action);

@@ -140,7 +140,7 @@ namespace Platformex.Tests.UnitTests.ValueObjects
             obj1.Equals(obj2).Should().BeFalse();
         }
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings Settings = new()
         {
             DefaultValueHandling = DefaultValueHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore

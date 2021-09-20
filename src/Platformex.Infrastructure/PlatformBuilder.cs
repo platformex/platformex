@@ -11,8 +11,8 @@ namespace Platformex.Infrastructure
     public class PlatformBuilder
     {
         private readonly IPlatform _platform;
-        internal List<Action<IServiceCollection>> ConfigureServicesActions = new List<Action<IServiceCollection>>();
-        internal List<Func<IServiceProvider, Task>> ConfigureStartupActions = new List<Func<IServiceProvider, Task>>();
+        internal readonly List<Action<IServiceCollection>> ConfigureServicesActions = new();
+        internal readonly List<Func<IServiceProvider, Task>> ConfigureStartupActions = new();
 
         public PlatformBuilder(IPlatform platform)
         {

@@ -37,7 +37,7 @@ namespace Siam.IdentityServer.Quickstart.Account
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
             // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-            _users = users != null ? users : new TestUserStore(TestUsers.Users);
+            _users = users ?? new TestUserStore(TestUsers.Users);
 
             _interaction = interaction;
             _clientStore = clientStore;
@@ -129,7 +129,7 @@ namespace Siam.IdentityServer.Quickstart.Account
 
             // check if external login is in the context of an OIDC request
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context != null ? context.Client.ClientId : null));
+            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
 
             if (context != null)
             {

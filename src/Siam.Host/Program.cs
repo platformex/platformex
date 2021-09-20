@@ -23,17 +23,16 @@ using System.Net;
 
 namespace Siam.Host
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
             Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
-
             .UseOrleans(builder =>
             {
                 builder
@@ -98,8 +97,6 @@ namespace Siam.Host
                         .WithConsole(options => options.BasePath = "graphql-console");
 
                 });
-
-
 
             });
 

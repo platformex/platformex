@@ -52,7 +52,7 @@ namespace Platformex.Domain
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>() != null ? ServiceProvider.GetService<ILoggerFactory>().CreateLogger(GetType()) : null;
 
         private IDisposable _timer;
-        protected IDomainEvent PinnedEvent;
+        private IDomainEvent _pinnedEvent;
 
         public TDomainService Service<TDomainService>() where TDomainService : IService
             // ReSharper disable once PossibleNullReferenceException
@@ -63,9 +63,9 @@ namespace Platformex.Domain
         {
             var commandMetadata = (CommandMetadata)command.Metadata;
 
-            if (PinnedEvent != null)
+            if (_pinnedEvent != null)
             {
-                commandMetadata.Merge(PinnedEvent.Metadata);
+                commandMetadata.Merge(_pinnedEvent.Metadata);
             }
 
             if (!command.Metadata.CorrelationIds.Contains(IdentityString))
@@ -74,13 +74,13 @@ namespace Platformex.Domain
             }
 
             var platform = ServiceProvider.GetService<IPlatform>();
-            return platform != null ? platform.ExecuteAsync(command.Id.Value, command) : null;
+            return platform?.ExecuteAsync(command.Id.Value, command);
         }
 
         internal TSagaState TestOnlyGetState() => State;
         internal void TestOnlySetState(TSagaState newState) => State = newState;
 
-        public TSagaState State { get; private set; }
+        protected TSagaState State { get; private set; }
 
         protected virtual string GetPrettyName() => $"{GetSagaName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetSagaName() => GetType().Name.Replace("Saga", "");
@@ -97,7 +97,7 @@ namespace Platformex.Domain
                 return; //Игнорируем 
             }
 
-            PinnedEvent = e;
+            _pinnedEvent = e;
 
             //Запускаем транзакцию
             await State.BeginTransaction();

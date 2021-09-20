@@ -13,7 +13,7 @@ namespace Platformex.Infrastructure
 {
     public class Platform : IPlatform
     {
-        public Definitions Definitions { get; } = new Definitions();
+        public Definitions Definitions { get; } = new();
 
         private IClusterClient _client;
 
@@ -50,8 +50,8 @@ namespace Platformex.Infrastructure
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
         {
             var id = GenerateQueryId(query);
-            var queryGarin = _client.GetGrain<IQueryHandler<TResult>>(id);
-            return queryGarin.QueryAsync(query);
+            var grain = _client.GetGrain<IQueryHandler<TResult>>(id);
+            return grain.QueryAsync(query);
         }
 
         public async Task<object> QueryAsync(IQuery query)

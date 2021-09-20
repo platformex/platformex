@@ -33,8 +33,8 @@ namespace Platformex.Web.GraphQL
             }
         }
 
-        private static readonly Dictionary<Type, IGraphType> InputDeclaredTypes = new Dictionary<Type, IGraphType>();
-        private static readonly Dictionary<Type, IGraphType> OutputDeclaredTypes = new Dictionary<Type, IGraphType>();
+        private static readonly Dictionary<Type, IGraphType> InputDeclaredTypes = new();
+        private static readonly Dictionary<Type, IGraphType> OutputDeclaredTypes = new();
 
 
         public static QueryArguments GetArguments(Type parametersType, IGraphQueryHandler graphQuery, bool isInput)
@@ -81,7 +81,7 @@ namespace Platformex.Web.GraphQL
 
         }
 
-        static readonly Dictionary<Type, Type> MapTypes = new Dictionary<Type, Type>
+        static readonly Dictionary<Type, Type> MapTypes = new()
         {
             {typeof(Guid), typeof(NonNullGraphType<IdGraphType>)},
             {typeof(string), typeof(NonNullGraphType<StringGraphType>)},

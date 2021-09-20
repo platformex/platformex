@@ -32,7 +32,6 @@ namespace Platformex.Domain
 
             UserId = metadata.UserId;
             UserName = metadata.UserName;
-            //TODO: доделать при реализации интеграции с IdentityServer4
         }
 
         public void HasRoles(params string[] roles)

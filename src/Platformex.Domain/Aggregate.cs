@@ -127,7 +127,7 @@ namespace Platformex.Domain
         }
 
 
-        public TIdentity AggregateId => State != null ? State.Identity != null ? State.Identity : this.GetId<TIdentity>() : this.GetId<TIdentity>();
+        protected TIdentity AggregateId => State != null ? State.Identity != null ? State.Identity : this.GetId<TIdentity>() : this.GetId<TIdentity>();
         protected TState State { get; private set; }
         internal void TestOnlySetState(TState newState) => State = newState;
         internal TState TestOnlyGetState() => State;
@@ -178,7 +178,7 @@ namespace Platformex.Domain
             return base.OnDeactivateAsync();
         }
 
-        private List<IDomainEvent> _uncommitedEvents = new List<IDomainEvent>();
+        private readonly List<IDomainEvent> _uncommitedEvents = new();
 
         protected async Task Emit<TEvent>(TEvent e) where TEvent : class, IAggregateEvent<TIdentity>
         {

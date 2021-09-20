@@ -3,7 +3,7 @@ using System;
 
 namespace Platformex.Tests
 {
-    public interface IAggregateFixtureAsserter<TAggregate, TIdentity, TState>
+    public interface IAggregateFixtureAsserter<TAggregate, TIdentity, out TState>
         where TAggregate : IAggregate<TIdentity>
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>

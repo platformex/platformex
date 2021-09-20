@@ -57,7 +57,7 @@ namespace Platformex.Web.Swagger
                     query.ResultType));
             }
 
-            var descriptionGroupList = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("Platformex", apis) };
+            var descriptionGroupList = new List<ApiDescriptionGroup> { new("Platformex", apis) };
             descriptionGroupList.AddRange(data.Items);
             return descriptionGroupList;
         }
@@ -80,7 +80,7 @@ namespace Platformex.Web.Swagger
                         service.ReturnType));
                 }
             }
-            var descriptionGroupList = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("Platformex", apis) };
+            var descriptionGroupList = new List<ApiDescriptionGroup> { new("Platformex", apis) };
             descriptionGroupList.AddRange(data.Items);
         }
 
@@ -119,7 +119,7 @@ namespace Platformex.Web.Swagger
                 ControllerName = controllerName,
                 DisplayName = methodName,
                 Parameters = parameters
-                    .Select(p => new ParameterDescriptor { Name = p.name != null ? p.name : "", ParameterType = p.type }).ToList(),
+                    .Select(p => new ParameterDescriptor { Name = p.name ?? "", ParameterType = p.type }).ToList(),
                 MethodInfo = new CustomMethodInfo(methodName, methodType),
                 ControllerTypeInfo = controllerType.GetTypeInfo(),
                 RouteValues = new Dictionary<string, string> { { "controller", controllerName } }
@@ -144,7 +144,7 @@ namespace Platformex.Web.Swagger
                     Type = typeof(string),
                     ApiResponseFormats = new List<ApiResponseFormat>
                     {
-                        new ApiResponseFormat
+                        new()
                         {
                             MediaType = "application/json"
                         }
@@ -160,7 +160,7 @@ namespace Platformex.Web.Swagger
                     Type = resultType,
                     ApiResponseFormats = new List<ApiResponseFormat>
                     {
-                        new ApiResponseFormat
+                        new()
                         {
                             MediaType = "application/json"
                         }
@@ -181,7 +181,7 @@ namespace Platformex.Web.Swagger
             foreach (var parameter in parameters)
             {
                 if (parameter.name == "Metadata") continue;
-                var type = typeof(IIdentity).IsAssignableFrom(parameter.type) ? typeof(string) : parameter.type != null ? parameter.type : typeof(string);
+                var type = typeof(IIdentity).IsAssignableFrom(parameter.type) ? typeof(string) : parameter.type ?? typeof(string);
 
                 ((List<ApiParameterDescription>)apiDescription.ParameterDescriptions).Add(new ApiParameterDescription
                 {

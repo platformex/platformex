@@ -14,7 +14,7 @@ namespace Platformex.Tests
         protected IFixture Fixture { get; private set; }
         protected ILogger Log => LogHelper.Logger;
 
-        public Test()
+        protected Test()
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
             Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));

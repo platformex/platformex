@@ -1,9 +1,9 @@
 @model Siam.IdentityServer.Quickstart.Home.ErrorViewModel
 
 @{
-    var error = Model != null ? Model.Error != null ? Model.Error.Error : null : null;
-    var errorDescription = Model != null ? Model.Error != null ? Model.Error.ErrorDescription : null : null;
-    var requestId = Model != null ? Model.Error != null ? Model.Error.RequestId : null : null;
+    var error = Model?.Error?.Error;
+    var errorDescription = Model?.Error?.ErrorDescription;
+    var requestId = Model?.Error?.RequestId;
 }
 
 <div class="error-page">

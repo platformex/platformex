@@ -134,7 +134,7 @@ namespace Platformex
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var strId = reader.Value != null ? reader.Value.ToString() : null;
+            var strId = reader.Value?.ToString();
             var result = Activator.CreateInstance(objectType, args: strId);
 
             return result;

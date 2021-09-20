@@ -161,12 +161,12 @@ namespace Siam.IdentityServer.Quickstart.Device
             var vm = new DeviceAuthorizationViewModel
             {
                 UserCode = userCode,
-                Description = model != null ? model.Description : null,
+                Description = model?.Description,
 
-                RememberConsent = model != null ? model.RememberConsent : true,
-                ScopesConsented = model != null ? model.ScopesConsented != null ? model.ScopesConsented : Enumerable.Empty<string>() : Enumerable.Empty<string>(),
+                RememberConsent = model?.RememberConsent ?? true,
+                ScopesConsented = model != null ? model.ScopesConsented ?? Enumerable.Empty<string>() : Enumerable.Empty<string>(),
 
-                ClientName = request.Client.ClientName != null ? request.Client.ClientName : request.Client.ClientId,
+                ClientName = request.Client.ClientName ?? request.Client.ClientId,
                 ClientUrl = request.Client.ClientUri,
                 ClientLogoUrl = request.Client.LogoUri,
                 AllowRememberConsent = request.Client.AllowRememberConsent
@@ -198,7 +198,7 @@ namespace Siam.IdentityServer.Quickstart.Device
             return new ScopeViewModel
             {
                 Value = identity.Name,
-                DisplayName = identity.DisplayName != null ? identity.DisplayName : identity.Name,
+                DisplayName = identity.DisplayName ?? identity.Name,
                 Description = identity.Description,
                 Emphasize = identity.Emphasize,
                 Required = identity.Required,
@@ -212,7 +212,7 @@ namespace Siam.IdentityServer.Quickstart.Device
             {
                 Value = parsedScopeValue.RawValue,
                 // todo: use the parsed scope value in the display?
-                DisplayName = apiScope.DisplayName != null ? apiScope.DisplayName : apiScope.Name,
+                DisplayName = apiScope.DisplayName ?? apiScope.Name,
                 Description = apiScope.Description,
                 Emphasize = apiScope.Emphasize,
                 Required = apiScope.Required,

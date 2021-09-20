@@ -16,9 +16,9 @@ namespace Platformex.Tests
         private readonly PlatformexTestKit _testKit;
         private TAggregate _aggregate;
         private TState State => _aggregate.TestOnlyGetState();
-        public TIdentity AggregateId => _aggregate != null ? _aggregate.GetId<TIdentity>() : null;
-        private readonly Stack<(Type, Result)> _commandResults = new Stack<(Type, Result)>();
-        private readonly Stack<IDomainEvent> _events = new Stack<IDomainEvent>();
+        public TIdentity AggregateId => _aggregate?.GetId<TIdentity>();
+        private readonly Stack<(Type, Result)> _commandResults = new();
+        private readonly Stack<IDomainEvent> _events = new();
 
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
@@ -99,7 +99,7 @@ namespace Platformex.Tests
 
         public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectState(Predicate<TState> aggregateEventPredicate = null)
         {
-            Assert.True(aggregateEventPredicate != null ? aggregateEventPredicate(State) : null,
+            Assert.True(aggregateEventPredicate?.Invoke(State),
                 $"Невалидное состояние агрегата {typeof(TAggregate).Name}");
             return this;
         }
@@ -107,11 +107,11 @@ namespace Platformex.Tests
         public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectResult(Predicate<Result> aggregateReply = null)
         {
             if (_commandResults.Count == 0)
-                Assert.True(false, $"Нет ожидаемого результат команды.");
+                Assert.True(false, "Нет ожидаемого результат команды.");
 
             var tuple = _commandResults.Pop();
-            Assert.True(aggregateReply != null ? aggregateReply(tuple.Item2) : null,
-                    $"Невалидный результ выполнения команды {tuple.Item1.Name}");
+            Assert.True(aggregateReply?.Invoke(tuple.Item2),
+                    $"Невалидный результат выполнения команды {tuple.Item1.Name}");
             return this;
         }
 
