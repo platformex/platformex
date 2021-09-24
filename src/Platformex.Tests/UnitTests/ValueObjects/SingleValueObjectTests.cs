@@ -1,11 +1,14 @@
 ﻿using FluentAssertions;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.ValueObjects
 {
+    [Category(Categories.Abstractions)]
+    [Collection(Collections.Only)]
     public class SingleValueObjectTests : Test
     {
         public class StringSingleValue : SingleValueObject<string>

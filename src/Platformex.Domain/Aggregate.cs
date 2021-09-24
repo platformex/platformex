@@ -13,9 +13,11 @@ using System.Threading.Tasks;
 
 namespace Platformex.Domain
 {
-    public abstract class Aggregate<TIdentity, TState, TAggregate> : Grain, IAggregate<TIdentity>, IIncomingGrainCallFilter
+    public abstract class Aggregate<TIdentity, TState, TAggregate> : Grain, IIncomingGrainCallFilter,
+        IGrainWithStringKey
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
+        where TAggregate : IAggregate
     {
         private static readonly IReadOnlyDictionary<Type, Func<TAggregate, ICommand, Task<Result>>> DoCommands;
         private ICommand _pinnedCommand;
@@ -76,12 +78,12 @@ namespace Platformex.Domain
 
         }
 
-        private async Task RollbackApplyingCommand()
+        private async Task<bool> RollbackApplyingCommand()
         {
             _uncommitedEvents.Clear();
             _pinnedCommand = null;
             SecurityContext = null;
-            await State.RollbackTransaction();
+            return await State.RollbackTransaction();
         }
 
         private async Task AfterApplyingCommand()
@@ -127,7 +129,8 @@ namespace Platformex.Domain
         }
 
 
-        protected TIdentity AggregateId => State != null ? State.Identity != null ? State.Identity : this.GetId<TIdentity>() : this.GetId<TIdentity>();
+        protected TIdentity Id => State != null ? State.Identity != null ? 
+            State.Identity : this.GetId<TIdentity>() : this.GetId<TIdentity>();
         protected TState State { get; private set; }
         internal void TestOnlySetState(TState newState) => State = newState;
         internal TState TestOnlyGetState() => State;
@@ -158,7 +161,10 @@ namespace Platformex.Domain
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] state loading...");
 
                 State = ServiceProvider.GetService<TState>() != null ? ServiceProvider.GetService<TState>() : Activator.CreateInstance<TState>();
-                if (State != null) await State.LoadState(this.GetId<TIdentity>());
+                if (State != null)
+                {
+                    IsNew = await State.LoadState(this.GetId<TIdentity>());
+                }
 
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] state loaded.");
 
@@ -172,6 +178,8 @@ namespace Platformex.Domain
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] activated.");
         }
 
+        public bool IsNew { get; private set; } 
+
         public override Task OnDeactivateAsync()
         {
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] activated.");
@@ -180,12 +188,16 @@ namespace Platformex.Domain
 
         private readonly List<IDomainEvent> _uncommitedEvents = new();
 
-        protected async Task Emit<TEvent>(TEvent e) where TEvent : class, IAggregateEvent<TIdentity>
+
+        protected async Task Emit<TEvent>(TEvent e, IEventMetadata metadata = null) where TEvent : class, IAggregateEvent<TIdentity>
         {
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] preparing to emit event {e.GetPrettyName()}...");
-            var metadata = CreateEventMetadata(e);
+            var mdata = CreateEventMetadata(e);
+            if (metadata != null)
+                mdata.Merge(metadata);
+
             var domainEvent = new DomainEvent<TIdentity, TEvent>(e.Id, e, DateTimeOffset.Now, 1,
-                metadata);
+                mdata);
             try
             {
                 Logger.LogInformation($"Aggregate [{GetPrettyName()}] changes state ...");
@@ -196,6 +208,8 @@ namespace Platformex.Domain
 
                 _uncommitedEvents.Add(domainEvent);
 
+                IsNew = false;
+
             }
             catch (Exception ex)
             {
@@ -205,16 +219,16 @@ namespace Platformex.Domain
             Logger.LogInformation($"Aggregate [{GetPrettyName()}] fired event {e.GetPrettyName()}...");
         }
 
-        private IEventMetadata CreateEventMetadata(IAggregateEvent @event)
+        private EventMetadata CreateEventMetadata(IAggregateEvent @event)
         {
             var now = DateTimeOffset.UtcNow;
-            var eventId = EventId.NewDeterministic(GuidFactories.Deterministic.Namespaces.Events, $"{AggregateId.Value}-v{now.ToUnixTime()}");
+            var eventId = EventId.NewDeterministic(GuidFactories.Deterministic.Namespaces.Events, $"{Id.Value}-v{now.ToUnixTime()}");
             var eventMetadata = new EventMetadata()
             {
                 Timestamp = now,
                 AggregateSequenceNumber = 0,
                 AggregateName = GetAggregateName(),
-                AggregateId = AggregateId.Value,
+                AggregateId = Id.Value,
                 EventId = eventId,
                 EventName = @event.GetPrettyName(),
                 EventVersion = 1
@@ -280,7 +294,7 @@ namespace Platformex.Domain
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message, e);
-                    await RollbackApplyingCommand();
+                    IsNew = await RollbackApplyingCommand();
                     context.Result = Result.Fail(e.Message);
                     return;
                 }

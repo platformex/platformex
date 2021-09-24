@@ -1,10 +1,13 @@
 ﻿using FluentAssertions;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.ValueObjects
 {
+    [Category(Categories.Abstractions)]
+    [Collection(Collections.Only)]
     public class ValueObjectTests : Test
     {
         public class StringObject : ValueObject

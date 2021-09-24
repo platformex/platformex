@@ -27,28 +27,28 @@ namespace Platformex
         public ISourceId SourceId
         {
             get => GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v));
-            set => Add(MetadataKeys.SourceId, value.Value);
+            set => AddOrUpdateValue(MetadataKeys.SourceId, value.Value);
         }
 
         [JsonIgnore]
         public string EventName
         {
             get => GetMetadataValue(MetadataKeys.EventName);
-            set => Add(MetadataKeys.EventName, value);
+            set => AddOrUpdateValue(MetadataKeys.EventName, value);
         }
 
         [JsonIgnore]
         public int EventVersion
         {
             get => GetMetadataValue(MetadataKeys.EventVersion, int.Parse);
-            set => Add(MetadataKeys.EventVersion, value.ToString());
+            set => AddOrUpdateValue(MetadataKeys.EventVersion, value.ToString());
         }
 
         [JsonIgnore]
         public DateTimeOffset Timestamp
         {
             get => GetMetadataValue(MetadataKeys.Timestamp, DateTimeOffset.Parse);
-            set => Add(MetadataKeys.Timestamp, value.ToString("O"));
+            set => AddOrUpdateValue(MetadataKeys.Timestamp, value.ToString("O"));
         }
 
         [JsonIgnore]
@@ -60,28 +60,28 @@ namespace Platformex
         public int AggregateSequenceNumber
         {
             get => GetMetadataValue(MetadataKeys.AggregateSequenceNumber, int.Parse);
-            set => Add(MetadataKeys.AggregateSequenceNumber, value.ToString());
+            set => AddOrUpdateValue(MetadataKeys.AggregateSequenceNumber, value.ToString());
         }
 
         [JsonIgnore]
         public string AggregateId
         {
             get => GetMetadataValue(MetadataKeys.AggregateId);
-            set => Add(MetadataKeys.AggregateId, value);
+            set => AddOrUpdateValue(MetadataKeys.AggregateId, value);
         }
 
         [JsonIgnore]
         public IEventId EventId
         {
             get => GetMetadataValue(MetadataKeys.EventId, Platformex.EventId.With);
-            set => Add(MetadataKeys.EventId, value.Value);
+            set => AddOrUpdateValue(MetadataKeys.EventId, value.Value);
         }
 
         [JsonIgnore]
         public string AggregateName
         {
             get => GetMetadataValue(MetadataKeys.AggregateName);
-            set => Add(MetadataKeys.AggregateName, value);
+            set => AddOrUpdateValue(MetadataKeys.AggregateName, value);
         }
 
         public Metadata()

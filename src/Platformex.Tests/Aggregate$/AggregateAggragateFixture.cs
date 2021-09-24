@@ -8,7 +8,7 @@ namespace Platformex.Tests
 {
     public class AggregateFixture<TIdentity, TAggregate, TState, TStateImpl> : IAggregateFixtureArranger<TAggregate, TIdentity, TState>,
         IAggregateFixtureExecutor<TAggregate, TIdentity, TState>, IAggregateFixtureAsserter<TAggregate, TIdentity, TState>
-        where TAggregate : Aggregate<TIdentity, TState, TAggregate>
+        where TAggregate : Aggregate<TIdentity, TState, TAggregate>, IAggregate<TIdentity>
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
         where TStateImpl : AggregateState<TIdentity, TStateImpl>, TState
@@ -18,7 +18,7 @@ namespace Platformex.Tests
         private TState State => _aggregate.TestOnlyGetState();
         public TIdentity AggregateId => _aggregate?.GetId<TIdentity>();
         private readonly Stack<(Type, Result)> _commandResults = new();
-        private readonly Stack<IDomainEvent> _events = new();
+        private readonly Queue<IDomainEvent> _events = new();
 
         private bool _isMonitoring;
         private void StopMonitoring() => _isMonitoring = false;
@@ -35,7 +35,7 @@ namespace Platformex.Tests
             _testKit.Platform.EventPublished += (_, args) =>
             {
                 if (_isMonitoring)
-                    _events.Push(args.DomainEvent);
+                    _events.Enqueue(args.DomainEvent);
             };
 
             _aggregate = _testKit.TestKitSilo.CreateGrainAsync<TAggregate>(aggregateId.Value).GetAwaiter().GetResult();
@@ -91,7 +91,7 @@ namespace Platformex.Tests
         {
             if (_events.Count == 0)
                 Assert.True(false, $"Нет ожидаемого события {typeof(TAggregateEvent).Name}.");
-            var type = _events.Pop().GetType();
+            var type = _events.Dequeue().GetType();
             Assert.True(type == typeof(TAggregateEvent),
                 $"Невалидное событие, ожидалось {typeof(TAggregateEvent).Name} вместо {type.Name}");
             return this;
@@ -120,7 +120,7 @@ namespace Platformex.Tests
             Predicate<IDomainEvent<TIdentity, TAggregateEvent>> domainEventPredicate = null)
             where TAggregateEvent : IAggregateEvent<TIdentity>
         {
-            var @event = _events.Pop();
+            var @event = _events.Dequeue();
             Assert.True(@event.EventType == typeof(TAggregateEvent),
                 $"Невалидное событие, ожидалось {typeof(TAggregateEvent).Name} вместо {@event.EventType.Name}");
 

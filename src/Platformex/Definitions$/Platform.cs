@@ -14,6 +14,10 @@ namespace Platformex
         Definitions Definitions { get; }
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
         Task<object> QueryAsync(IQuery query);
+
+        Task<Result> ExecuteAsync<TIdentity>(TIdentity aggregateId, ICommand command)
+            where TIdentity : IIdentity;
+
         Task<Result> ExecuteAsync(string aggregateId, ICommand command);
         Task PublishEvent(IDomainEvent domainEvent);
         TDomainService Service<TDomainService>() where TDomainService : IService;

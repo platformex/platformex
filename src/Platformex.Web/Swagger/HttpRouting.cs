@@ -7,7 +7,7 @@ namespace Platformex.Web.Swagger
         public const string DomainRouteParam = "domainRouteParam";
         public const string AggregateRouteParam = "aggregateRouteParam";
         public const string ActionRouteParam = "actionRouteParam";
-        public const string ActionFormat = "api/{DomainName}/{AggregateName}/{AggregateId}/{ActionName}";
+        public const string ActionFormat = "api/{DomainName}/{AggregateName}/{Id}/{ActionName}";
         public const string SingletonActionFormat = "api/{DomainName}/{AggregateName}/{ActionName}";
 
         public class Params

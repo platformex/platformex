@@ -35,4 +35,8 @@
       <None Remove="Platformex.Tests.csproj.DotSettings" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="UnitTests\Abstractions\" />
+    </ItemGroup>
+
 </Project>

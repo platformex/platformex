@@ -19,6 +19,7 @@ namespace Platformex.Tests
             Builder = new PlatformBuilder(Platform);
             Silo.AddService<IPlatform>(Platform);
 
+
         }
     }
 }

@@ -16,7 +16,9 @@ namespace Platformex.Infrastructure
         public Definitions Definitions { get; } = new();
 
         private IClusterClient _client;
-
+        public Task<Result> ExecuteAsync<TIdentity>(TIdentity aggregateId, ICommand command) 
+            where TIdentity : IIdentity 
+            => ExecuteAsync(aggregateId.Value, command);
 
         public TAggregate GetAggregate<TAggregate>(string id) where TAggregate : IAggregate => _client.GetGrain<TAggregate>(id);
 

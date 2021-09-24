@@ -5,7 +5,6 @@ using Orleans.Hosting;
 using Platformex.Domain;
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace Platformex.Infrastructure
 {
@@ -58,17 +57,11 @@ namespace Platformex.Infrastructure
             {
                 if (context.Arguments is {Length: 1})
                 {
-                    var argument = context.Arguments[0];
-                    var rulesAttribute = argument.GetType().GetCustomAttribute<RulesAttribute>();
-                    if (rulesAttribute != null)
+                    var result = RulesHelper.ProcessRules(context.Arguments[0]);
+                    if (result != null)
                     {
-                        var rules = (IRules)Activator.CreateInstance(rulesAttribute.RulesType);
-                        var result = rules.Validate(argument);
-                        if (!result.IsValid)
-                        {
-                            context.Result = new Result(result);
-                            return;
-                        }
+                        context.Result = new Result(result);
+                        return;
                     }
                 }
 
@@ -132,17 +125,11 @@ namespace Platformex.Infrastructure
             {
                 if (context.Arguments is {Length: 1})
                 {
-                    var argument = context.Arguments[0];
-                    var rulesAttribute = argument.GetType().GetCustomAttribute<RulesAttribute>();
-                    if (rulesAttribute != null)
+                    var result = RulesHelper.ProcessRules(context.Arguments[0]);
+                    if (result != null)
                     {
-                        var rules = (IRules)Activator.CreateInstance(rulesAttribute.RulesType);
-                        var result = rules.Validate(argument);
-                        if (!result.IsValid)
-                        {
-                            context.Result = new Result(result);
-                            return;
-                        }
+                        context.Result = new Result(result);
+                        return;
                     }
                 }
 

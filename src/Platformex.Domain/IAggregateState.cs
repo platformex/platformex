@@ -16,6 +16,8 @@ namespace Platformex.Domain
 
         Task BeginTransaction();
         Task CommitTransaction();
-        Task RollbackTransaction();
+
+        /// <returns>true - если состояние создано (новый объект) false - состояние загружено из БД</returns>
+        Task<bool> RollbackTransaction();
     }
 }

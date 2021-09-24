@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Platformex.Domain;
 
 namespace Platformex.Application
 {
@@ -7,7 +8,9 @@ namespace Platformex.Application
     {
         Guid Id { get; set; }
     }
-    public abstract class AggregateStateEx<TIdentity, TAggregateState, TModel> : AggregateState<TIdentity, TAggregateState>
+    public abstract class AggregateStateEx<TIdentity, TAggregateState, TModel> : 
+        AggregateState<TIdentity, TAggregateState>
+        where TAggregateState : IAggregateState<TIdentity>
         where TIdentity : Identity<TIdentity>
         where TModel : IModel
     {
@@ -41,10 +44,10 @@ namespace Platformex.Application
 
         public override Task BeginTransaction() => Provider.BeginTransaction();
         public override Task CommitTransaction() => Provider.CommitTransaction();
-        public override async Task RollbackTransaction()
+        public override async Task<bool> RollbackTransaction()
         {
             await Provider.RollbackTransaction();
-            await LoadStateInternal(Identity);
+            return await LoadStateInternal(Identity);
         }
 
         protected override async Task AfterApply(IAggregateEvent<TIdentity> @event)

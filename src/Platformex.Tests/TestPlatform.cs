@@ -11,6 +11,11 @@ namespace Platformex.Tests
         public event EventHandler<EventPublishedArgs> EventPublished;
         public event EventHandler<CommandExecutedArgs> CommandExecuted;
 
+
+        public Task<Result> ExecuteAsync<TIdentity>(TIdentity aggregateId, ICommand command) 
+            where TIdentity : IIdentity 
+            => ExecuteAsync(aggregateId.Value, command);
+
         public Task<Result> ExecuteAsync(string aggregateId, ICommand command)
         {
             if (CommandExecuted != null)

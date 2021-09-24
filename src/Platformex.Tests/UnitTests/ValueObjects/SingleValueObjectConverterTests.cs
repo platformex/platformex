@@ -1,9 +1,12 @@
-﻿using FluentAssertions;
+﻿using System.ComponentModel;
+using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 
 namespace Platformex.Tests.UnitTests.ValueObjects
 {
+    [Category(Categories.Abstractions)]
+    [Collection(Collections.Only)]
     public class SingleValueObjectConverterTests : Test
     {
         public enum MagicEnum

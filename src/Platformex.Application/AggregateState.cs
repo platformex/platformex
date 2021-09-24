@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 namespace Platformex.Application
 {
     public abstract class AggregateState<TIdentity, TAggregateState> :
-        IAggregateState<TIdentity> where TIdentity : Identity<TIdentity>
+        IAggregateState<TIdentity> 
+        where TIdentity : Identity<TIdentity>
+        where TAggregateState : IAggregateState<TIdentity>
     {
         protected abstract Task<bool> LoadStateInternal(TIdentity id);
         public abstract Task BeginTransaction();
         public abstract Task CommitTransaction();
-        public abstract Task RollbackTransaction();
+        public abstract Task<bool> RollbackTransaction();
 
         private static readonly IReadOnlyDictionary<Type, Action<TAggregateState, IAggregateEvent>> ApplyMethods;
 
