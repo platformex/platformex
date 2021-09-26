@@ -15,7 +15,10 @@ namespace Platformex.Tests.TestHelpers
     ICanDo<PoisonTestAggregateCommand, TestAggregateId>,
     ICanDo<TestDomainErrorCommand, TestAggregateId>,
     ICanDo<TestFailedExecutionResultCommand, TestAggregateId>,
-    ICanDo<TestSuccessExecutionResultCommand, TestAggregateId>,
+    ICanDo<TestUnauthorizedCommand, TestAggregateId>,
+    ICanDo<TestForbiddenCommand, TestAggregateId>,
+    ICanDo<TestUnauthorizedCommand2, TestAggregateId>,
+    ICanDo<TestForbiddenCommand2, TestAggregateId>,
     ICanDo<BadCommand, TestAggregateId>
     {
 
@@ -158,6 +161,26 @@ namespace Platformex.Tests.TestHelpers
         public Task<Result> Do(BadCommand command)
         {
             throw new Exception("Bad Command");
+        }
+
+        public Task<Result> Do(TestUnauthorizedCommand command)
+        {
+            return Task.FromResult(Result.Success);
+        }
+
+        public Task<Result> Do(TestForbiddenCommand command)
+        {
+            return Task.FromResult(Result.Success);
+        }
+
+        public Task<Result> Do(TestUnauthorizedCommand2 command)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        public Task<Result> Do(TestForbiddenCommand2 command)
+        {
+            throw new ForbiddenException();
         }
     }
 }

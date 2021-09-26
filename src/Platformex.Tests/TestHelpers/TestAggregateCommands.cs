@@ -47,5 +47,19 @@ namespace Platformex.Tests.TestHelpers
             RuleFor(x => x.IsValid).Must(x => x);
         }
     }
+    [Authorized]
+    public record TestUnauthorizedCommand(TestAggregateId Id)
+        : Command, ICommand<TestAggregateId>;
+
+    [HasRoles("Admin")]
+    public record TestForbiddenCommand(TestAggregateId Id)
+        : Command, ICommand<TestAggregateId>;
+    public record TestUnauthorizedCommand2(TestAggregateId Id)
+        : Command, ICommand<TestAggregateId>;
+    public record TestForbiddenCommand2(TestAggregateId Id)
+        : Command, ICommand<TestAggregateId>;
+
+    public record TestNotImplementedCommand(TestAggregateId Id)
+        : Command, ICommand<TestAggregateId>;
 
 }

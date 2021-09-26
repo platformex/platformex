@@ -293,5 +293,93 @@ namespace Platformex.Tests.UnitTests.Aggregates
                 .ThenExpectResult(r => !r.IsSuccess);
         }
 
+        [Fact]
+        public void InitialState_TestingUnauthorized()
+        {
+            var aggregateId = TestAggregateId.New;
+            var command = new TestUnauthorizedCommand(aggregateId);
+
+            var fixture = new AggregateFixture<TestAggregateId, TestAggregate, 
+                ITestAggregateState, TestAggregateState>(this);
+
+            fixture.For(aggregateId)
+                .GivenNothing()
+                .When(command)
+                .ThenExpectResult(r => r.Should().BeOfType<UnauthorizedResult>().And.Ok());
+        }
+
+        [Fact]
+        public void InitialState_TestingUnauthorized2()
+        {
+            var aggregateId = TestAggregateId.New;
+            var command = new TestUnauthorizedCommand2(aggregateId);
+
+            var fixture = new AggregateFixture<TestAggregateId, TestAggregate, 
+                ITestAggregateState, TestAggregateState>(this);
+
+            fixture.For(aggregateId)
+                .GivenNothing()
+                .When(command)
+                .ThenExpectResult(r => r.Should().BeOfType<UnauthorizedResult>().And.Ok());
+        }
+        [Fact]
+        public void InitialState_TestingUnauthorized3()
+        {
+            var aggregateId = TestAggregateId.New;
+            var command = new TestUnauthorizedCommand(aggregateId);
+
+            var fixture = new AggregateFixture<TestAggregateId, TestAggregate, 
+                ITestAggregateState, TestAggregateState>(this);
+
+            fixture.For(aggregateId)
+                .GivenUser("test", "Test User")
+                .When(command)
+                .ThenExpectResult(r => r.Should().BeEquivalentTo(Result.Success).And.Ok());
+        }
+
+        [Fact]
+        public void InitialState_TestingForbidden()
+        {
+            var aggregateId = TestAggregateId.New;
+            var command = new TestForbiddenCommand(aggregateId);
+
+            var fixture = new AggregateFixture<TestAggregateId, TestAggregate, 
+                ITestAggregateState, TestAggregateState>(this);
+
+            fixture.For(aggregateId)
+                .GivenNothing()
+                .When(command)
+                .ThenExpectResult(r => r.Should().BeOfType<ForbiddenResult>().And.Ok());
+        }
+
+        [Fact]
+        public void InitialState_TestingForbidden2()
+        {
+            var aggregateId = TestAggregateId.New;
+            var command = new TestForbiddenCommand2(aggregateId);
+
+            var fixture = new AggregateFixture<TestAggregateId, TestAggregate, 
+                ITestAggregateState, TestAggregateState>(this);
+
+            fixture.For(aggregateId)
+                .GivenNothing()
+                .When(command)
+                .ThenExpectResult(r => r.Should().BeOfType<ForbiddenResult>().And.Ok());
+        }
+        [Fact]
+        public void InitialState_TestingForbidden3()
+        {
+            var aggregateId = TestAggregateId.New;
+            var command = new TestForbiddenCommand(aggregateId);
+
+            var fixture = new AggregateFixture<TestAggregateId, TestAggregate, 
+                ITestAggregateState, TestAggregateState>(this);
+
+            fixture.For(aggregateId)
+                .GivenUser("test", "Test User", new []{"Admin"})
+                .When(command)
+                .ThenExpectResult(r => r.Should().BeEquivalentTo(Result.Success).And.Ok());
+        }
+
     }
 }

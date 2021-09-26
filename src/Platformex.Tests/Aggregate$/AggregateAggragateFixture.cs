@@ -42,7 +42,21 @@ namespace Platformex.Tests
             return this;
         }
 
+
         public IAggregateFixtureExecutor<TAggregate, TIdentity, TState> GivenNothing() => this;
+
+        private CommandMetadata _metadata;
+        public IAggregateFixtureExecutor<TAggregate, TIdentity, TState> GivenUser(string id, string name, string[] roles)
+        {
+            _metadata = new CommandMetadata(new []
+            {
+                new KeyValuePair<string, string>(MetadataKeys.UserId, id),
+                new KeyValuePair<string, string>(MetadataKeys.UserName, name),
+                new KeyValuePair<string, string>(MetadataKeys.Roles, string.Join(',', roles ?? Array.Empty<string>()))
+            });
+            return this;
+        }
+
         public IAggregateFixtureExecutor<TAggregate, TIdentity, TState> Given(params IAggregateEvent<TIdentity>[] aggregateEvents)
         {
             foreach (var aggregateEvent in aggregateEvents)
@@ -63,6 +77,8 @@ namespace Platformex.Tests
         {
             foreach (var command in commands)
             {
+                if (_metadata != null)
+                    ((CommandMetadata)command.Metadata).Merge(_metadata);
                 _aggregate.DoAsync(command).GetAwaiter().GetResult();
             }
 
@@ -75,6 +91,9 @@ namespace Platformex.Tests
             StartMonitoring();
             foreach (var command in commands)
             {
+                if (_metadata != null)
+                    ((CommandMetadata)command.Metadata).Merge(_metadata);
+
                 _commandResults.Push((command.GetType(), _aggregate.DoAsync(command).GetAwaiter().GetResult()));
             }
             StopMonitoring();

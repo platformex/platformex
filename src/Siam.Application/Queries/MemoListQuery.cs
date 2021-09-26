@@ -20,6 +20,11 @@ namespace Siam.Application.Queries
         public MemoStatus Status { get; set; }
         public ICollection<MemoStatusHistory> History { get; set; } = new List<MemoStatusHistory>();
     }
+    public class Page<T>
+    {
+        public IEnumerable<T> Items { get; set; }
+        public int TotalCount { get; set; }
+    }
 
     //Обработчик запроса
     public class DocumentInfoQueryHandler : QueryHandler<MemoListQuery, Page<MemoListItem>>

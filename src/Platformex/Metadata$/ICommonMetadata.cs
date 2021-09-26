@@ -14,6 +14,7 @@ namespace Platformex
     {
         string UserId { get; }
         string UserName { get; }
+        string Roles { get; }
         string GetMetadataValue(string key);
         T GetMetadataValue<T>(string key, Func<string, T> converter);
     }

@@ -73,10 +73,15 @@ namespace Platformex.Web
             var usr = context.User;
             if (usr.Identity == null) return new Dictionary<string, string>();
 
+            var roles = usr.Claims
+                .Where(i => i.Type == ClaimTypes.Role && !string.IsNullOrEmpty(i.Value))
+                .Select(i=>i.Value).ToArray();
+
             var result = new Dictionary<string, string>
             {
                 { MetadataKeys.UserName, usr.Claims.FirstOrDefault(i => i.Type == JwtClaimTypes.Id)?.Value},
-                { MetadataKeys.UserId, usr.Claims.FirstOrDefault(i => i.Type == ClaimTypes.NameIdentifier)?.Value}
+                { MetadataKeys.UserId, usr.Claims.FirstOrDefault(i => i.Type == ClaimTypes.NameIdentifier)?.Value},
+                { MetadataKeys.Roles, string.Join(',', roles)}
             };
 
             return result;

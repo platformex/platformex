@@ -28,13 +28,5 @@ namespace Platformex
             Metadata = new CommandMetadata(SourceId.New);
         }
 
-        protected Command(ICommandMetadata metadata)
-        {
-            Metadata = metadata;
-        }
-
     }
-
-
-
 }

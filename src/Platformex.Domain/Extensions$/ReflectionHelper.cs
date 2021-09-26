@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,17 +8,6 @@ namespace Platformex.Domain
 {
     public static class ReflectionHelper
     {
-        public static string GetCodeBase(Assembly assembly, bool includeFileName = false)
-        {
-            var codebase = assembly.CodeBase;
-            var uri = new UriBuilder(codebase);
-            var path = Path.GetFullPath(Uri.UnescapeDataString(uri.Path));
-            var codeBase = includeFileName ?
-                path :
-                Path.GetDirectoryName(path);
-            return codeBase;
-        }
-
         /// <summary>
         /// Handles correct upcast. If no upcast was needed, then this could be exchanged to an <c>Expression.Call</c>
         /// and an <c>Expression.Lambda</c>.

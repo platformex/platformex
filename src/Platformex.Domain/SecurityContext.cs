@@ -32,6 +32,7 @@ namespace Platformex.Domain
 
             UserId = metadata.UserId;
             UserName = metadata.UserName;
+            _roles = metadata.Roles?.Split(",") ?? Array.Empty<string>();
         }
 
         public void HasRoles(params string[] roles)
@@ -40,7 +41,9 @@ namespace Platformex.Domain
                 throw new ForbiddenException();
         }
 
-        public bool CheckRoles(params string[] roles) => roles.Length == 0 || _roles.Intersect(roles).Count() != roles.Length;
+        public bool CheckRoles(params string[] roles) => 
+            // ReSharper disable once AssignNullToNotNullAttribute
+            _roles == null || roles?.Length == 0 || _roles.Intersect(roles).Count() == roles.Length;
 
         internal static string[] GetRolesFrom(object obj)
         {
